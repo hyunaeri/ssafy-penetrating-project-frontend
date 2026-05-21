@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { completeSignup, type SignupRole } from "@/entities/user";
 import { setAccessToken } from "@/entities/session";
+import { notifyError, notifySuccess, toastMessages } from "@/shared/ui";
 import type { SignupFormValues } from "@/features/auth/signup/model/types";
 
 type UseSignupSubmitParams = {
@@ -31,11 +32,16 @@ export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
       });
 
       setAccessToken(response.accessToken);
+      notifySuccess(toastMessages.signup.success);
       router.replace("/main");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "회원가입에 실패했습니다."
-      );
+      const message =
+        err instanceof Error ? err.message : toastMessages.signup.fail.description;
+      setError(message);
+      notifyError({
+        title: toastMessages.signup.fail.title,
+        description: message,
+      });
       setSubmitting(false);
     }
   };

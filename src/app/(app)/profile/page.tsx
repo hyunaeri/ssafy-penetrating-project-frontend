@@ -3,15 +3,25 @@
 import { useRouter } from "next/navigation";
 import { logout } from "@/entities/user";
 import { ProfileContent, useProfile } from "@/features/profile";
-import { PrimaryButton } from "@/shared/ui";
+import {
+  notifyError,
+  notifySuccess,
+  PrimaryButton,
+  toastMessages,
+} from "@/shared/ui";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user, loading, error, reload } = useProfile();
 
   const handleLogout = async () => {
-    await logout();
-    router.replace("/login");
+    try {
+      await logout();
+      notifySuccess(toastMessages.logout.success);
+      router.replace("/login");
+    } catch {
+      notifyError(toastMessages.logout.fail);
+    }
   };
 
   return (
