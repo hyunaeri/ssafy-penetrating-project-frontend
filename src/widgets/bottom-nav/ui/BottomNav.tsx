@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isBottomNavItemActive } from "@/widgets/bottom-nav/lib/is-nav-item-active";
 import { BOTTOM_NAV_ITEMS } from "@/widgets/bottom-nav/model/items";
 import { NavIcon } from "@/widgets/bottom-nav/ui/NavIcon";
 
@@ -15,7 +16,7 @@ export function BottomNav() {
     >
       <ul className="grid h-16 grid-cols-5">
         {BOTTOM_NAV_ITEMS.map((item) => {
-          const active = pathname === item.href;
+          const active = isBottomNavItemActive(pathname, item);
 
           return (
             <li key={item.href}>
