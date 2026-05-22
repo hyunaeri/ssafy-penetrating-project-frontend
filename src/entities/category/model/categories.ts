@@ -1,19 +1,62 @@
 export type FoodCategory = {
-  id: string;
-  label: string;
-  image: string;
+  /** DB `food_categories.id` — 동적 라우팅 `/categories/[id]` 에 사용 */
+  id: number;
+  /** DB `food_categories.name` */
+  name: string;
+  /** DB `food_categories.image_url` (현재는 로컬 public 이미지 경로) */
+  imageUrl: string;
 };
 
-/** 메인 화면 카테고리 (표시 순서). */
+/** 메인 화면 카테고리 (DB id·표시 순서와 동일). */
 export const FOOD_CATEGORIES: FoodCategory[] = [
-  { id: "franchise", label: "프랜차이즈", image: "franchise.png" },
-  { id: "chicken", label: "치킨", image: "chicken.png" },
-  { id: "pizza", label: "피자/양식", image: "pizza.png" },
-  { id: "china", label: "중국집", image: "china.png" },
-  { id: "korea", label: "한식", image: "korea.png" },
-  { id: "japan", label: "일식/돈까스", image: "japan.png" },
-  { id: "jokbal", label: "족발/보쌈", image: "jokbal.png" },
-  { id: "night", label: "야식", image: "night.png" },
-  { id: "snack", label: "분식", image: "snack.png" },
-  { id: "dessert", label: "카페/디저트", image: "dessert.png" },
+  {
+    id: 1,
+    name: "프랜차이즈",
+    imageUrl: "/images/franchise.png",
+  },
+  {
+    id: 2,
+    name: "치킨",
+    imageUrl: "/images/chicken.png",
+  },
+  {
+    id: 3,
+    name: "피자/양식",
+    imageUrl: "/images/pizza.png",
+  },
+  {
+    id: 4,
+    name: "중국집",
+    imageUrl: "/images/china.png",
+  },
+  {
+    id: 5,
+    name: "한식",
+    imageUrl: "/images/korea.png",
+  },
+  {
+    id: 6,
+    name: "일식/돈까스",
+    imageUrl: "/images/japan.png",
+  },
+  {
+    id: 7,
+    name: "족발/보쌈",
+    imageUrl: "/images/jokbal.png",
+  },
+  {
+    id: 8,
+    name: "야식",
+    imageUrl: "/images/night.png",
+  },
+  {
+    id: 9,
+    name: "분식",
+    imageUrl: "/images/snack.png",
+  },
+  {
+    id: 10,
+    name: "카페/디저트",
+    imageUrl: "/images/dessert.png",
+  },
 ];
