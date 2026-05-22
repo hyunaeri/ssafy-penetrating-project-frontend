@@ -11,12 +11,14 @@ import type { SignupFormValues } from "@/features/auth/signup/model/types";
 type SignupContactFieldsProps = {
   register: UseFormRegister<SignupFormValues>;
   errors: FieldErrors<SignupFormValues>;
+  hasBaseAddress: boolean;
   onOpenAddressSearch: () => void;
 };
 
 export function SignupContactFields({
   register,
   errors,
+  hasBaseAddress,
   onOpenAddressSearch,
 }: SignupContactFieldsProps) {
   return (
@@ -61,6 +63,23 @@ export function SignupContactFields({
           <p className="text-[12px] text-red-600">{errors.address.message}</p>
         )}
       </div>
+      <label className="block space-y-2">
+        <span className="text-[12px] text-muted">
+          상세 주소 <span className="font-normal">(선택)</span>
+        </span>
+        <input
+          type="text"
+          autoComplete="address-line2"
+          disabled={!hasBaseAddress}
+          placeholder={
+            hasBaseAddress
+              ? "동 · 호수 · 아파트명 등 세부 주소"
+              : "주소 검색 후 입력해 주세요."
+          }
+          className={`${SIGNUP_INPUT_CLASS} disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted`}
+          {...register("addressDetail")}
+        />
+      </label>
     </section>
   );
 }

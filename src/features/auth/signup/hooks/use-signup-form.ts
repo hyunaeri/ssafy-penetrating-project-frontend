@@ -10,18 +10,20 @@ export function useSignupForm() {
   const [showPostcode, setShowPostcode] = useState(false);
 
   const form = useForm<SignupFormValues>({
-    defaultValues: { phoneNumber: "", address: "" },
+    defaultValues: { phoneNumber: "", address: "", addressDetail: "" },
     mode: "onChange",
   });
 
   const phoneNumber = form.watch("phoneNumber");
   const address = form.watch("address");
+  const addressDetail = form.watch("addressDetail");
 
   const handleAddressComplete = (data: Address) => {
     form.setValue("address", formatSelectedAddress(data), {
       shouldValidate: true,
       shouldDirty: true,
     });
+    form.setValue("addressDetail", "", { shouldDirty: false });
     setShowPostcode(false);
   };
 
@@ -29,6 +31,7 @@ export function useSignupForm() {
     form,
     phoneNumber,
     address,
+    addressDetail,
     showPostcode,
     openPostcode: () => setShowPostcode(true),
     closePostcode: () => setShowPostcode(false),

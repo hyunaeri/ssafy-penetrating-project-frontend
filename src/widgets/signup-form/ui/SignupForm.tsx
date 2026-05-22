@@ -62,6 +62,7 @@ export function SignupForm() {
         <SignupContactFields
           register={form.register}
           errors={form.formState.errors}
+          hasBaseAddress={Boolean(address.trim())}
           onOpenAddressSearch={openPostcode}
         />
         <SignupRoleSection role={role} onRoleChange={setRole} />

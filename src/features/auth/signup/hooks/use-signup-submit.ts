@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { completeSignup, type SignupRole } from "@/entities/user";
 import { setAccessToken } from "@/entities/session";
 import { notifyError, notifySuccess, toastMessages } from "@/shared/ui";
+import { formatSignupAddress } from "@/features/auth/signup/lib/format-signup-address";
 import type { SignupFormValues } from "@/features/auth/signup/model/types";
 
 type UseSignupSubmitParams = {
@@ -27,7 +28,7 @@ export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
       const response = await completeSignup({
         signupToken,
         phoneNumber: values.phoneNumber.trim(),
-        address: values.address.trim(),
+        address: formatSignupAddress(values.address, values.addressDetail),
         role,
       });
 
