@@ -10,7 +10,7 @@ const TOAST_ICON = "!mt-0 !shrink-0";
 const TOAST_CONTENT = "!flex !min-w-0 !flex-1 !flex-col !gap-0.5";
 const TOAST_TITLE = "!text-[14px] !font-semibold !leading-snug !tracking-normal";
 const TOAST_DESCRIPTION =
-  "!text-[13px] !font-normal !leading-relaxed !tracking-normal !opacity-90";
+  "!whitespace-pre-line !text-[13px] !font-normal !leading-relaxed !tracking-normal !opacity-90";
 
 const TOAST_SUCCESS = `${TOAST_BASE} !bg-white !text-[#14532d] !border-[#86efac]`;
 const TOAST_ERROR = `${TOAST_BASE} !bg-white !text-[#7f1d1d] !border-[#fca5a5]`;

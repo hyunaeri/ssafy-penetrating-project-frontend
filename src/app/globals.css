@@ -9,15 +9,22 @@
   }
 }
 
-/* Sonner: 모바일 셸(max 430px) 상단 중앙 정렬 */
-[data-sonner-toaster] {
+/* Sonner: 모바일 셸(430px) 상단 중앙 — transform 충돌 방지(애니메이션은 토스트 단위) */
+[data-sonner-toaster].app-toaster {
+  --app-toaster-width: min(calc(100vw - 4rem), 360px);
+
+  position: fixed !important;
+  top: 1rem !important;
+  bottom: auto !important;
   left: 50% !important;
   right: auto !important;
-  transform: translateX(-50%);
-  width: min(calc(100vw - 2rem), 430px);
+  margin-left: calc(var(--app-toaster-width) / -2) !important;
+  width: var(--app-toaster-width) !important;
+  max-width: var(--app-toaster-width) !important;
+  transform: none !important;
 }
 
-[data-sonner-toaster] [data-sonner-toast] {
+[data-sonner-toaster].app-toaster [data-sonner-toast] {
   width: 100%;
   margin-left: auto;
   margin-right: auto;

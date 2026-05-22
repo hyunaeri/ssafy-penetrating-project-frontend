@@ -3,7 +3,7 @@ export const toastMessages = {
   login: {
     success: {
       title: "로그인 완료",
-      description: "배달 서비스를 이용해보세요.",
+      description: "지금부터 배달 서비스를 이용해보세요.",
     },
     fail: {
       title: "로그인 실패",
@@ -11,13 +11,13 @@ export const toastMessages = {
     },
     failNoToken: {
       title: "로그인 실패",
-      description: "인증 정보를 찾을 수 없어요. 처음부터 다시 진행해 주세요.",
+      description: "인증 정보를 찾을 수 없어요. \n처음부터 다시 진행해 주세요.",
     },
   },
   signup: {
     success: {
       title: "회원가입 완료",
-      description: "추가 정보 등록이 끝났어요. 메인 화면으로 이동합니다.",
+      description: "추가 정보 등록이 끝났어요.\n메인 화면으로 이동합니다.",
     },
     fail: {
       title: "회원가입 실패",
