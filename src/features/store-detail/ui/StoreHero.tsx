@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { useCartBadge } from "@/features/cart/hooks/use-cart-badge";
+import { CartBadgeDot } from "@/features/cart/ui/CartBadgeDot";
 
 type StoreHeroProps = {
   name: string;
@@ -33,6 +35,7 @@ function HeroIconButton({
 
 export function StoreHero({ name, imageUrl }: StoreHeroProps) {
   const router = useRouter();
+  const { itemCount, hasItems } = useCartBadge();
   const trimmedUrl = imageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = Boolean(trimmedUrl) && !imageFailed;
@@ -74,28 +77,33 @@ export function StoreHero({ name, imageUrl }: StoreHeroProps) {
         </HeroIconButton>
 
         <div className="flex items-center gap-1.5">
-          <Link
-            href="/cart"
-            aria-label="장바구니"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition-colors hover:bg-black/35"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
+          <div className="relative">
+            <Link
+              href="/cart"
+              aria-label={
+                hasItems ? `장바구니, ${itemCount}개 담김` : "장바구니"
+              }
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition-colors hover:bg-black/35"
             >
-              <path d="M6 6h15l-1.5 9h-12L6 6Z" />
-              <path d="M6 6 5 3H3" />
-              <circle cx="9" cy="20" r="1" />
-              <circle cx="18" cy="20" r="1" />
-            </svg>
-          </Link>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M6 6h15l-1.5 9h-12L6 6Z" />
+                <path d="M6 6 5 3H3" />
+                <circle cx="9" cy="20" r="1" />
+                <circle cx="18" cy="20" r="1" />
+              </svg>
+            </Link>
+            <CartBadgeDot count={itemCount} variant="dark" />
+          </div>
         </div>
       </div>
 
