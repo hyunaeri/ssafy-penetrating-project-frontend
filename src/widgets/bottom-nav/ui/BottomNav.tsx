@@ -12,7 +12,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="하단 메뉴"
-      className="fixed bottom-0 left-1/2 z-30 w-full max-w-mobile -translate-x-1/2 border-t border-line bg-white"
+      className="fixed bottom-0 left-0 right-0 z-30 mx-auto w-full max-w-mobile border-t border-line bg-white"
     >
       <ul className="grid h-16 grid-cols-5">
         {BOTTOM_NAV_ITEMS.map((item) => {
