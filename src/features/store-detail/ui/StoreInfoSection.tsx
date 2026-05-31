@@ -57,7 +57,7 @@ export function StoreInfoSection({
   const trimmedAddress = address?.trim();
 
   return (
-    <section className="border-b border-line bg-white px-4 pb-4 pt-3">
+    <section className="border-b border-line/80 bg-white px-4 pb-4 pt-3">
       <div className="flex items-center gap-1">
         <h1 className="min-w-0 flex-1 py-1 text-[22px] font-bold leading-tight tracking-tight text-ink">
           {name}
@@ -85,7 +85,7 @@ export function StoreInfoSection({
       </div>
 
       {infoOpen && (trimmedAddress || trimmedDescription) && (
-        <div className="mt-3 rounded-xl bg-surface px-3.5 py-3 text-[13px] leading-relaxed text-ink">
+        <div className="mt-3 rounded-2xl bg-surface px-3.5 py-3 text-[13px] leading-relaxed text-ink">
           {trimmedAddress && (
             <p>
               <span className="font-semibold text-muted">주소</span>

@@ -51,24 +51,26 @@ export function CartStoreConflictModal({
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="cart-conflict-title"
-        className="relative z-10 w-full max-w-[320px] rounded-2xl bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
+        className="relative z-10 w-full max-w-[320px] rounded-[1.35rem] bg-white p-5 shadow-soft"
       >
         <h2
           id="cart-conflict-title"
-          className="text-[17px] font-bold text-ink"
+          className="text-[17px] font-bold leading-snug text-ink"
         >
           장바구니를 비울까요?
         </h2>
-        <p className="mt-2 text-[14px] leading-relaxed text-muted">{message}</p>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted">
-          다른 매장 메뉴를 담으려면 기존 장바구니를 비우고 새로 담아야 합니다.
-        </p>
+        <div className="mt-2 space-y-1.5 text-[14px] leading-relaxed text-muted">
+          <p>{message}</p>
+          <p>
+            다른 매장 메뉴를 담으려면 기존 장바구니를 비우고 새로 담아야 합니다.
+          </p>
+        </div>
 
         <div className="mt-5 flex gap-2">
           <PrimaryButton
             type="button"
             variant="outline"
-            className="flex-1"
+            className="h-11 flex-1 text-[14px]"
             disabled={loading}
             onClick={onCancel}
           >
@@ -76,7 +78,7 @@ export function CartStoreConflictModal({
           </PrimaryButton>
           <PrimaryButton
             type="button"
-            className="flex-1"
+            className="h-11 flex-1 text-[14px]"
             disabled={loading}
             onClick={onConfirm}
           >

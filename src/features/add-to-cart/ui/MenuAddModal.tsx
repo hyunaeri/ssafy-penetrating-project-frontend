@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import type { MenuResponse } from "@/entities/store";
 import { CartStoreConflictModal } from "@/features/add-to-cart/ui/CartStoreConflictModal";
 import { useAddToCart } from "@/features/add-to-cart/hooks/use-add-to-cart";
+import { notifyCartUpdated } from "@/features/cart/lib/cart-events";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
 import { useBodyScrollLock } from "@/shared/lib/use-body-scroll-lock";
 import { notifyError, notifySuccess, toastMessages } from "@/shared/ui";
@@ -101,6 +102,7 @@ export function MenuAddModal({ menu, minOrderPrice, onClose }: MenuAddModalProps
 
       if (ok) {
         notifySuccess(toastMessages.cart.addSuccess);
+        notifyCartUpdated();
         onClose();
       }
     } catch (err) {
@@ -115,6 +117,7 @@ export function MenuAddModal({ menu, minOrderPrice, onClose }: MenuAddModalProps
       const ok = await confirmReplace();
       if (ok) {
         notifySuccess(toastMessages.cart.addSuccess);
+        notifyCartUpdated();
         onClose();
       }
     } catch (err) {
@@ -226,7 +229,7 @@ export function MenuAddModal({ menu, minOrderPrice, onClose }: MenuAddModalProps
             type="button"
             disabled={submitting}
             onClick={() => void handleAdd(false)}
-            className="flex h-[52px] w-full items-center justify-center rounded-xl bg-[#2ac1bc] text-[16px] font-bold text-white transition-opacity hover:opacity-95 disabled:opacity-60"
+            className="brand-cta h-[52px] w-full text-[16px] font-bold disabled:opacity-60"
           >
             {submitting ? "담는 중…" : `${formatWon(lineTotal)} 담기`}
           </button>

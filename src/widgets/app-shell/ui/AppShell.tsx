@@ -29,14 +29,14 @@ export function AppShell({ children }: AppShellProps) {
 
   if (!ready) {
     return (
-      <div className="mx-auto flex min-h-screen w-full max-w-mobile items-center justify-center bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.04)]">
+      <div className="shell-frame flex min-h-screen items-center justify-center">
         <p className="text-[14px] text-muted">불러오는 중입니다</p>
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto min-h-screen w-full max-w-mobile bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.04)]">
+    <div className="shell-frame relative min-h-screen">
       <div
         style={
           hideBottomNav ? undefined : { paddingBottom: BOTTOM_NAV_HEIGHT_PX }

@@ -12,11 +12,11 @@ export function PrimaryButton({
   ...props
 }: PrimaryButtonProps) {
   const base =
-    "flex h-12 w-full items-center justify-center text-[14px] font-medium tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40";
+    "flex h-12 w-full items-center justify-center rounded-button text-[14px] font-semibold tracking-wide transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40";
   const styles =
     variant === "solid"
-      ? "bg-ink text-white hover:bg-black"
-      : "border border-ink bg-white text-ink hover:bg-surface";
+      ? "bg-brand text-white shadow-float hover:bg-brand-dark"
+      : "border border-line bg-white text-ink hover:border-brand/30 hover:bg-brand-soft";
 
   return (
     <button className={`${base} ${styles} ${className}`} {...props}>

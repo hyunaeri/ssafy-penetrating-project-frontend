@@ -6,7 +6,7 @@ type NavIconProps = {
 };
 
 export function NavIcon({ icon, active = false }: NavIconProps) {
-  const className = active ? "text-ink" : "text-muted";
+  const className = active ? "text-brand-dark" : "text-muted";
 
   switch (icon) {
     case "home":
@@ -15,9 +15,9 @@ export function NavIcon({ icon, active = false }: NavIconProps) {
           width="22"
           height="22"
           viewBox="0 0 24 24"
-          fill="none"
+          fill={active ? "currentColor" : "none"}
           stroke="currentColor"
-          strokeWidth={active ? 2.2 : 1.6}
+          strokeWidth={active ? 1.8 : 1.6}
           className={className}
           aria-hidden
         >
@@ -30,9 +30,9 @@ export function NavIcon({ icon, active = false }: NavIconProps) {
           width="22"
           height="22"
           viewBox="0 0 24 24"
-          fill="none"
+          fill={active ? "currentColor" : "none"}
           stroke="currentColor"
-          strokeWidth={active ? 2.2 : 1.6}
+          strokeWidth={active ? 1.8 : 1.6}
           className={className}
           aria-hidden
         >
@@ -45,9 +45,9 @@ export function NavIcon({ icon, active = false }: NavIconProps) {
           width="22"
           height="22"
           viewBox="0 0 24 24"
-          fill="none"
+          fill={active ? "currentColor" : "none"}
           stroke="currentColor"
-          strokeWidth={active ? 2.2 : 1.6}
+          strokeWidth={active ? 1.8 : 1.6}
           className={className}
           aria-hidden
         >

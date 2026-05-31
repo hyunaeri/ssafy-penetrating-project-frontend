@@ -59,9 +59,9 @@ export function StoreCard({ store }: StoreCardProps) {
   return (
     <Link
       href={`/stores/${store.id}`}
-      className="flex w-full gap-3.5 py-4 text-left transition-colors hover:bg-surface/80 active:bg-surface"
+      className="mx-3 my-2 flex w-[calc(100%-1.5rem)] gap-3.5 rounded-card bg-white p-3 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(42,193,188,0.12)] active:scale-[0.99]"
     >
-      <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-inset ring-ink/8">
+      <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
         {showImage ? (
           <Image
             src={imageUrl!}

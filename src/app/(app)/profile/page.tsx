@@ -25,9 +25,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col px-5 py-10">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-surface px-5 py-8">
       <header className="mb-6">
-        <h1 className="text-[22px] font-bold text-ink">내 정보</h1>
+        <p className="inline-flex rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-semibold text-brand-dark">
+          MY
+        </p>
+        <h1 className="mt-2 text-[22px] font-bold text-ink">내 정보</h1>
         <p className="mt-2 text-[14px] text-muted">프로필과 계정 정보를 확인할 수 있습니다.</p>
       </header>
 

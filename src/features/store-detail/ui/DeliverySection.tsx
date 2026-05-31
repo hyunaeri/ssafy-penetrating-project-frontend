@@ -17,15 +17,15 @@ export function DeliverySection({
   const [orderType, setOrderType] = useState<OrderType>("delivery");
 
   return (
-    <section className="border-b border-line bg-[#f5f5f5] px-4 py-4">
-      <div className="mb-3 flex rounded-xl bg-line/60 p-1">
+    <section className="border-b border-line/80 bg-surface px-4 py-4">
+      <div className="mb-3 flex rounded-2xl bg-white p-1 shadow-card">
         <button
           type="button"
           onClick={() => setOrderType("delivery")}
-          className={`flex-1 rounded-lg py-2.5 text-[14px] font-semibold transition-colors ${
+          className={`flex-1 rounded-[0.9rem] py-2.5 text-[14px] font-semibold transition-all ${
             orderType === "delivery"
-              ? "bg-white text-ink shadow-sm"
-              : "text-muted"
+              ? "bg-brand text-white shadow-sm"
+              : "text-muted hover:text-ink"
           }`}
         >
           배달
@@ -33,26 +33,26 @@ export function DeliverySection({
         <button
           type="button"
           onClick={() => setOrderType("pickup")}
-          className={`flex-1 rounded-lg py-2.5 text-[14px] font-semibold transition-colors ${
+          className={`flex-1 rounded-[0.9rem] py-2.5 text-[14px] font-semibold transition-all ${
             orderType === "pickup"
-              ? "bg-white text-ink shadow-sm"
-              : "text-muted"
+              ? "bg-brand text-white shadow-sm"
+              : "text-muted hover:text-ink"
           }`}
         >
           픽업
         </button>
       </div>
 
-      <div className="rounded-2xl bg-white p-4 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-        <div className="flex items-center justify-between border-b border-line pb-3">
+      <div className="soft-card p-4">
+        <div className="flex items-center justify-between border-b border-line/80 pb-3">
           <span className="text-[14px] font-semibold text-ink">최소주문</span>
-          <span className="text-[14px] font-bold text-ink">
+          <span className="text-[14px] font-bold text-brand-dark">
             {formatWon(minOrderPrice)}
           </span>
         </div>
 
         {orderType === "delivery" ? (
-          <ul className="divide-y divide-line pt-1">
+          <ul className="divide-y divide-line/80 pt-1">
             <li className="flex items-center justify-between py-3.5">
               <div>
                 <p className="text-[15px] font-semibold text-ink">가게배달</p>
@@ -73,7 +73,7 @@ export function DeliverySection({
         )}
       </div>
 
-      <p className="mt-3 rounded-lg bg-[#eef6ff] px-3 py-2.5 text-[12px] leading-relaxed text-[#2b6cb0]">
+      <p className="mt-3 rounded-2xl bg-accent-blue px-3.5 py-2.5 text-[12px] leading-relaxed text-accent-blue-text">
         최소주문금액 {formatWon(minOrderPrice)} 이상 주문 시 배달이 가능합니다.
       </p>
     </section>

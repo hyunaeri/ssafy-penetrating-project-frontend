@@ -10,12 +10,12 @@ export function BackHeader({ title }: BackHeaderProps) {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-0.5 border-b border-line bg-white px-4 py-3.5">
+    <header className="sticky top-0 z-10 flex items-center gap-0.5 border-b border-line/80 bg-white/95 px-3 py-3.5 backdrop-blur-sm">
       <button
         type="button"
         onClick={() => router.back()}
         aria-label="이전 페이지로 돌아가기"
-        className="-ml-1 flex shrink-0 items-center justify-center p-2 text-ink transition-colors hover:text-muted active:text-muted"
+        className="-ml-1 flex h-10 w-10 shrink-0 items-center justify-center text-ink transition-colors hover:text-muted active:scale-95"
       >
         <svg
           width="22"

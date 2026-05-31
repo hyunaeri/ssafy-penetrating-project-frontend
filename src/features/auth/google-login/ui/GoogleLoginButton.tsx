@@ -11,7 +11,7 @@ export function GoogleLoginButton() {
     <button
       type="button"
       onClick={handleLogin}
-      className="flex h-12 w-full items-center justify-center gap-3 border border-line bg-white text-[14px] font-medium text-ink transition-colors hover:bg-surface"
+      className="flex h-12 w-full items-center justify-center gap-3 rounded-button border border-line bg-white text-[14px] font-semibold text-ink shadow-card transition-all hover:border-brand/30 hover:bg-brand-soft active:scale-[0.98]"
     >
       <GoogleMark />
       Google로 계속하기

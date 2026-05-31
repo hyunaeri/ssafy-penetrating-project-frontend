@@ -19,8 +19,8 @@ function ProfileField({
   value: string;
 }) {
   return (
-    <div className="border-b border-line py-4 last:border-b-0">
-      <p className="text-[12px] font-medium text-muted">{label}</p>
+    <div className="border-b border-line/60 py-4 last:border-b-0">
+      <p className="text-[12px] font-semibold text-brand-dark/70">{label}</p>
       <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-ink">
         {value}
       </p>
@@ -36,28 +36,28 @@ function displayValue(value?: string | null) {
 export function ProfileContent({ user }: ProfileContentProps) {
   return (
     <div className="flex flex-1 flex-col">
-      <section className="mb-6 flex flex-col items-center gap-4 border border-line bg-surface px-6 py-8">
+      <section className="soft-card mb-4 flex flex-col items-center gap-4 px-6 py-8">
         {user.profileImageUrl ? (
           <Image
             src={user.profileImageUrl}
             alt=""
             width={88}
             height={88}
-            className="h-[88px] w-[88px] rounded-full object-cover"
+            className="h-[88px] w-[88px] rounded-full object-cover ring-4 ring-brand-soft"
             unoptimized
           />
         ) : (
-          <span className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-line text-[24px] font-medium text-muted">
+          <span className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-brand-soft text-[24px] font-bold text-brand-dark">
             {user.nickname?.charAt(0) ?? "?"}
           </span>
         )}
         <div className="text-center">
-          <p className="text-[18px] font-semibold text-ink">{user.nickname}</p>
+          <p className="text-[18px] font-bold text-ink">{user.nickname}</p>
           <p className="mt-1 text-[13px] text-muted">{user.email}</p>
         </div>
       </section>
 
-      <section className="border border-line bg-white px-5">
+      <section className="soft-card px-5">
         <ProfileField label="이메일" value={user.email} />
         <ProfileField label="연락처" value={displayValue(user.phoneNumber)} />
         <ProfileField label="주소" value={displayValue(user.address)} />

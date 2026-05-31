@@ -12,7 +12,7 @@ export function HeaderIconLink({ href, label, children }: HeaderIconLinkProps) {
     <Link
       href={href}
       aria-label={label}
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface active:bg-surface"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-all hover:bg-brand-soft hover:text-brand-dark active:scale-95"
     >
       {children}
     </Link>

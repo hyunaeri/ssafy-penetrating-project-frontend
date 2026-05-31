@@ -13,7 +13,7 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-mobile items-center justify-center bg-white">
+    <div className="shell-frame flex min-h-screen items-center justify-center bg-surface">
       <p className="text-[13px] text-muted">잠시만 기다려 주세요</p>
     </div>
   );

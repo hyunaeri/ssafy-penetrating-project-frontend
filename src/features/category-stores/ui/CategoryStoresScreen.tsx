@@ -13,12 +13,12 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
   const { stores, loading, error, reload } = useCategoryStores(category.id);
 
   return (
-    <div className="flex min-h-full flex-col bg-white">
+    <div className="flex min-h-full flex-col bg-surface">
       <BackHeader title={category.name} />
 
       {!loading && !error && stores.length > 0 && (
-        <p className="border-b border-line px-4 py-2.5 text-[13px] text-muted">
-          <span className="font-medium text-ink">{stores.length}</span>개 매장
+        <p className="border-b border-line/80 bg-white px-4 py-2.5 text-[13px] text-muted">
+          <span className="font-semibold text-brand-dark">{stores.length}</span>개 매장
         </p>
       )}
 
@@ -30,7 +30,7 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
                 key={index}
                 className="flex animate-pulse gap-3.5 border-b border-line py-4"
               >
-                <div className="h-[88px] w-[88px] shrink-0 rounded-xl bg-surface" />
+                <div className="h-[88px] w-[88px] shrink-0 rounded-2xl bg-white" />
                 <div className="flex flex-1 flex-col justify-center gap-2 py-1">
                   <div className="h-4 w-3/5 rounded-sm bg-surface" />
                   <div className="h-3 w-full rounded-sm bg-surface" />
@@ -62,7 +62,7 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
         )}
 
         {!loading && !error && stores.length > 0 && (
-          <ul className="divide-y divide-line px-4">
+          <ul className="divide-y divide-line/80 bg-white px-3">
             {stores.map((store) => (
               <li key={store.id}>
                 <StoreCard store={store} />
