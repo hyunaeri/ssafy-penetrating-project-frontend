@@ -34,4 +34,14 @@ export const toastMessages = {
       description: "잠시 후 다시 시도해 주세요.",
     },
   },
+  cart: {
+    addSuccess: {
+      title: "장바구니에 담았어요",
+      description: "담은 메뉴는 장바구니에서 확인할 수 있어요.",
+    },
+    addFail: {
+      title: "담기 실패",
+      description: "잠시 후 다시 시도해 주세요.",
+    },
+  },
 } as const;
