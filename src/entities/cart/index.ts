@@ -1,9 +1,11 @@
 export { addCartItem, fetchCart } from "./api/cart-api";
 export {
   getCartLineTotal,
+  getCartOrderSummary,
   getCartSubtotal,
   parseCartResponse,
 } from "./lib/parse-cart-response";
+export type { CartOrderSummary } from "./lib/parse-cart-response";
 export {
   CartStoreConflictError,
   isCartStoreConflictResponse,

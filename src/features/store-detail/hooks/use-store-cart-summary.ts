@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { fetchCart, getCartSubtotal } from "@/entities/cart";
+import { fetchCart, getCartOrderSummary } from "@/entities/cart";
 import { CART_UPDATED_EVENT } from "@/features/cart/lib/cart-events";
 
 export type StoreCartSummary = {
   subtotal: number;
   itemCount: number;
   minOrderPrice: number;
+  remainingMinOrderPrice: number;
 };
 
 export function useStoreCartSummary(storeId: number) {
@@ -17,10 +18,12 @@ export function useStoreCartSummary(storeId: number) {
     try {
       const cart = await fetchCart();
       if (cart.storeId === storeId && cart.items.length > 0) {
+        const order = getCartOrderSummary(cart, "delivery");
         setSummary({
-          subtotal: getCartSubtotal(cart.items),
+          subtotal: order.subtotal,
           itemCount: cart.items.reduce((sum, line) => sum + line.quantity, 0),
-          minOrderPrice: cart.minOrderPrice ?? 0,
+          minOrderPrice: order.minOrderPrice,
+          remainingMinOrderPrice: order.remainingMinOrderPrice,
         });
       } else {
         setSummary(null);

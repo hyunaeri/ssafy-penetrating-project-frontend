@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import {
   getCartLineTotal,
-  getCartSubtotal,
+  getCartOrderSummary,
   type CartLineResponse,
   type CartResponse,
 } from "@/entities/cart";
 import { useCart } from "@/features/cart/hooks/use-cart";
 import { CartCheckoutBar } from "@/features/cart/ui/CartCheckoutBar";
+import { CartMinOrderSection } from "@/features/cart/ui/CartMinOrderSection";
 import {
   CartOrderTypeToggle,
   type CartOrderType,
@@ -58,21 +59,18 @@ function CartLineItem({ line }: { line: CartLineResponse }) {
 }
 
 function CartSummary({
-  cart,
+  order,
   orderType,
 }: {
-  cart: CartResponse;
+  order: ReturnType<typeof getCartOrderSummary>;
   orderType: CartOrderType;
 }) {
-  const subtotal = getCartSubtotal(cart.items);
-  const deliveryFee =
-    orderType === "delivery" ? (cart.deliveryFee ?? 0) : 0;
-  const total = subtotal + deliveryFee;
-  const minOrder = cart.minOrderPrice ?? 0;
-  const meetsMinOrder = subtotal >= minOrder;
+  const { subtotal, deliveryFee, total, remainingMinOrderPrice, meetsMinOrder, minOrderPrice } =
+    order;
 
   return (
     <section className="mx-3 mb-4 mt-3 soft-card p-4">
+      <h3 className="mb-3 text-[15px] font-bold text-ink">결제금액을 확인해주세요</h3>
       <div className="space-y-2 text-[14px]">
         <div className="flex justify-between text-muted">
           <span>메뉴 금액</span>
@@ -81,24 +79,30 @@ function CartSummary({
         <div className="flex justify-between text-muted">
           <span>배달팁</span>
           <span>
-            {orderType === "delivery"
-              ? deliveryFee === 0
+            {orderType === "pickup"
+              ? "픽업 시 0원"
+              : deliveryFee === 0
                 ? "무료"
-                : formatWon(deliveryFee)
-              : "픽업 시 0원"}
+                : formatWon(deliveryFee)}
           </span>
         </div>
+        {minOrderPrice > 0 && (
+          <div className="flex justify-between text-muted">
+            <span>최소주문금액</span>
+            <span>{formatWon(minOrderPrice)}</span>
+          </div>
+        )}
         <div className="flex justify-between border-t border-line/80 pt-3 text-[16px] font-bold text-ink">
           <span>결제 예정 금액</span>
           <span className="text-brand-dark">{formatWon(total)}</span>
         </div>
       </div>
 
-      {!meetsMinOrder && minOrder > 0 && (
+      {!meetsMinOrder && remainingMinOrderPrice > 0 && (
         <p className="mt-3 rounded-2xl bg-accent-warm px-3 py-2.5 text-[13px] text-accent-warm-text">
-          최소주문금액 {formatWon(minOrder)}까지{" "}
+          최소주문금액까지{" "}
           <span className="font-semibold">
-            {formatWon(minOrder - subtotal)}
+            {formatWon(remainingMinOrderPrice)}
           </span>{" "}
           더 담아주세요.
         </p>
@@ -134,25 +138,32 @@ function CartStoreHeader({ cart }: { cart: CartResponse }) {
         )}
       </div>
 
-      <div className="flex min-w-0 flex-1 items-center gap-1">
-        <span className="truncate text-[15px] font-bold text-ink">
-          {storeName}
-        </span>
-        {storeId != null && (
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-            className="shrink-0 text-ink"
-          >
-            <path d="M9 6l6 6-6 6" />
-          </svg>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1">
+          <span className="truncate text-[15px] font-bold text-ink">
+            {storeName}
+          </span>
+          {storeId != null && (
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+              className="shrink-0 text-ink"
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          )}
+        </div>
+        {typeof cart.minOrderPrice === "number" && cart.minOrderPrice > 0 && (
+          <p className="mt-0.5 text-[12px] text-muted">
+            최소주문 {formatWon(cart.minOrderPrice)}
+          </p>
         )}
       </div>
     </div>
@@ -262,14 +273,7 @@ export function CartPageContent() {
     );
   }
 
-  const subtotal = getCartSubtotal(cart.items);
-  const deliveryFee =
-    orderType === "delivery" ? (cart.deliveryFee ?? 0) : 0;
-  const total = subtotal + deliveryFee;
-  const minOrder = cart.minOrderPrice ?? 0;
-  const meetsMinOrder = minOrder === 0 || subtotal >= minOrder;
-  const shortOfMin =
-    minOrder > 0 && subtotal < minOrder ? minOrder - subtotal : 0;
+  const order = getCartOrderSummary(cart, orderType);
   const itemCount = cart.items.reduce(
     (sum, line) => sum + line.quantity,
     0
@@ -286,18 +290,23 @@ export function CartPageContent() {
             ))}
           </ul>
         </div>
+        <CartMinOrderSection
+          minOrderPrice={order.minOrderPrice}
+          subtotal={order.subtotal}
+          remainingMinOrderPrice={order.remainingMinOrderPrice}
+        />
         <CartOrderTypeToggle
           orderType={orderType}
           onChange={setOrderType}
         />
-        <CartSummary cart={cart} orderType={orderType} />
+        <CartSummary order={order} orderType={orderType} />
       </div>
 
       <CartCheckoutBar
-        total={total}
+        total={order.total}
         itemCount={itemCount}
-        disabled={!meetsMinOrder}
-        shortOfMin={shortOfMin}
+        disabled={!order.meetsMinOrder}
+        shortOfMin={order.remainingMinOrderPrice}
       />
     </div>
   );
