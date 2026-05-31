@@ -39,6 +39,23 @@
   }
 }
 
+@layer utilities {
+  @keyframes tooltip-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tooltip-fade-in {
+    animation: tooltip-fade-in 0.15s ease-out;
+  }
+}
+
 /* Sonner: 모바일 셸(430px) 상단 중앙 */
 [data-sonner-toaster].app-toaster {
   --app-toaster-width: min(calc(100vw - 4rem), 360px);
