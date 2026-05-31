@@ -12,15 +12,11 @@ export function AppToaster() {
       offset={TOASTER_OFFSET_TOP}
       gap={10}
       duration={3200}
-      closeButton
+      closeButton={false}
       expand={false}
       visibleToasts={2}
       toastOptions={{
         unstyled: true,
-        classNames: {
-          closeButton:
-            "!absolute !right-2.5 !top-3 !left-auto !border-0 !bg-transparent !text-inherit !opacity-45 hover:!opacity-80",
-        },
       }}
     />
   );
