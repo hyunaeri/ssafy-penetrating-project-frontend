@@ -1,223 +1,122 @@
 # YumYumCoach Frontend
 
 배달 코칭 서비스 **YumYumCoach**의 프론트엔드입니다.  
-Next.js App Router와 FSD(Feature-Sliced Design) 구조로 모바일 우선 UI를 제공합니다.
+모바일 우선 UI로, 로그인부터 메뉴 담기·장바구니까지 이어지는 흐름을 제공합니다.
 
 ## 기술 스택
 
-- **Next.js 15** (App Router)
-- **React 19**
-- **TypeScript**
-- **Tailwind CSS**
-- **react-hook-form** — 회원가입 폼
-- **react-daum-postcode** — 주소 검색(다음 우편번호)
-- **pnpm** — 패키지 매니저
+- Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS · pnpm
 
 ## 시작하기
 
 ### 사전 요구 사항
 
-- Node.js 18 이상 권장 (프로젝트는 Node 22 기준으로 개발됨)
-- [pnpm](https://pnpm.io/) 10.12.1
-
-`package.json`에 `packageManager`가 지정되어 있습니다. pnpm이 없다면 아래 중 하나로 설치하세요.
+- Node.js 18 이상 권장
+- [pnpm](https://pnpm.io/) 10.12.1 (`package.json`의 `packageManager` 기준)
 
 ```bash
-# 전역 설치
 npm install -g pnpm@10.12.1
-
-# 또는 Corepack (관리자 권한이 필요할 수 있음)
-corepack enable
-corepack prepare pnpm@10.12.1 --activate
+# 또는: corepack enable && corepack prepare pnpm@10.12.1 --activate
 ```
 
-설치 후 터미널을 다시 열고 버전을 확인합니다.
-
-```bash
-pnpm --version
-```
-
-### 의존성 설치
-
-프로젝트 루트(`frontend/`)에서 실행합니다.
+### 설치 및 실행
 
 ```bash
 pnpm install
-```
-
-### 개발 서버 실행
-
-```bash
 pnpm dev
 ```
 
-브라우저에서 [http://localhost:3000](http://localhost:3000) 으로 접속합니다.
-
-### 기타 스크립트
+[http://localhost:3000](http://localhost:3000) 에서 확인합니다.
 
 | 명령어 | 설명 |
 |--------|------|
-| `pnpm dev` | 개발 서버 (핫 리로드) |
+| `pnpm dev` | 개발 서버 |
 | `pnpm build` | 프로덕션 빌드 |
-| `pnpm start` | 빌드 결과물 실행 (`build` 이후) |
-| `pnpm lint` | ESLint 검사 |
+| `pnpm start` | 빌드 결과 실행 |
+| `pnpm lint` | ESLint |
 
 ### 환경 변수
 
-루트에 `.env.local` 파일을 두고 백엔드 서버 주소를 설정합니다.  
-템플릿은 `.env.example` 을 복사해 사용하면 됩니다.
+`.env.example`을 복사해 `.env.local`을 만듭니다.
 
 ```bash
 cp .env.example .env.local
 ```
 
 ```env
-# 서버 사이드(BFF·API Route)에서 사용
 BACKEND_URL=http://localhost:8080
-
-# 클라이언트에서 백엔드 origin이 필요할 때
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
-로컬에서 **백엔드(Spring)와 프론트(Next)를 함께** 띄운 뒤 로그인·회원가입·마이페이지를 확인하는 것을 권장합니다.
+로컬에서는 **백엔드(Spring)와 프론트(Next)를 함께** 띄운 뒤 이용하는 것을 권장합니다.
 
 ---
 
-## 화면 및 기능
+## 사용자 흐름
 
-### 라우트 개요
+### 1. 처음 들어왔을 때
 
-| 경로 | 설명 | 로그인 필요 |
-|------|------|-------------|
-| `/` | 토큰 유무에 따라 `/main` 또는 `/login`으로 이동 | — |
-| `/login` | 소셜 로그인 화면 | ✗ |
-| `/oauth/callback` | OAuth 완료 후 토큰 저장·메인 이동 | ✗ |
-| `/signup` | OAuth 후 추가 회원가입 | ✗ (`signupToken` 쿼리 필요) |
-| `/main` | 메인(배달 카테고리) | ✓ |
-| `/favorite` | 찜 (준비 중) | ✓ |
-| `/catalog` | 음식 도감 (준비 중) | ✓ |
-| `/orders` | 주문 이력 (준비 중) | ✓ |
-| `/profile` | 내 정보(마이페이지) | ✓ |
+1. 앱에 접속하면 로그인 여부를 확인합니다.
+2. 로그인되어 있지 않으면 **Google 로그인** 화면으로 이동합니다.
+3. 처음 가입하는 계정이면 **추가 정보 입력(회원가입)** 후 메인으로 들어갑니다.
+4. 이미 가입된 계정이면 바로 **메인(홈)** 으로 들어갑니다.
 
-`(app)` 그룹 하위 페이지는 **AppShell**이 액세스 토큰을 확인합니다. 없으면 `/login`으로 보냅니다.
+### 2. 메뉴 고르고 담기
 
----
+1. **메인**에서 배달 카테고리(치킨, 피자 등)를 고릅니다.
+2. **카테고리별 매장 목록**에서 매장을 고릅니다.
+3. **매장 상세**에서 메뉴를 보고 장바구니에 담습니다.
+4. 다른 매장 메뉴를 담으려 하면, 기존 장바구니를 비우고 담을지 안내합니다.
+5. 매장 상세 하단에 **장바구니 바**가 보이면, 그대로 장바구니로 갈 수 있습니다.
 
-### 로그인 (`/login`)
+### 3. 장바구니 · 주문 준비
 
-- Google 계정으로 로그인하는 버튼 제공
-- 처음 이용 시 백엔드 흐름에 따라 회원가입 화면으로 안내될 수 있음
-- 이용약관·개인정보 안내 문구 표시
+1. 상단 **장바구니 아이콘** 또는 매장 상세 **장바구니 보기**로 장바구니 페이지에 들어갑니다.
+2. 담은 매장 이름을 누르면 해당 **매장 상세**로 다시 갈 수 있습니다.
+3. **배달 / 픽업** 중 수령 방법을 고릅니다.
+4. 메뉴 금액·배달팁·결제 예정 금액을 확인합니다.
+5. 하단 **결제하기**로 주문을 이어갑니다. (결제·주문 완료 플로우는 추후 연동 예정)
 
-### OAuth 콜백 (`/oauth/callback`)
+### 4. 하단 탭으로 이동
 
-- URL의 `accessToken`을 읽어 **localStorage**에 저장
-- 저장 후 메인(`/main`)으로 이동
-- 토큰이 없거나 처리 실패 시 로그인 화면으로 되돌림
+로그인 후 대부분의 화면에서 하단 탭을 사용합니다.
 
-### 회원가입 (`/signup`)
+| 탭 | 설명 |
+|----|------|
+| **홈** | 카테고리·매장 탐색 |
+| **찜** | 찜한 매장 모아보기 (준비 중) |
+| **도감** | 먹어본 음식 도감 (준비 중) |
+| **주문 이력** | 지난 주문 내역 (준비 중) |
+| **내 정보** | 프로필 확인·로그아웃 |
 
-OAuth 인증만 끝난 사용자가 **추가 정보**를 입력하는 화면입니다.
-
-- **URL**: `?signupToken=...` (JWT). 토큰이 없거나 잘못되면 로그인으로 이동
-- **표시 정보**: OAuth에서 받은 프로필 사진, 닉네임, 이메일, 로그인 제공자(Google 등)
-- **입력 항목**
-  - 연락처 (휴대폰 번호, 형식 검증)
-  - 주소 (다음 우편번호 검색 모달)
-  - 역할: 주문 고객 / 매장 사장 / 라이더
-- 가입 완료 시 액세스 토큰 저장 후 메인으로 이동
-
-관련 코드: `widgets/signup-form`, `features/auth/signup`, `features/role-picker`
-
-### 메인 (`/main`)
-
-- 배달 **카테고리 그리드** (프랜차이즈, 치킨, 피자/양식 등 10종)
-- `public/images/` 카테고리 일러스트 사용
-- 스크롤 시 **맨 위로** 버튼 표시
-
-관련 코드: `features/category-grid`
-
-### 마이페이지 (`/profile`)
-
-로그인한 사용자 정보를 조회해 표시합니다.
-
-- 프로필 사진 (없으면 닉네임 첫 글자 아바타)
-- 이름(닉네임), 이메일
-- 연락처, 주소, 로그인 방식, 역할
-- 값이 비어 있으면 `등록된 정보가 없습니다` 표시
-- **로그아웃** — 토큰 삭제 후 로그인 화면으로 이동
-
-관련 코드: `features/profile`, `entities/user`, `entities/session`
-
-### 하단 네비게이션
-
-메인·찜·도감·주문 이력·내 정보 탭. 현재 경로에 따라 활성 탭 강조.
-
-관련 코드: `widgets/bottom-nav`, `widgets/app-shell`
-
-### 준비 중 화면
-
-`/favorite`, `/catalog`, `/orders` 는 레이아웃과 제목만 있는 **플레이스홀더**입니다. 이후 기능 연동 예정.
+**매장 상세**(`/stores/...`)에서는 하단 탭이 숨겨지고, 뒤로가기·장바구니만 보입니다.
 
 ---
 
-## 인증(프론트 관점)
+## 화면 경로 (참고)
 
-- **액세스 토큰**: 브라우저 `localStorage` 키 `accessToken`
-- **저장 시점**: OAuth 콜백, 회원가입 완료
-- **삭제 시점**: 로그아웃
-- **사용처**: 앱 탭 레이아웃 진입 가드, 마이페이지 사용자 조회, 로그아웃 요청 시 Authorization 헤더
-
-클라이언트는 same-origin의 Next **API Route**(`/api/...`)를 호출하고, 서버 라우트가 백엔드와 통신합니다. (엔드포인트 상세는 이 문서에서 다루지 않습니다.)
-
----
-
-## 프로젝트 구조 (FSD)
-
-```
-src/
-├── app/              # Next.js 라우트·레이아웃·API Route
-│   ├── (app)/        # 로그인 필요 탭 (main, profile, …)
-│   ├── login/
-│   ├── signup/
-│   └── oauth/callback/
-├── widgets/          # 페이지 단위 UI 조립 (AppShell, SignupForm, BottomNav)
-├── features/         # 기능 단위 UI·훅 (auth, category-grid, profile, …)
-├── entities/         # 도메인 (user, session, category)
-└── shared/           # 공용 UI·유틸 (MobileShell, PrimaryButton, api)
-```
-
-### 레이어 import 규칙
-
-- `features` → `entities`, `shared`
-- `widgets` → `features`, `entities`, `shared`
-- `app` → `widgets`, `features`, `entities`, `shared`
-
-FSD와 App Router 역할 분리에 대한 보충 설명은 [`src/README.md`](./src/README.md)를 참고하세요.
-
----
-
-## UI·디자인
-
-- **모바일 폭**: `max-w-mobile` 중심 레이아웃
-- **공통 셸**: `MobileShell` — 로그인·회원가입 등 단일 컬럼 화면
-- **앱 셸**: `AppShell` — 하단 탭 + 콘텐츠 영역
-- **색·타이포**: Tailwind 커스텀 토큰 (`ink`, `muted`, `line`, `surface` 등, `globals.css` / `tailwind.config.ts`)
-
----
-
-## 주요 의존 기능 모듈
-
-| 모듈 | 용도 |
+| 경로 | 용도 |
 |------|------|
-| `entities/session` | 액세스 토큰 read/write/clear |
-| `entities/user` | 사용자 타입, 회원가입·조회·로그아웃, OAuth 토큰 파싱, 라벨 포맷 |
-| `entities/category` | 메인 카테고리 목록·이미지 경로 |
-| `features/auth/google-login` | Google 로그인 버튼 |
-| `features/auth/signup` | 회원가입 폼·주소 검색·제출 |
-| `features/category-grid` | 메인 카테고리 UI |
-| `features/profile` | 마이페이지 조회·표시 |
-| `shared/ui` | `MobileShell`, `PrimaryButton` |
+| `/login` | 로그인 |
+| `/signup` | 회원가입 (OAuth 이후) |
+| `/main` | 홈 · 카테고리 |
+| `/categories/[id]` | 카테고리별 매장 |
+| `/stores/[id]` | 매장 상세 · 메뉴 |
+| `/cart` | 장바구니 |
+| `/favorite`, `/catalog`, `/orders` | 준비 중 |
+| `/profile` | 내 정보 |
+
+`(app)` 하위 페이지는 로그인이 필요합니다. 토큰이 없으면 로그인 화면으로 이동합니다.
+
+---
+
+## UI
+
+- 모바일 폭(`max-w-mobile`) 중심 레이아웃
+- 로그인·회원가입: 단일 컬럼 셸
+- 로그인 후: 하단 탭 + 콘텐츠 영역
+
+프로젝트 구조(FSD)는 [`src/README.md`](./src/README.md)를 참고하세요.
 
 ---
 
@@ -225,12 +124,12 @@ FSD와 App Router 역할 분리에 대한 보충 설명은 [`src/README.md`](./s
 
 ### `pnpm` 명령을 찾을 수 없음
 
-전역 설치 후 **터미널/IDE를 재시작**하세요. 그래도 안 되면 `npm install -g pnpm@10.12.1` 을 다시 실행합니다.
+전역 설치 후 터미널·IDE를 재시작하세요.
 
-### `pnpm install` 후 이미지 관련 경고
+### `pnpm install` 시 Corepack / 서명 오류
 
-`sharp` 등 빌드 스크립트 무시 경고가 나오면, 이미지 최적화가 필요할 때 `pnpm approve-builds` 로 허용할 수 있습니다.
+Node·Corepack을 최신으로 맞추거나, `npm install -g pnpm` 으로 설치합니다.
 
 ### Next.js 워크스페이스 경고
 
-상위 폴더에 다른 `package-lock.json`이 있으면 루트 추론 경고가 날 수 있습니다. `frontend` 폴더에서만 작업하거나, 필요 시 `next.config.ts`에 `outputFileTracingRoot`를 설정합니다.
+`frontend` 폴더에서만 작업하거나, 상위 `package-lock.json` 정리를 검토합니다.
