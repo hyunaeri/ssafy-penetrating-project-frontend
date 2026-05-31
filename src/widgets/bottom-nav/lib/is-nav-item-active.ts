@@ -1,7 +1,7 @@
 import type { BottomNavItem } from "@/widgets/bottom-nav/model/items";
 
 /** 홈에서 진입하는 하위 화면 — 하단 네비 「홈」 활성 유지 */
-const HOME_ACTIVE_PREFIXES = ["/categories", "/cart"];
+const HOME_ACTIVE_PREFIXES = ["/categories", "/cart", "/stores"];
 
 export function isBottomNavItemActive(
   pathname: string,

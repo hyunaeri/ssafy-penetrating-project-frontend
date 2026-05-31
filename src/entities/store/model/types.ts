@@ -14,3 +14,26 @@ export type StoreResponse = {
   deliveryFeeMin?: number | null;
   deliveryFeeMax?: number | null;
 };
+
+export type MenuResponse = {
+  id: number;
+  storeId: number;
+  tagId: number;
+  name: string;
+  description?: string | null;
+  price: number;
+  imageUrl?: string | null;
+  active: boolean;
+};
+
+export type StoreDetailResponse = {
+  id: number;
+  categoryId: number;
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  address?: string | null;
+  minOrderPrice: number;
+  deliveryFee: number;
+  menus: MenuResponse[];
+};

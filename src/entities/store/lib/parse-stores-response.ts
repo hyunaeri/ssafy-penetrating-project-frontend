@@ -1,5 +1,19 @@
 import type { StoreResponse } from "@/entities/store/model/types";
 
+function normalizeStore(raw: StoreResponse): StoreResponse {
+  const record = raw as StoreResponse & {
+    minOrderPrice?: number | null;
+  };
+  const minFromBackend = record.minOrderPrice;
+  if (
+    record.minimumOrderPrice == null &&
+    typeof minFromBackend === "number"
+  ) {
+    return { ...record, minimumOrderPrice: minFromBackend };
+  }
+  return record;
+}
+
 function isStoreLike(value: unknown): value is StoreResponse {
   return (
     typeof value === "object" &&
@@ -14,7 +28,7 @@ function isStoreLike(value: unknown): value is StoreResponse {
 /** 백엔드 응답(배열·Page·wrapper)을 StoreResponse 배열로 정규화 */
 export function parseStoresResponse(data: unknown): StoreResponse[] {
   if (Array.isArray(data)) {
-    return data.filter(isStoreLike);
+    return data.filter(isStoreLike).map(normalizeStore);
   }
 
   if (typeof data === "object" && data !== null) {
@@ -29,7 +43,7 @@ export function parseStoresResponse(data: unknown): StoreResponse[] {
 
     for (const candidate of candidates) {
       if (Array.isArray(candidate)) {
-        return candidate.filter(isStoreLike);
+        return candidate.filter(isStoreLike).map(normalizeStore);
       }
     }
   }

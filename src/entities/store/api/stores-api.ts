@@ -1,8 +1,9 @@
+import { parseStoreDetailResponse } from "@/entities/store/lib/parse-store-detail";
 import {
   filterStoresByCategory,
   parseStoresResponse,
 } from "@/entities/store/lib/parse-stores-response";
-import type { StoreResponse } from "@/entities/store/model/types";
+import type { StoreDetailResponse, StoreResponse } from "@/entities/store/model/types";
 import { getAccessToken } from "@/entities/session";
 import { getApiBaseUrl } from "@/shared/api";
 
@@ -32,4 +33,33 @@ export async function fetchStoresByCategory(
 
   const stores = parseStoresResponse(await res.json());
   return filterStoresByCategory(stores, categoryId);
+}
+
+export async function fetchStoreDetail(storeId: number): Promise<StoreDetailResponse> {
+  const token = getAccessToken();
+
+  const res = await fetch(`${getApiBaseUrl()}/api/stores/${storeId}`, {
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!res.ok) {
+    let message = "매장 정보를 불러오지 못했습니다.";
+    try {
+      const body = (await res.json()) as { message?: string };
+      if (body.message) message = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+
+  const detail = parseStoreDetailResponse(await res.json());
+  if (!detail) {
+    throw new Error("매장 정보 형식이 올바르지 않습니다.");
+  }
+
+  return detail;
 }

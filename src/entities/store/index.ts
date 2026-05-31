@@ -1,7 +1,8 @@
-export { fetchStoresByCategory } from "./api/stores-api";
+export { fetchStoreDetail, fetchStoresByCategory } from "./api/stores-api";
+export { parseStoreDetailResponse } from "./lib/parse-store-detail";
 export {
   filterStoresByCategory,
   getStoreCategoryId,
   parseStoresResponse,
 } from "./lib/parse-stores-response";
-export type { StoreResponse } from "./model/types";
+export type { MenuResponse, StoreDetailResponse, StoreResponse } from "./model/types";

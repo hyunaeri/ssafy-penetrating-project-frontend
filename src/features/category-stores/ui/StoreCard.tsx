@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import type { StoreResponse } from "@/entities/store";
 import {
@@ -56,8 +57,8 @@ export function StoreCard({ store }: StoreCardProps) {
   const deliveryFeeMax = store.deliveryFeeMax;
 
   return (
-    <button
-      type="button"
+    <Link
+      href={`/stores/${store.id}`}
       className="flex w-full gap-3.5 py-4 text-left transition-colors hover:bg-surface/80 active:bg-surface"
     >
       <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-inset ring-ink/8">
@@ -159,6 +160,6 @@ export function StoreCard({ store }: StoreCardProps) {
           </p>
         )}
       </div>
-    </button>
+    </Link>
   );
 }
