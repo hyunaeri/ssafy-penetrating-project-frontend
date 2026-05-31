@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { MenuResponse } from "@/entities/store";
 import { MenuAddModal } from "@/features/add-to-cart";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
+import { MenuNoticeSection } from "@/features/store-detail/ui/MenuNoticeSection";
 
 type MenuListProps = {
   menus: MenuResponse[];
@@ -28,9 +29,9 @@ function MenuItem({
       <button
         type="button"
         onClick={() => onSelect(menu)}
-        className="flex w-full gap-3.5 border-b border-line py-4 text-left transition-colors last:border-b-0 hover:bg-surface/60 active:bg-surface"
+        className="flex w-full gap-3.5 rounded-none border-b border-line/60 py-4 text-left transition-colors last:border-b-0 hover:bg-brand-soft/40 active:bg-brand-soft/60"
       >
-      <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-inset ring-ink/8">
+      <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
         {showImage ? (
           <Image
             src={imageUrl!}
@@ -55,7 +56,7 @@ function MenuItem({
             {description}
           </p>
         )}
-        <p className="mt-1 text-[15px] font-bold text-ink">{formatWon(menu.price)}</p>
+        <p className="mt-1 text-[15px] font-bold text-brand-dark">{formatWon(menu.price)}</p>
       </div>
       </button>
     </li>
@@ -66,7 +67,7 @@ export function MenuList({ menus, minOrderPrice }: MenuListProps) {
   const [selectedMenu, setSelectedMenu] = useState<MenuResponse | null>(null);
   if (menus.length === 0) {
     return (
-      <section className="bg-white px-4 py-16">
+      <section className="mt-2 flex flex-1 flex-col bg-white px-4 py-16">
         <p className="text-center text-[14px] text-muted">
           등록된 메뉴가 없습니다.
         </p>
@@ -75,13 +76,13 @@ export function MenuList({ menus, minOrderPrice }: MenuListProps) {
   }
 
   return (
-    <section className="bg-white">
-      <div className="sticky top-0 z-[5] border-b border-line bg-white px-4 py-3">
+    <section className="mt-2 flex flex-1 flex-col overflow-hidden rounded-t-[1.75rem] bg-white shadow-[0_-4px_20px_rgba(43,45,66,0.04)]">
+      <div className="sticky top-0 z-[5] border-b border-line/60 bg-white/95 px-4 py-3.5 backdrop-blur-sm">
         <h2 className="text-[17px] font-bold text-ink">메뉴</h2>
         <p className="mt-0.5 text-[13px] text-muted">{menus.length}개</p>
       </div>
 
-      <ul className="px-4">
+      <ul className="px-3 pb-2">
         {menus.map((menu) => (
           <MenuItem
             key={menu.id}
@@ -90,6 +91,8 @@ export function MenuList({ menus, minOrderPrice }: MenuListProps) {
           />
         ))}
       </ul>
+
+      <MenuNoticeSection />
 
       {selectedMenu && (
         <MenuAddModal

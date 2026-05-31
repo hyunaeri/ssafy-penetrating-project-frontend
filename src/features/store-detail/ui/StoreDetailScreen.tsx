@@ -1,8 +1,10 @@
 "use client";
 
+import { useStoreCartSummary } from "@/features/store-detail/hooks/use-store-cart-summary";
 import { useStoreDetail } from "@/features/store-detail/hooks/use-store-detail";
 import { DeliverySection } from "@/features/store-detail/ui/DeliverySection";
 import { MenuList } from "@/features/store-detail/ui/MenuList";
+import { StoreCartBar } from "@/features/store-detail/ui/StoreCartBar";
 import { StoreHero } from "@/features/store-detail/ui/StoreHero";
 import { StoreInfoSection } from "@/features/store-detail/ui/StoreInfoSection";
 import { PrimaryButton } from "@/shared/ui";
@@ -39,6 +41,7 @@ function StoreDetailSkeleton() {
 
 export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   const { store, loading, error, reload } = useStoreDetail(storeId);
+  const { summary, visible: showCartBar } = useStoreCartSummary(storeId);
 
   if (loading) {
     return <StoreDetailSkeleton />;
@@ -63,7 +66,9 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   }
 
   return (
-    <div className="min-h-full bg-[#f5f5f5] pb-8">
+    <div
+      className={`flex min-h-screen flex-col bg-surface ${showCartBar ? "pb-28" : "pb-8"}`}
+    >
       <StoreHero name={store.name} imageUrl={store.imageUrl} />
       <StoreInfoSection
         name={store.name}
@@ -75,6 +80,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
         deliveryFee={store.deliveryFee}
       />
       <MenuList menus={store.menus} minOrderPrice={store.minOrderPrice} />
+      {summary && <StoreCartBar summary={summary} />}
     </div>
   );
 }
