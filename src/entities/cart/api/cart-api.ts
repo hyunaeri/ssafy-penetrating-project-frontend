@@ -83,3 +83,42 @@ export async function addCartItem(
 
   return data;
 }
+
+export type UpdateCartItemQuantityRequest = {
+  quantity: number;
+};
+
+/** `PATCH /api/cart/items/:id` — 장바구니 메뉴 수량 변경 */
+export async function updateCartItemQuantity(
+  cartItemId: number,
+  request: UpdateCartItemQuantityRequest
+): Promise<CartItemResponse> {
+  const token = getAccessToken();
+
+  const res = await fetch(`${getApiBaseUrl()}/api/cart/items/${cartItemId}`, {
+    method: "PATCH",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(request),
+  });
+
+  const data: unknown = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    let message = "수량을 변경하지 못했습니다.";
+    if (typeof data === "object" && data !== null && "message" in data) {
+      const msg = (data as { message?: string }).message;
+      if (msg) message = msg;
+    }
+    throw new Error(message);
+  }
+
+  if (!isCartItemResponse(data)) {
+    throw new Error("장바구니 응답 형식이 올바르지 않습니다.");
+  }
+
+  return data;
+}
