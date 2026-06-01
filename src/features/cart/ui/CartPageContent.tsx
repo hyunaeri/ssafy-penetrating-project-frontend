@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  getCartLineTotal,
   getCartOrderSummary,
   type CartLineResponse,
   type CartResponse,
 } from "@/entities/cart";
 import { useCart } from "@/features/cart/hooks/use-cart";
+import { useCartQuantityController } from "@/features/cart/hooks/use-cart-quantity-controller";
 import { CartCheckoutBar } from "@/features/cart/ui/CartCheckoutBar";
 import { CartMinOrderSection } from "@/features/cart/ui/CartMinOrderSection";
 import {
@@ -19,11 +19,19 @@ import {
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
 import { PrimaryButton } from "@/shared/ui";
 
-function CartLineItem({ line }: { line: CartLineResponse }) {
+function CartLineItem({
+  line,
+  controller,
+}: {
+  line: CartLineResponse;
+  controller: ReturnType<typeof useCartQuantityController>;
+}) {
   const imageUrl = line.menuImageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
   const showImage = Boolean(imageUrl) && !imageFailed;
-  const lineTotal = getCartLineTotal(line);
+  const quantity = controller.getQuantity(line.id, line.quantity);
+  const lineTotal = line.unitPrice * quantity;
+  const minusDisabled = quantity <= 1;
 
   return (
     <li className="flex gap-3.5 border-b border-line/60 py-4 last:border-b-0">
@@ -50,9 +58,40 @@ function CartLineItem({ line }: { line: CartLineResponse }) {
           {line.menuName}
         </h3>
         <p className="text-[13px] text-muted">
-          {formatWon(line.unitPrice)} · {line.quantity}개
+          {formatWon(line.unitPrice)} · {quantity}개
         </p>
-        <p className="text-[15px] font-bold text-brand-dark">{formatWon(lineTotal)}</p>
+
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <p className="text-[15px] font-bold text-brand-dark">
+            {formatWon(lineTotal)}
+          </p>
+
+          <div className="flex items-center gap-2 rounded-full bg-surface px-2 py-1.5 ring-1 ring-inset ring-line/70">
+            <button
+              type="button"
+              disabled={minusDisabled}
+              aria-label="수량 감소"
+              onClick={() => controller.decrement(line.id, line.quantity)}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[16px] font-bold text-ink shadow-soft transition-all active:scale-[0.96] disabled:cursor-not-allowed disabled:bg-line disabled:text-muted disabled:shadow-none"
+            >
+              −
+            </button>
+            <span
+              aria-live="polite"
+              className="min-w-[20px] text-center text-[14px] font-bold text-ink"
+            >
+              {quantity}
+            </span>
+            <button
+              type="button"
+              aria-label="수량 증가"
+              onClick={() => controller.increment(line.id, line.quantity)}
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[16px] font-bold text-ink shadow-soft transition-all active:scale-[0.96]"
+            >
+              +
+            </button>
+          </div>
+        </div>
       </div>
     </li>
   );
@@ -233,6 +272,18 @@ function EmptyState({ icon, title, description, action }: {
 export function CartPageContent() {
   const { cart, loading, error, reload } = useCart();
   const [orderType, setOrderType] = useState<CartOrderType>("delivery");
+  const controller = useCartQuantityController(cart);
+  const flushRef = useRef(controller.flushAll);
+
+  useEffect(() => {
+    flushRef.current = controller.flushAll;
+  }, [controller.flushAll]);
+
+  useEffect(() => {
+    return () => {
+      void flushRef.current();
+    };
+  }, []);
 
   if (loading) {
     return <CartSkeleton />;
@@ -273,8 +324,19 @@ export function CartPageContent() {
     );
   }
 
-  const order = getCartOrderSummary(cart, orderType);
-  const itemCount = cart.items.reduce(
+  const cartForDisplay: CartResponse = {
+    ...cart,
+    totalMenuPrice: null,
+    remainingMinOrderPrice: null,
+    totalPaymentPrice: null,
+    items: cart.items.map((line) => ({
+      ...line,
+      quantity: controller.getQuantity(line.id, line.quantity),
+    })),
+  };
+
+  const order = getCartOrderSummary(cartForDisplay, orderType);
+  const itemCount = cartForDisplay.items.reduce(
     (sum, line) => sum + line.quantity,
     0
   );
@@ -283,10 +345,14 @@ export function CartPageContent() {
     <div className="relative flex flex-1 flex-col bg-surface">
       <div className="flex flex-1 flex-col bg-surface pb-[148px]">
         <div className="mx-3 mt-3 overflow-hidden soft-card">
-          <CartStoreHeader cart={cart} />
+          <CartStoreHeader cart={cartForDisplay} />
           <ul className="px-4">
             {cart.items.map((line) => (
-              <CartLineItem key={line.id} line={line} />
+              <CartLineItem
+                key={line.id}
+                line={line}
+                controller={controller}
+              />
             ))}
           </ul>
         </div>
@@ -307,6 +373,7 @@ export function CartPageContent() {
         itemCount={itemCount}
         disabled={!order.meetsMinOrder}
         shortOfMin={order.remainingMinOrderPrice}
+        onCheckout={() => void controller.flushAll()}
       />
     </div>
   );
