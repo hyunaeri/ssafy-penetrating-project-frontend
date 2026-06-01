@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 
 type BackHeaderProps = {
   title: string;
+  trailing?: ReactNode;
 };
 
-export function BackHeader({ title }: BackHeaderProps) {
+export function BackHeader({ title, trailing }: BackHeaderProps) {
   const router = useRouter();
 
   return (
@@ -34,6 +36,9 @@ export function BackHeader({ title }: BackHeaderProps) {
       <h1 className="min-w-0 flex-1 text-[17px] font-bold tracking-tight text-ink">
         {title}
       </h1>
+      {trailing != null && (
+        <div className="flex shrink-0 items-center gap-0.5">{trailing}</div>
+      )}
     </header>
   );
 }

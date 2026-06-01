@@ -1,8 +1,10 @@
 "use client";
 
 import type { FoodCategory } from "@/entities/category";
+import { CartEntryButton } from "@/features/cart";
 import { useCategoryStores } from "@/features/category-stores/hooks/use-category-stores";
 import { StoreCard } from "@/features/category-stores/ui/StoreCard";
+import { AlarmButton } from "@/features/notification";
 import { BackHeader, PrimaryButton } from "@/shared/ui";
 
 type CategoryStoresScreenProps = {
@@ -14,7 +16,15 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
 
   return (
     <div className="flex min-h-full flex-col bg-surface">
-      <BackHeader title={category.name} />
+      <BackHeader
+        title={category.name}
+        trailing={
+          <>
+            <AlarmButton />
+            <CartEntryButton />
+          </>
+        }
+      />
 
       {!loading && !error && stores.length > 0 && (
         <p className="border-b border-line/80 bg-white px-4 py-2.5 text-[13px] text-muted">
