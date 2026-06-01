@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchCart } from "@/entities/cart";
 import { CART_UPDATED_EVENT } from "@/features/cart/lib/cart-events";
 
@@ -9,29 +10,28 @@ function getCartItemCount(items: { quantity: number }[]) {
 }
 
 export function useCartBadge() {
-  const [itemCount, setItemCount] = useState(0);
-
-  const refresh = useCallback(async () => {
-    try {
-      const cart = await fetchCart();
-      setItemCount(getCartItemCount(cart.items));
-    } catch {
-      setItemCount(0);
-    }
-  }, []);
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: ["cart"],
+    queryFn: fetchCart,
+  });
 
   useEffect(() => {
-    void refresh();
-
-    const onUpdate = () => void refresh();
+    const onUpdate = () => {
+      void queryClient.invalidateQueries({ queryKey: ["cart"] });
+    };
     window.addEventListener(CART_UPDATED_EVENT, onUpdate);
-    window.addEventListener("focus", onUpdate);
 
     return () => {
       window.removeEventListener(CART_UPDATED_EVENT, onUpdate);
-      window.removeEventListener("focus", onUpdate);
     };
-  }, [refresh]);
+  }, [queryClient]);
 
-  return { itemCount, hasItems: itemCount > 0, refresh };
+  const itemCount = query.data ? getCartItemCount(query.data.items) : 0;
+
+  return {
+    itemCount,
+    hasItems: itemCount > 0,
+    refresh: query.refetch,
+  };
 }
