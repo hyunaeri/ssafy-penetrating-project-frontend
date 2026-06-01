@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addCartItem,
   CartStoreConflictError,
@@ -14,7 +15,10 @@ type PendingAdd = {
 };
 
 export function useAddToCart() {
-  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (request: AddCartItemRequest) => addCartItem(request),
+  });
   const [conflict, setConflict] = useState<CartStoreConflictResponse | null>(
     null
   );
@@ -27,11 +31,10 @@ export function useAddToCart() {
 
   const add = useCallback(
     async (request: AddCartItemRequest): Promise<boolean> => {
-      setSubmitting(true);
-
       try {
-        await addCartItem(request);
+        await mutation.mutateAsync(request);
         clearConflict();
+        await queryClient.invalidateQueries({ queryKey: ["cart"] });
         return true;
       } catch (err) {
         if (err instanceof CartStoreConflictError) {
@@ -41,11 +44,9 @@ export function useAddToCart() {
         }
 
         throw err;
-      } finally {
-        setSubmitting(false);
       }
     },
-    [clearConflict]
+    [clearConflict, mutation, queryClient]
   );
 
   const confirmReplace = useCallback(async (): Promise<boolean> => {
@@ -59,7 +60,7 @@ export function useAddToCart() {
   }, [add, pending]);
 
   return {
-    submitting,
+    submitting: mutation.isPending,
     conflict,
     clearConflict,
     add,

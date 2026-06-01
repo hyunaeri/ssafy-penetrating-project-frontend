@@ -1,32 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser, type UserResponse } from "@/entities/user";
 
 export function useProfile() {
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery<UserResponse, Error>({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+  });
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      setUser(await getCurrentUser());
-    } catch (err) {
-      setUser(null);
-      setError(
-        err instanceof Error ? err.message : "사용자 정보를 불러오지 못했습니다."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  return { user, loading, error, reload: load };
+  return {
+    user: query.data ?? null,
+    loading: query.isLoading,
+    error: query.isError ? query.error.message : null,
+    reload: query.refetch,
+  };
 }

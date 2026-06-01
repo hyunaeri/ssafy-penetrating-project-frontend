@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { logout } from "@/entities/user";
 import { ProfileContent, useProfile } from "@/features/profile";
@@ -12,16 +13,23 @@ import {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, loading, error, reload } = useProfile();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      await queryClient.invalidateQueries({ queryKey: ["cart"] });
       notifySuccess(toastMessages.logout.success);
       router.replace("/login");
-    } catch {
+    },
+    onError: () => {
       notifyError(toastMessages.logout.fail);
-    }
+    },
+  });
+
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
   };
 
   return (
@@ -52,7 +60,12 @@ export default function ProfilePage() {
       {!loading && user && <ProfileContent user={user} />}
 
       <div className="mt-8">
-        <PrimaryButton type="button" variant="outline" onClick={() => void handleLogout()}>
+        <PrimaryButton
+          type="button"
+          variant="outline"
+          onClick={() => void handleLogout()}
+          disabled={logoutMutation.isPending}
+        >
           로그아웃
         </PrimaryButton>
       </div>

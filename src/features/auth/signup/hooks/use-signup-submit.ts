@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { completeSignup, type SignupRole } from "@/entities/user";
 import { setAccessToken } from "@/entities/session";
@@ -16,16 +17,17 @@ type UseSignupSubmitParams = {
 export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const mutation = useMutation({
+    mutationFn: completeSignup,
+  });
 
   const submit = async (values: SignupFormValues) => {
     if (!signupToken || !role) return;
 
     setError(null);
-    setSubmitting(true);
 
     try {
-      const response = await completeSignup({
+      const response = await mutation.mutateAsync({
         signupToken,
         phoneNumber: values.phoneNumber.trim(),
         address: formatSignupAddress(values.address, values.addressDetail),
@@ -43,9 +45,8 @@ export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
         title: toastMessages.signup.fail.title,
         description: message,
       });
-      setSubmitting(false);
     }
   };
 
-  return { submit, error, submitting };
+  return { submit, error, submitting: mutation.isPending };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   MobileShell,
@@ -13,8 +14,26 @@ import { setAccessToken } from "@/entities/session";
 
 function OAuthCallbackContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [message, setMessage] = useState("로그인 처리 중입니다");
+  const loginMutation = useMutation({
+    mutationFn: async (accessToken: string) => {
+      setAccessToken(accessToken);
+      await fetchCurrentUser(accessToken);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      notifySuccess(toastMessages.login.success);
+      router.replace("/main");
+    },
+    onError: () => {
+      setMessage("로그인에 실패했어요. 잠시 후 다시 시도해 주세요.");
+      notifyError(toastMessages.login.fail);
+      setTimeout(() => router.replace("/login"), 2000);
+    },
+  });
+  const completeLogin = loginMutation.mutate;
 
   useEffect(() => {
     const accessToken = searchParams?.get("accessToken");
@@ -26,21 +45,8 @@ function OAuthCallbackContent() {
       return () => clearTimeout(timer);
     }
 
-    const complete = async () => {
-      try {
-        setAccessToken(accessToken);
-        await fetchCurrentUser(accessToken);
-        notifySuccess(toastMessages.login.success);
-        router.replace("/main");
-      } catch {
-        setMessage("로그인에 실패했어요. 잠시 후 다시 시도해 주세요.");
-        notifyError(toastMessages.login.fail);
-        setTimeout(() => router.replace("/login"), 2000);
-      }
-    };
-
-    void complete();
-  }, [router, searchParams]);
+    completeLogin(accessToken);
+  }, [completeLogin, router, searchParams]);
 
   return (
     <MobileShell title="연동 중">
