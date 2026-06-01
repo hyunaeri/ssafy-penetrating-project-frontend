@@ -10,12 +10,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.100.14",
     "next": "^15.3.2",
     "react": "^19.1.0",
     "react-daum-postcode": "^4.0.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.76.0",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.7",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
