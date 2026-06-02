@@ -73,7 +73,7 @@ export function SignupContactFields({
           disabled={!hasBaseAddress}
           placeholder={
             hasBaseAddress
-              ? "동 · 호수 · 아파트명 등 세부 주소"
+              ? "동 / 호수 / 아파트명 등 세부 주소"
               : "주소 검색 후 입력해 주세요."
           }
           className={`${SIGNUP_INPUT_CLASS} disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted`}

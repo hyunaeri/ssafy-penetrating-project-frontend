@@ -4,16 +4,18 @@ import { toast } from "sonner";
 import { ToastErrorIcon, ToastSuccessIcon } from "./ToastIcons";
 
 const TOAST_BASE =
-  "!w-full !flex !flex-row !items-start !gap-3 !rounded-2xl !border !shadow-soft !px-3.5 !py-3.5";
+  "!w-full !flex !flex-row !items-center !gap-3 !rounded-2xl !border !shadow-soft !px-3.5 !py-3.5";
 
 const TOAST_SUCCESS = `${TOAST_BASE} !border-brand/20 !bg-[#ecfafa] !text-ink`;
 const TOAST_ERROR = `${TOAST_BASE} !border-[#fde8c8] !bg-accent-warm !text-ink`;
 
-const TOAST_ICON = "!mt-0 !shrink-0";
-const TOAST_CONTENT = "!flex !min-w-0 !flex-1 !flex-col !gap-0.5";
-const TOAST_TITLE = "!text-[14px] !font-semibold !leading-snug !tracking-normal";
+const TOAST_ICON = "!shrink-0 !self-center";
+const TOAST_CONTENT =
+  "!flex !min-w-0 !flex-1 !flex-col !justify-center !gap-0.5";
+const TOAST_TITLE =
+  "!font-sans !text-[14px] !font-semibold !leading-[1.45] !tracking-normal !text-ink";
 const TOAST_DESCRIPTION =
-  "!whitespace-pre-line !text-[13px] !font-normal !leading-relaxed !tracking-normal !text-muted/90";
+  "!whitespace-pre-line !font-sans !text-[13px] !font-normal !leading-[1.45] !tracking-normal !text-muted/90";
 
 type ToastContent = {
   title: string;
@@ -22,10 +24,10 @@ type ToastContent = {
 
 function showToast(type: "success" | "error", { title, description }: ToastContent) {
   const className = type === "success" ? TOAST_SUCCESS : TOAST_ERROR;
-  const fn = type === "success" ? toast.success : toast.error;
   const icon = type === "success" ? <ToastSuccessIcon /> : <ToastErrorIcon />;
 
-  fn(title, {
+  // success/error 헬퍼는 타입별 기본 스타일이 달라질 수 있어 동일 API로 통일
+  toast(title, {
     description,
     icon,
     classNames: {

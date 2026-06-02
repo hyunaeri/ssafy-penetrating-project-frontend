@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBackendUrl } from "@/shared/api";
 
-/** `GET /api/main/me` — 메인 페이지용 현재 사용자 (백엔드 `/api/v1/auth/me` 프록시). */
+/** `GET /api/main/me` — 메인 페이지용 현재 사용자 (백엔드 `/api/v1/users/me` 프록시). */
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization");
 
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${getBackendUrl()}/api/v1/auth/me`, {
+    const response = await fetch(`${getBackendUrl()}/api/v1/users/me`, {
       method: "GET",
       headers: {
         Authorization: token,

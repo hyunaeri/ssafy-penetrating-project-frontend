@@ -75,4 +75,21 @@
   width: 100%;
   margin-left: auto;
   margin-right: auto;
+  font-family: inherit;
+}
+
+[data-sonner-toaster].app-toaster [data-title] {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.45 !important;
+  letter-spacing: normal !important;
+}
+
+[data-sonner-toaster].app-toaster [data-description] {
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.45 !important;
+  letter-spacing: normal !important;
 }
