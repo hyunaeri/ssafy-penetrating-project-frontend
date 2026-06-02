@@ -1,10 +1,5 @@
-import { PlaceholderPage } from "@/shared/ui";
+import { FavoriteStoresScreen } from "@/features/favorite";
 
 export default function FavoritePage() {
-  return (
-    <PlaceholderPage
-      title="찜"
-      description="찜한 매장이 여기에 표시됩니다."
-    />
-  );
+  return <FavoriteStoresScreen />;
 }
