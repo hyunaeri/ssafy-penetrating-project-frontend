@@ -24,6 +24,7 @@ function OAuthCallbackContent() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      await queryClient.invalidateQueries({ queryKey: ["favorites"] });
       notifySuccess(toastMessages.login.success);
       router.replace("/main");
     },

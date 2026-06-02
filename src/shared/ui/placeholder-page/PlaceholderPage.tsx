@@ -1,3 +1,9 @@
+"use client";
+
+import { CartEntryButton } from "@/features/cart";
+import { AlarmButton } from "@/features/notification";
+import { BackHeader } from "@/shared/ui/back-header";
+
 type PlaceholderPageProps = {
   title: string;
   description: string;
@@ -5,9 +11,19 @@ type PlaceholderPageProps = {
 
 export function PlaceholderPage({ title, description }: PlaceholderPageProps) {
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface px-5 py-10">
-      <h1 className="text-[22px] font-bold text-ink">{title}</h1>
-      <p className="mt-2 text-[14px] text-muted">{description}</p>
+    <div className="flex min-h-full flex-col bg-surface">
+      <BackHeader
+        title={title}
+        trailing={
+          <>
+            <AlarmButton />
+            <CartEntryButton />
+          </>
+        }
+      />
+      <div className="px-5 py-10">
+        <p className="text-[14px] leading-relaxed text-muted">{description}</p>
+      </div>
     </div>
   );
 }

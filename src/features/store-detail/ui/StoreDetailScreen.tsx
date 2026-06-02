@@ -71,6 +71,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
     >
       <StoreHero name={store.name} imageUrl={store.imageUrl} />
       <StoreInfoSection
+        storeId={store.id}
         name={store.name}
         description={store.description}
         address={store.address}

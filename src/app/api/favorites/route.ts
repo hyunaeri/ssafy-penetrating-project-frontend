@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBackendUrl } from "@/shared/api";
 
-/** `GET /api/main/me` — 메인 페이지용 현재 사용자 (백엔드 `/api/v1/users/me` 프록시). */
+/** `GET /api/favorites` — 찜 매장 목록 (백엔드 `/api/v1/favorites` 프록시). */
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization");
 
@@ -10,28 +10,27 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${getBackendUrl()}/api/v1/users/me`, {
+    const response = await fetch(`${getBackendUrl()}/api/v1/favorites`, {
       method: "GET",
       headers: {
-        Authorization: token,
         Accept: "application/json",
+        Authorization: token,
       },
     });
 
+    const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const err = (await response.json().catch(() => ({}))) as {
-        message?: string;
-      };
+      const err = data as { message?: string };
       return NextResponse.json(
-        { message: err.message ?? "사용자 정보를 불러오지 못했습니다." },
+        { message: err.message ?? "찜 목록을 불러오지 못했습니다." },
         { status: response.status }
       );
     }
 
-    const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Failed to fetch current user:", error);
+    console.error("Failed to fetch favorite stores:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
