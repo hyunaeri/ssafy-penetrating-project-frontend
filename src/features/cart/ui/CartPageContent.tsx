@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   getCartOrderSummary,
@@ -17,6 +18,7 @@ import {
   type CartOrderType,
 } from "@/features/cart/ui/CartOrderTypeToggle";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
+import { saveCheckoutOrderType } from "@/features/payment";
 import { PrimaryButton } from "@/shared/ui";
 
 function CartLineItem({
@@ -270,6 +272,7 @@ function EmptyState({ icon, title, description, action }: {
 }
 
 export function CartPageContent() {
+  const router = useRouter();
   const { cart, loading, error, reload } = useCart();
   const [orderType, setOrderType] = useState<CartOrderType>("delivery");
   const controller = useCartQuantityController(cart);
@@ -373,7 +376,13 @@ export function CartPageContent() {
         itemCount={itemCount}
         disabled={!order.meetsMinOrder}
         shortOfMin={order.remainingMinOrderPrice}
-        onCheckout={() => void controller.flushAll()}
+        onCheckout={() => {
+          void (async () => {
+            await controller.flushAll();
+            saveCheckoutOrderType(orderType);
+            router.push("/payment/checkout");
+          })();
+        }}
       />
     </div>
   );
