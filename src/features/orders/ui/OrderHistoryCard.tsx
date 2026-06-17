@@ -1,0 +1,161 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import type { OrderResponse } from "@/entities/order";
+import { formatWon } from "@/features/category-stores/lib/format-store-display";
+import {
+  getOrderStatusBadgeClass,
+  getOrderStatusLabel,
+} from "@/features/orders/lib/format-order-status";
+
+type OrderHistoryCardProps = {
+  order: OrderResponse;
+};
+
+function OrderStatusBadge({ order }: { order: OrderResponse }) {
+  const label = getOrderStatusLabel(order.status);
+  const badgeClass = getOrderStatusBadgeClass(order.status);
+
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ring-inset ${badgeClass}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function getStoreName(order: OrderResponse) {
+  const name = order.storeName?.trim();
+  if (name) return name;
+  return `매장 #${order.storeId}`;
+}
+
+function getMenuSummary(order: OrderResponse) {
+  if (order.items.length === 0) return "주문 메뉴 없음";
+  const first = order.items[0]!;
+  const quantityLabel = first.quantity > 1 ? ` ${first.quantity}개` : "";
+  const firstLine = `${first.menuName}${quantityLabel}`;
+  if (order.items.length === 1) return firstLine;
+  return `${firstLine} 외 ${order.items.length - 1}건`;
+}
+
+function formatOrderDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"] as const;
+  return `${date.getMonth() + 1}. ${date.getDate()} (${weekdays[date.getDay()]})`;
+}
+
+function StoreThumbnail({
+  name,
+  imageUrl,
+}: {
+  name: string;
+  imageUrl?: string | null;
+}) {
+  const [failed, setFailed] = useState(false);
+  const trimmed = imageUrl?.trim();
+  const showImage = Boolean(trimmed) && !failed;
+
+  return (
+    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-inset ring-line/80">
+      {showImage ? (
+        <Image
+          src={trimmed!}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="56px"
+          unoptimized
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center text-[18px] font-bold text-brand-dark">
+          {name.charAt(0)}
+        </span>
+      )}
+    </div>
+  );
+}
+
+export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
+  const storeName = getStoreName(order);
+  const hasDiscount = order.totalPrice > order.finalPrice;
+
+  return (
+    <article className="overflow-hidden rounded-2xl bg-white shadow-card">
+      <div className="flex items-start gap-3 p-4 pb-3">
+        <StoreThumbnail name={storeName} imageUrl={order.storeImageUrl} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <h3 className="line-clamp-1 text-[16px] font-bold text-ink">
+                {storeName}
+              </h3>
+              <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                <p className="text-[13px] text-muted">
+                  {formatOrderDate(order.orderedAt)}
+                </p>
+                <OrderStatusBadge order={order} />
+              </div>
+            </div>
+            <Link
+              href={`/stores/${order.storeId}`}
+              className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[12px] font-medium text-muted transition-colors hover:border-brand/30 hover:text-ink"
+            >
+              주문상세
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-line/70 px-4 py-3">
+        <p className="line-clamp-2 text-[14px] leading-relaxed text-ink">
+          {getMenuSummary(order)}
+        </p>
+
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <span className="text-[14px] text-muted">결제금액</span>
+          <div className="flex items-center gap-1.5">
+            {hasDiscount && (
+              <span className="text-[13px] text-muted line-through">
+                {formatWon(order.totalPrice + order.deliveryFee)}
+              </span>
+            )}
+            <span className="flex items-center gap-1 text-[17px] font-bold text-accent-purple-text">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="text-brand-dark"
+                aria-hidden
+              >
+                <path d="M12 2 4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6l-8-4Z" />
+              </svg>
+              {formatWon(order.finalPrice)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3">
+        <Link
+          href={`/stores/${order.storeId}`}
+          className="flex h-11 items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface"
+        >
+          같은 메뉴 담기
+        </Link>
+        <Link
+          href={`/stores/${order.storeId}`}
+          className="brand-cta h-11 text-[14px]"
+        >
+          바로 주문
+        </Link>
+      </div>
+    </article>
+  );
+}
