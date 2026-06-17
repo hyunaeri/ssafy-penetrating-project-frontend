@@ -14,11 +14,9 @@ const PROVINCE_SUFFIX = /(특별자치도|특별자치시|특별시|광역시|�
 
 export function formatShortAddress(address: string | null | undefined): string {
   const trimmed = address?.trim();
-  if (!trimmed) return "";
+  if (!trimmed) return '';
 
-  const base = trimmed.includes("(")
-    ? trimmed.slice(0, trimmed.indexOf("("))
-    : trimmed;
+  const base = trimmed.includes('(') ? trimmed.slice(0, trimmed.indexOf('(')) : trimmed;
 
   const tokens = base.trim().split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return trimmed;
@@ -27,5 +25,5 @@ export function formatShortAddress(address: string | null | undefined): string {
     tokens.shift();
   }
 
-  return tokens.slice(0, 3).join(" ") || trimmed;
+  return tokens.slice(0, 3).join(' ') || trimmed;
 }
