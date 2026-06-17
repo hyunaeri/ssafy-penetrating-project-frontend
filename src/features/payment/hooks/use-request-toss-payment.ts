@@ -14,11 +14,15 @@ import type { CartOrderType } from "@/entities/cart/lib/parse-cart-response";
 
 type UseRequestTossPaymentParams = {
   storeId: number;
+  storeName: string;
+  menuSummary: string;
   orderType: CartOrderType;
 };
 
 export function useRequestTossPayment({
   storeId,
+  storeName,
+  menuSummary,
   orderType,
 }: UseRequestTossPaymentParams) {
   const [sdkReady, setSdkReady] = useState(false);
@@ -68,6 +72,8 @@ export function useRequestTossPayment({
           orderId: prepared.tossOrderId,
           amount: prepared.amount,
           orderName: prepared.orderName,
+          storeName: storeName.trim() || "매장",
+          menuSummary: menuSummary.trim() || "주문",
           orderType,
         });
 
@@ -114,7 +120,7 @@ export function useRequestTossPayment({
         setPaying(false);
       }
     },
-    [orderType, storeId]
+    [menuSummary, orderType, storeId, storeName]
   );
 
   return {

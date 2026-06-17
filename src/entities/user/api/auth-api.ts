@@ -54,14 +54,17 @@ export async function completeSignup(
 
 export async function logout(): Promise<void> {
   const token = getAccessToken();
+  clearAccessToken();
+
+  if (!token) return;
 
   try {
     await fetch(`${getApiBaseUrl()}/api/main/logout`, {
       method: "POST",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: { Authorization: `Bearer ${token}` },
       credentials: "include",
     });
-  } finally {
-    clearAccessToken();
+  } catch {
+    // 로컬 세션은 이미 제거됨
   }
 }

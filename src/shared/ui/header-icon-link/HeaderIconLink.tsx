@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { HEADER_ICON_TRIGGER_CLASS } from "./header-icon-styles";
 
 type HeaderIconLinkProps = {
   href: string;
@@ -9,11 +10,7 @@ type HeaderIconLinkProps = {
 
 export function HeaderIconLink({ href, label, children }: HeaderIconLinkProps) {
   return (
-    <Link
-      href={href}
-      aria-label={label}
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-all hover:bg-brand-soft hover:text-brand-dark active:scale-95"
-    >
+    <Link href={href} aria-label={label} className={HEADER_ICON_TRIGGER_CLASS}>
       {children}
     </Link>
   );

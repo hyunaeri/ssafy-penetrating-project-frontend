@@ -21,6 +21,8 @@ export type OrderResponse = {
   id: number;
   userId: number;
   storeId: number;
+  storeName?: string | null;
+  storeImageUrl?: string | null;
   riderId?: number | null;
   couponId?: number | null;
   totalPrice: number;

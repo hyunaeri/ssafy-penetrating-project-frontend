@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/shared/lib/use-app-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   getCartOrderSummary,
@@ -272,7 +272,7 @@ function EmptyState({ icon, title, description, action }: {
 }
 
 export function CartPageContent() {
-  const router = useRouter();
+  const router = useAppRouter();
   const { cart, loading, error, reload } = useCart();
   const [orderType, setOrderType] = useState<CartOrderType>("delivery");
   const controller = useCartQuantityController(cart);

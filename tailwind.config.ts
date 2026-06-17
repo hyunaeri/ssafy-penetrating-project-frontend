@@ -5,7 +5,17 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["HannaAir", "sans-serif"],
+        sans: [
+          "HannaAir",
+          "Pretendard",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Apple SD Gothic Neo",
+          "Noto Sans KR",
+          "Noto Sans CJK KR",
+          "Noto Sans CJK SC",
+          "sans-serif",
+        ],
       },
       colors: {
         ink: "#2b2d42",

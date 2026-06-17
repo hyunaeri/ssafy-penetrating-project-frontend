@@ -19,6 +19,8 @@ export type PendingPaymentContext = {
   orderId: string;
   amount: number;
   orderName: string;
+  storeName: string;
+  menuSummary: string;
   orderType: CartOrderType;
 };
 

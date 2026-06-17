@@ -1,2 +1,2 @@
-export { CategoryGrid } from "./ui/CategoryGrid";
+export { HomeScreen } from "./ui/HomeScreen";
 export { ScrollToTopButton } from "./ui/ScrollToTopButton";

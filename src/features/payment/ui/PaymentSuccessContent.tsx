@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import {
+  showOrderNotificationAfterPayment,
+  startNotificationStream,
+} from "@/features/notification";
 import { confirmPayment } from "@/features/payment/api/confirm-payment";
 import { clearCheckoutOrderType } from "@/features/payment/lib/payment-checkout-session";
 import {
@@ -61,6 +65,10 @@ export function PaymentSuccessContent() {
     const run = async () => {
       try {
         await confirmPayment({ paymentKey, orderId, amount });
+        if (pending?.paymentOrderId) {
+          startNotificationStream(pending.paymentOrderId);
+        }
+        showOrderNotificationAfterPayment(pending);
         clearPendingPayment();
         clearCheckoutOrderType();
         setState({ status: "success", amount, orderId });
