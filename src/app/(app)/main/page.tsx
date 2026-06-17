@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  CategoryGrid,
-  ScrollToTopButton,
-} from "@/features/category-grid";
+import { HomeScreen, ScrollToTopButton } from "@/features/category-grid";
 
 export default function MainPage() {
   const [showTop, setShowTop] = useState(false);
@@ -18,7 +15,7 @@ export default function MainPage() {
 
   return (
     <>
-      <CategoryGrid />
+      <HomeScreen />
       <ScrollToTopButton
         visible={showTop}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
