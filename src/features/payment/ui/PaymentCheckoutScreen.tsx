@@ -6,6 +6,7 @@ import { getCartOrderSummary } from "@/entities/cart";
 import type { CartOrderType } from "@/entities/cart/lib/parse-cart-response";
 import { useCart } from "@/features/cart/hooks/use-cart";
 import { getCheckoutOrderType } from "@/features/payment/lib/payment-checkout-session";
+import { buildMenuSummaryFromCart } from "@/features/payment/lib/build-menu-summary";
 import { useRequestTossPayment } from "@/features/payment/hooks/use-request-toss-payment";
 import type { PaymentMethod } from "@/features/payment/model/types";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
@@ -27,8 +28,15 @@ export function PaymentCheckoutScreen() {
     [cart, orderType]
   );
 
+  const menuSummary = useMemo(
+    () => (cart ? buildMenuSummaryFromCart(cart) : "주문"),
+    [cart]
+  );
+
   const { sdkReady, sdkError, paying, requestPayment } = useRequestTossPayment({
     storeId: cart?.storeId ?? 0,
+    storeName: cart?.storeName?.trim() ?? "매장",
+    menuSummary,
     orderType,
   });
 
