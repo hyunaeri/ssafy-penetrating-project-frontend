@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { logout } from "@/entities/user";
 import { CartEntryButton } from "@/features/cart";
 import { AlarmButton } from "@/features/notification";
+import { stopNotificationStream } from "@/features/notification/store/notification-stream-store";
 import { ProfileContent, useProfile } from "@/features/profile";
+import { setNavigationDirection } from "@/shared/lib/navigation-direction";
 import {
   BackHeader,
   notifyError,
@@ -20,10 +22,11 @@ export default function ProfilePage() {
   const { user, loading, error, reload } = useProfile();
   const logoutMutation = useMutation({
     mutationFn: logout,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      await queryClient.invalidateQueries({ queryKey: ["cart"] });
-      await queryClient.invalidateQueries({ queryKey: ["favorites"] });
+    onSuccess: () => {
+      stopNotificationStream();
+      void queryClient.cancelQueries();
+      queryClient.clear();
+      setNavigationDirection("replace");
       notifySuccess(toastMessages.logout.success);
       router.replace("/login");
     },
@@ -32,9 +35,12 @@ export default function ProfilePage() {
     },
   });
 
-  const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
+
+  const isLoggingOut = logoutMutation.isPending;
+  const showProfile = !isLoggingOut && !loading && !error && user;
 
   return (
     <div className="flex min-h-full flex-col bg-surface">
@@ -53,33 +59,43 @@ export default function ProfilePage() {
           프로필과 계정 정보를 확인할 수 있습니다.
         </p>
 
-      {loading && (
-        <p className="flex flex-1 items-center justify-center text-[14px] text-muted">
-          정보를 불러오는 중입니다
-        </p>
-      )}
+        {isLoggingOut && (
+          <p className="flex flex-1 items-center justify-center text-[14px] text-muted">
+            로그아웃하는 중입니다
+          </p>
+        )}
 
-      {!loading && error && (
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-          <p className="text-[14px] text-red-600">{error}</p>
-          <PrimaryButton type="button" variant="outline" onClick={() => void reload()}>
-            다시 시도
+        {!isLoggingOut && loading && (
+          <p className="flex flex-1 items-center justify-center text-[14px] text-muted">
+            정보를 불러오는 중입니다
+          </p>
+        )}
+
+        {!isLoggingOut && !loading && error && (
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+            <p className="text-[14px] text-red-600">{error}</p>
+            <PrimaryButton
+              type="button"
+              variant="outline"
+              onClick={() => void reload()}
+            >
+              다시 시도
+            </PrimaryButton>
+          </div>
+        )}
+
+        {showProfile && <ProfileContent user={user} />}
+
+        <div className="mt-8">
+          <PrimaryButton
+            type="button"
+            variant="outline"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            로그아웃
           </PrimaryButton>
         </div>
-      )}
-
-      {!loading && user && <ProfileContent user={user} />}
-
-      <div className="mt-8">
-        <PrimaryButton
-          type="button"
-          variant="outline"
-          onClick={() => void handleLogout()}
-          disabled={logoutMutation.isPending}
-        >
-          로그아웃
-        </PrimaryButton>
-      </div>
       </div>
     </div>
   );
