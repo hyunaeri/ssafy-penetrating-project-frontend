@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/shared/lib/use-app-router";
 import { useState, type ReactNode } from "react";
 import { useCartBadge } from "@/features/cart/hooks/use-cart-badge";
 import { CartBadgeDot } from "@/features/cart/ui/CartBadgeDot";
@@ -34,7 +34,7 @@ function HeroIconButton({
 }
 
 export function StoreHero({ name, imageUrl }: StoreHeroProps) {
-  const router = useRouter();
+  const router = useAppRouter();
   const { itemCount, hasItems } = useCartBadge();
   const trimmedUrl = imageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);

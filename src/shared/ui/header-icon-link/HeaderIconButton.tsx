@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { HEADER_ICON_TRIGGER_CLASS } from "./header-icon-styles";
 
 type HeaderIconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string;
@@ -16,7 +17,7 @@ export function HeaderIconButton({
     <button
       type={type}
       aria-label={label}
-      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface active:bg-surface disabled:opacity-40 ${className}`}
+      className={`${HEADER_ICON_TRIGGER_CLASS} disabled:opacity-40 ${className}`}
       {...props}
     >
       {children}

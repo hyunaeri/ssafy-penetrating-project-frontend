@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { useAppRouter } from "@/shared/lib/use-app-router";
 
 type BackHeaderProps = {
   title: string;
@@ -9,7 +9,7 @@ type BackHeaderProps = {
 };
 
 export function BackHeader({ title, trailing }: BackHeaderProps) {
-  const router = useRouter();
+  const router = useAppRouter();
 
   return (
     <header className="sticky top-0 z-10 flex items-center gap-0.5 border-b border-line/80 bg-white/95 px-3 py-3.5 backdrop-blur-sm">
