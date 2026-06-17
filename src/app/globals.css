@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +10,16 @@
     format("woff");
   font-weight: normal;
   font-display: swap;
+  /* 한글·라틴만 적용. 한자/중국어는 다음 폴백 폰트로 넘긴다. */
+  unicode-range:
+    U+0000-00FF,
+    U+3000-303F,
+    U+3130-318F,
+    U+AC00-D7A3,
+    U+1100-11FF,
+    U+A960-A97F,
+    U+D7B0-D7FF,
+    U+FF00-FFEF;
 }
 
 @layer base {
@@ -54,6 +66,15 @@
   .tooltip-fade-in {
     animation: tooltip-fade-in 0.15s ease-out;
   }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Sonner: 모바일 셸(430px) 상단 중앙 */
@@ -80,9 +101,9 @@
 
 [data-sonner-toaster].app-toaster [data-title] {
   font-family: inherit !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  line-height: 1.45 !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
   letter-spacing: normal !important;
 }
 
@@ -90,6 +111,11 @@
   font-family: inherit !important;
   font-size: 13px !important;
   font-weight: 400 !important;
-  line-height: 1.45 !important;
+  line-height: 1.5 !important;
   letter-spacing: normal !important;
+}
+
+/* 페이지 전환 컨테이너 */
+.page-transition-root {
+  isolation: isolate;
 }
