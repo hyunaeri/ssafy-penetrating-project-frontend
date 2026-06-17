@@ -3,19 +3,21 @@
 import { toast } from "sonner";
 import { ToastErrorIcon, ToastSuccessIcon } from "./ToastIcons";
 
+// 흰 카드 + 작은 컬러 아이콘 칩. 흰 배경 페이지 위에서도 떠 보이도록
+// 강한 그림자와 얇은 링으로 입체감을 준다.
 const TOAST_BASE =
-  "!w-full !flex !flex-row !items-center !gap-3 !rounded-2xl !border !shadow-soft !px-3.5 !py-3.5";
+  "!w-full !flex !flex-row !items-center !gap-3 !rounded-2xl !border !border-line !bg-white !shadow-[0_10px_34px_rgba(43,45,66,0.18)] !ring-1 !ring-black/5 !px-4 !py-3.5";
 
-const TOAST_SUCCESS = `${TOAST_BASE} !border-brand/20 !bg-[#ecfafa] !text-ink`;
-const TOAST_ERROR = `${TOAST_BASE} !border-[#fde8c8] !bg-accent-warm !text-ink`;
+const TOAST_SUCCESS = TOAST_BASE;
+const TOAST_ERROR = TOAST_BASE;
 
 const TOAST_ICON = "!shrink-0 !self-center";
 const TOAST_CONTENT =
-  "!flex !min-w-0 !flex-1 !flex-col !justify-center !gap-0.5";
+  "!flex !min-w-0 !flex-1 !flex-col !justify-center !gap-1";
 const TOAST_TITLE =
-  "!font-sans !text-[14px] !font-semibold !leading-[1.45] !tracking-normal !text-ink";
+  "!font-sans !text-[14.5px] !font-bold !leading-[1.4] !tracking-normal !text-ink";
 const TOAST_DESCRIPTION =
-  "!whitespace-pre-line !font-sans !text-[13px] !font-normal !leading-[1.45] !tracking-normal !text-muted/90";
+  "!whitespace-pre-line !font-sans !text-[13px] !font-normal !leading-[1.5] !tracking-normal !text-muted";
 
 type ToastContent = {
   title: string;
