@@ -10,16 +10,14 @@
     format("woff");
   font-weight: normal;
   font-display: swap;
-  /* 한글·라틴만 적용. 한자/중국어는 다음 폴백 폰트로 넘긴다. */
+  /* 한글 음절·자모만 적용. +, 숫자, 영문 등은 Pretendard 폴백 사용 */
   unicode-range:
-    U+0000-00FF,
     U+3000-303F,
     U+3130-318F,
     U+AC00-D7A3,
     U+1100-11FF,
     U+A960-A97F,
-    U+D7B0-D7FF,
-    U+FF00-FFEF;
+    U+D7B0-D7FF;
 }
 
 @layer base {
