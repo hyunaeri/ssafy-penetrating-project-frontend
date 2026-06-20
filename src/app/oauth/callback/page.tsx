@@ -9,7 +9,7 @@ import {
   notifySuccess,
   toastMessages,
 } from "@/shared/ui";
-import { fetchCurrentUser } from "@/entities/user";
+import { fetchCurrentUser, getHomePathByRole, getLoginSuccessToast } from "@/entities/user";
 import { setAccessToken } from "@/entities/session";
 
 function OAuthCallbackContent() {
@@ -20,13 +20,13 @@ function OAuthCallbackContent() {
   const loginMutation = useMutation({
     mutationFn: async (accessToken: string) => {
       setAccessToken(accessToken);
-      await fetchCurrentUser(accessToken);
+      return fetchCurrentUser(accessToken);
     },
-    onSuccess: async () => {
+    onSuccess: async (user) => {
       await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
       await queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      notifySuccess(toastMessages.login.success);
-      router.replace("/main");
+      notifySuccess(getLoginSuccessToast(user.role));
+      router.replace(getHomePathByRole(user.role));
     },
     onError: () => {
       setMessage("로그인에 실패했어요. 잠시 후 다시 시도해 주세요.");

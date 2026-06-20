@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { completeSignup, type SignupRole } from "@/entities/user";
+import { completeSignup, getHomePathByRole, getSignupSuccessToast, type SignupRole } from "@/entities/user";
 import { setAccessToken } from "@/entities/session";
 import { notifyError, notifySuccess, toastMessages } from "@/shared/ui";
 import { formatSignupAddress } from "@/features/auth/signup/lib/format-signup-address";
@@ -35,8 +35,8 @@ export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
       });
 
       setAccessToken(response.accessToken);
-      notifySuccess(toastMessages.signup.success);
-      router.replace("/main");
+      notifySuccess(getSignupSuccessToast(response.user.role));
+      router.replace(getHomePathByRole(response.user.role));
     } catch (err) {
       const message =
         err instanceof Error ? err.message : toastMessages.signup.fail.description;

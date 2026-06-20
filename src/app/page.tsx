@@ -1,15 +1,27 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { getAccessToken } from "@/entities/session";
+import { getCurrentUser, getHomePathByRole } from "@/entities/user";
+import { useAppRouter } from "@/shared/lib/use-app-router";
 
 export default function HomePage() {
-  const router = useRouter();
+  const router = useAppRouter();
 
   useEffect(() => {
     const token = getAccessToken();
-    router.replace(token ? "/main" : "/login");
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    void getCurrentUser()
+      .then((user) => {
+        router.replace(getHomePathByRole(user.role));
+      })
+      .catch(() => {
+        router.replace("/login");
+      });
   }, [router]);
 
   return (

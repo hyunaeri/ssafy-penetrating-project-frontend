@@ -5,6 +5,15 @@ export { formatProviderLabel } from "./lib/format-provider-label";
 export { formatUserRole } from "./lib/format-user-role";
 export { formatShortAddress } from "./lib/format-short-address";
 export {
+  getHomePathByRole,
+  isCustomerRole,
+  isOwnerRole,
+} from "./lib/get-home-path-by-role";
+export {
+  getLoginSuccessToast,
+  getSignupSuccessToast,
+} from "./lib/get-auth-toast-message";
+export {
   completeSignup,
   fetchCurrentUser,
   getCurrentUser,
