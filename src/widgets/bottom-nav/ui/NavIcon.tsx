@@ -69,6 +69,25 @@ export function NavIcon({ icon, active = false }: NavIconProps) {
           <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
         </svg>
       );
+    case "ownerOrders":
+      return (
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill={active ? "currentColor" : "none"}
+          stroke="currentColor"
+          strokeWidth={active ? 1.8 : 1.6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden
+        >
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+          <rect x="9" y="3" width="6" height="4" rx="1" />
+          <path d="M9 12h6M9 16h4" />
+        </svg>
+      );
     case "profile":
       return (
         <svg
@@ -83,6 +102,43 @@ export function NavIcon({ icon, active = false }: NavIconProps) {
         >
           <circle cx="12" cy="8" r="3.5" />
           <path d="M6 19.5c1.4-3 4.1-4.5 6-4.5s4.6 1.5 6 4.5" />
+        </svg>
+      );
+    case "store":
+      return (
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={active ? 2.2 : 1.6}
+          className={className}
+          aria-hidden
+        >
+          <path d="M4 10 5.5 4h13L19 10" />
+          <path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9" />
+          <path d="M9 14h6" />
+        </svg>
+      );
+    case "ownerStore":
+      return (
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill={active ? "currentColor" : "none"}
+          stroke="currentColor"
+          strokeWidth={active ? 1.8 : 1.6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+          aria-hidden
+        >
+          <path d="M3 9h18" />
+          <path d="M4 9 5.5 3h13L20 9" />
+          <path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9" />
+          <path d="M10 21V12h4v9" />
         </svg>
       );
   }

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { AppShell } from "@/widgets/app-shell";
+import { CustomerAppShell } from "@/widgets/app-shell";
 
-export default function AppTabLayout({ children }: { children: ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+export default function CustomerAppLayout({ children }: { children: ReactNode }) {
+  return <CustomerAppShell>{children}</CustomerAppShell>;
 }

@@ -3,7 +3,10 @@ export type BottomNavIcon =
   | "favorite"
   | "catalog"
   | "orders"
-  | "profile";
+  | "ownerOrders"
+  | "profile"
+  | "store"
+  | "ownerStore";
 
 export type BottomNavItem = {
   href: string;
@@ -11,12 +14,6 @@ export type BottomNavItem = {
   icon: BottomNavIcon;
 };
 
-export const BOTTOM_NAV_ITEMS: BottomNavItem[] = [
-  { href: "/main", label: "홈", icon: "home" },
-  { href: "/favorite", label: "찜", icon: "favorite" },
-  { href: "/catalog", label: "도감", icon: "catalog" },
-  { href: "/orders", label: "주문내역", icon: "orders" },
-  { href: "/profile", label: "내 정보", icon: "profile" },
-];
+export { CUSTOMER_BOTTOM_NAV_ITEMS as BOTTOM_NAV_ITEMS } from "./customer-items";
 
 export const BOTTOM_NAV_HEIGHT_PX = 64;

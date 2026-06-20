@@ -3,10 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isBottomNavItemActive } from "@/widgets/bottom-nav/lib/is-nav-item-active";
-import { BOTTOM_NAV_ITEMS } from "@/widgets/bottom-nav/model/items";
+import type { BottomNavItem } from "@/widgets/bottom-nav/model/items";
+import { CUSTOMER_BOTTOM_NAV_ITEMS } from "@/widgets/bottom-nav/model/customer-items";
 import { NavIcon } from "@/widgets/bottom-nav/ui/NavIcon";
 
-export function BottomNav() {
+type BottomNavProps = {
+  items?: BottomNavItem[];
+};
+
+export function BottomNav({ items = CUSTOMER_BOTTOM_NAV_ITEMS }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
@@ -14,8 +19,13 @@ export function BottomNav() {
       aria-label="하단 메뉴"
       className="fixed bottom-0 left-0 right-0 z-30 mx-auto w-full max-w-mobile border-t border-line/60 bg-white/95 shadow-nav backdrop-blur-md"
     >
-      <ul className="grid h-16 grid-cols-5">
-        {BOTTOM_NAV_ITEMS.map((item) => {
+      <ul
+        className="grid h-16"
+        style={{
+          gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {items.map((item) => {
           const active = isBottomNavItemActive(pathname, item);
 
           return (

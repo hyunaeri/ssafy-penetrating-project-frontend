@@ -15,5 +15,9 @@ export function isBottomNavItemActive(
     return HOME_ACTIVE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   }
 
+  if (item.href === "/owner") {
+    return pathname === "/owner";
+  }
+
   return false;
 }
