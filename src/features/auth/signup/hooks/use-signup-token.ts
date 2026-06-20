@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parseSignupToken, type SignupTokenPreview } from "@/entities/user";
+import { getOAuthIntent } from "@/shared/lib/oauth-intent";
 
 export function useSignupToken() {
   const router = useRouter();
@@ -12,14 +13,17 @@ export function useSignupToken() {
 
   useEffect(() => {
     const token = searchParams?.get("signupToken");
+    const loginPath =
+      getOAuthIntent() === "admin" ? "/admin/login" : "/login";
+
     if (!token) {
-      router.replace("/login");
+      router.replace(loginPath);
       return;
     }
 
     const parsed = parseSignupToken(token);
     if (!parsed) {
-      router.replace("/login");
+      router.replace(loginPath);
       return;
     }
 

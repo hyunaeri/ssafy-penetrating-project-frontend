@@ -1,9 +1,23 @@
 "use client";
 
 import { getOAuthLoginUrl } from "@/shared/api";
+import {
+  setOAuthIntent,
+  type OAuthIntent,
+} from "@/shared/lib/oauth-intent";
 
-export function GoogleLoginButton() {
+type GoogleLoginButtonProps = {
+  /** admin: /admin/login 진입, customer: 일반 로그인 */
+  intent?: OAuthIntent;
+  label?: string;
+};
+
+export function GoogleLoginButton({
+  intent = "customer",
+  label = "Google로 계속하기",
+}: GoogleLoginButtonProps) {
   const handleLogin = () => {
+    setOAuthIntent(intent);
     window.location.href = getOAuthLoginUrl();
   };
 
@@ -11,10 +25,10 @@ export function GoogleLoginButton() {
     <button
       type="button"
       onClick={handleLogin}
-      className="flex h-12 w-full items-center justify-center gap-3 rounded-button border border-line bg-white text-[14px] font-semibold text-ink shadow-card transition-all hover:border-brand/30 hover:bg-brand-soft active:scale-[0.98]"
+      className="flex h-12 w-full items-center justify-center gap-3 rounded-button border border-line bg-white text-[14px] font-semibold text-ink shadow-card transition-all hover:border-ink/15 hover:bg-surface active:scale-[0.98]"
     >
       <GoogleMark />
-      Google로 계속하기
+      {label}
     </button>
   );
 }

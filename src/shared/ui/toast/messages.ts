@@ -24,6 +24,12 @@ export const toastMessages = {
       description: "입력한 정보를 확인한 뒤 다시 시도해 주세요.",
     },
   },
+  admin: {
+    notRegistered: {
+      title: "등록된 관리자 계정이 아닙니다.",
+      description: "DB에 등록된 Google 계정으로 로그인해 주세요.",
+    },
+  },
   logout: {
     success: {
       title: "로그아웃 완료",

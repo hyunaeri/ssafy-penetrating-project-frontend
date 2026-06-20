@@ -20,6 +20,14 @@
     U+D7B0-D7FF;
 }
 
+@font-face {
+  font-family: "Euljiro";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/BMEULJIRO.woff")
+    format("woff");
+  font-weight: normal;
+  font-display: swap;
+}
+
 @layer base {
   html {
     scrollbar-gutter: stable;

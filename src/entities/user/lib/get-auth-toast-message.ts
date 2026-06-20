@@ -1,5 +1,8 @@
 import type { UserRole } from "@/entities/user/model/types";
-import { isOwnerRole } from "@/entities/user/lib/get-home-path-by-role";
+import {
+  isAdminRole,
+  isOwnerRole,
+} from "@/entities/user/lib/get-home-path-by-role";
 
 type AuthToastMessage = {
   title: string;
@@ -7,6 +10,13 @@ type AuthToastMessage = {
 };
 
 export function getLoginSuccessToast(role: UserRole): AuthToastMessage {
+  if (isAdminRole(role)) {
+    return {
+      title: "관리자 로그인 완료",
+      description: "관리자 페이지로 이동합니다.",
+    };
+  }
+
   if (isOwnerRole(role)) {
     return {
       title: "로그인 완료",
@@ -21,6 +31,13 @@ export function getLoginSuccessToast(role: UserRole): AuthToastMessage {
 }
 
 export function getSignupSuccessToast(role: UserRole): AuthToastMessage {
+  if (isAdminRole(role)) {
+    return {
+      title: "관리자 가입 완료",
+      description: "관리자 페이지로 이동합니다.",
+    };
+  }
+
   if (isOwnerRole(role)) {
     return {
       title: "회원가입 완료",

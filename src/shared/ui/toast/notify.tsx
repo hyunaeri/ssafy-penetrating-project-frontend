@@ -15,9 +15,9 @@ const TOAST_ICON = "!shrink-0 !self-center";
 const TOAST_CONTENT =
   "!flex !min-w-0 !flex-1 !flex-col !justify-center !gap-1";
 const TOAST_TITLE =
-  "!font-sans !text-[14.5px] !font-bold !leading-[1.4] !tracking-normal !text-ink";
+  "!font-sans !text-[14px] !font-semibold !leading-[1.4] !tracking-normal !text-ink";
 const TOAST_DESCRIPTION =
-  "!whitespace-pre-line !font-sans !text-[13px] !font-normal !leading-[1.5] !tracking-normal !text-muted";
+  "!whitespace-pre-line !font-sans !text-[12px] !font-normal !leading-[1.5] !tracking-normal !text-muted";
 
 type ToastContent = {
   title: string;

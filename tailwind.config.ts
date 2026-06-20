@@ -16,6 +16,7 @@ const config: Config = {
           "Noto Sans CJK SC",
           "sans-serif",
         ],
+        euljiro: ["Euljiro", "HannaAir", "Pretendard", "sans-serif"],
       },
       colors: {
         ink: "#2b2d42",

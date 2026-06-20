@@ -5,6 +5,7 @@ import { getAccessToken } from "@/entities/session";
 import {
   getCurrentUser,
   getHomePathByRole,
+  isAdminRole,
   isCustomerRole,
   isOwnerRole,
 } from "@/entities/user";
@@ -32,6 +33,11 @@ export function useRoleGuard(requiredRole: AppRole): boolean {
       try {
         const user = await getCurrentUser();
         if (cancelled) return;
+
+        if (isAdminRole(user.role)) {
+          router.replace(getHomePathByRole(user.role));
+          return;
+        }
 
         const allowed =
           requiredRole === "customer"

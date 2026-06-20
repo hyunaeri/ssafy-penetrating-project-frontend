@@ -6,6 +6,7 @@ export { formatUserRole } from "./lib/format-user-role";
 export { formatShortAddress } from "./lib/format-short-address";
 export {
   getHomePathByRole,
+  isAdminRole,
   isCustomerRole,
   isOwnerRole,
 } from "./lib/get-home-path-by-role";

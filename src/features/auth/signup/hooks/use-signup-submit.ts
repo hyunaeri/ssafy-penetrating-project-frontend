@@ -3,11 +3,19 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { completeSignup, getHomePathByRole, getSignupSuccessToast, type SignupRole } from "@/entities/user";
-import { setAccessToken } from "@/entities/session";
-import { notifyError, notifySuccess, toastMessages } from "@/shared/ui";
+import { completeSignup, getHomePathByRole, getSignupSuccessToast, isAdminRole, type SignupRole } from "@/entities/user";
+import { clearAccessToken, setAccessToken } from "@/entities/session";
+import {
+  notifyError,
+  notifySuccess,
+  toastMessages,
+} from "@/shared/ui";
 import { formatSignupAddress } from "@/features/auth/signup/lib/format-signup-address";
 import type { SignupFormValues } from "@/features/auth/signup/model/types";
+import {
+  clearOAuthIntent,
+  getOAuthIntent,
+} from "@/shared/lib/oauth-intent";
 
 type UseSignupSubmitParams = {
   signupToken: string | null;
@@ -35,6 +43,17 @@ export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
       });
 
       setAccessToken(response.accessToken);
+
+      const intent = getOAuthIntent();
+      clearOAuthIntent();
+
+      if (intent === "admin" && !isAdminRole(response.user.role)) {
+        clearAccessToken();
+        notifyError(toastMessages.admin.notRegistered);
+        router.replace("/admin/login");
+        return;
+      }
+
       notifySuccess(getSignupSuccessToast(response.user.role));
       router.replace(getHomePathByRole(response.user.role));
     } catch (err) {
