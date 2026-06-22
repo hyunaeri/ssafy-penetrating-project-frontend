@@ -74,7 +74,11 @@ export function OwnerOrderCard({
       </div>
 
       {nextStatuses.length > 0 && (
-        <div className="grid gap-2 border-t border-line/70 p-3 sm:grid-cols-2">
+        <div
+          className={`grid gap-2 border-t border-line/70 p-3 ${
+            nextStatuses.length > 1 ? "grid-cols-2" : "grid-cols-1"
+          }`}
+        >
           {nextStatuses.map((status) => (
             <PrimaryButton
               key={status}

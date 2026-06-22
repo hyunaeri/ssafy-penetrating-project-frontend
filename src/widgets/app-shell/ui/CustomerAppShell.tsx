@@ -12,7 +12,7 @@ type CustomerAppShellProps = {
   children: ReactNode;
 };
 
-const FULL_SCREEN_PREFIXES = ["/stores/"];
+const FULL_SCREEN_PREFIXES = ["/stores/", "/payment/success", "/orders/"];
 
 export function CustomerAppShell({ children }: CustomerAppShellProps) {
   const pathname = usePathname();
