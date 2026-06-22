@@ -1,5 +1,9 @@
 import { parseStoreDetailResponse } from "@/entities/store/lib/parse-store-detail";
 import {
+  parseStoresCursorResponse,
+  type StoresCursorResult,
+} from "@/entities/store/lib/parse-stores-cursor-response";
+import {
   filterStoresByCategory,
   parseStoresResponse,
 } from "@/entities/store/lib/parse-stores-response";
@@ -7,11 +11,23 @@ import type { StoreDetailResponse, StoreResponse } from "@/entities/store/model/
 import { getAccessToken } from "@/entities/session";
 import { getApiBaseUrl } from "@/shared/api";
 
-export async function fetchStoresByCategory(
-  categoryId: number
-): Promise<StoreResponse[]> {
+export const CATEGORY_STORES_PAGE_SIZE = 10;
+
+type FetchStoresParams = {
+  categoryId: number;
+  cursor?: number;
+  size?: number;
+};
+
+async function fetchStoresResponse({
+  categoryId,
+  cursor,
+  size,
+}: FetchStoresParams): Promise<unknown> {
   const token = getAccessToken();
   const params = new URLSearchParams({ categoryId: String(categoryId) });
+  if (cursor !== undefined) params.set("cursor", String(cursor));
+  if (size !== undefined) params.set("size", String(size));
 
   const res = await fetch(`${getApiBaseUrl()}/api/stores?${params}`, {
     headers: {
@@ -31,7 +47,32 @@ export async function fetchStoresByCategory(
     throw new Error(message);
   }
 
-  const stores = parseStoresResponse(await res.json());
+  return res.json();
+}
+
+export async function fetchStoresByCategoryCursor(
+  categoryId: number,
+  options?: { cursor?: number; size?: number }
+): Promise<StoresCursorResult> {
+  const parsed = parseStoresCursorResponse(
+    await fetchStoresResponse({
+      categoryId,
+      cursor: options?.cursor,
+      size: options?.size ?? CATEGORY_STORES_PAGE_SIZE,
+    })
+  );
+
+  return {
+    ...parsed,
+    stores: filterStoresByCategory(parsed.stores, categoryId),
+  };
+}
+
+export async function fetchStoresByCategory(
+  categoryId: number
+): Promise<StoreResponse[]> {
+  const data = await fetchStoresResponse({ categoryId });
+  const stores = parseStoresResponse(data);
   return filterStoresByCategory(stores, categoryId);
 }
 

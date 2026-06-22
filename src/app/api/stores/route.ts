@@ -4,11 +4,19 @@ import { getBackendUrl } from "@/shared/api";
 /** `GET /api/stores` — 카테고리 매장 목록 (백엔드 `/api/v1/stores` 프록시). */
 export async function GET(req: NextRequest) {
   const categoryId = req.nextUrl.searchParams.get("categoryId");
+  const cursor = req.nextUrl.searchParams.get("cursor");
+  const size = req.nextUrl.searchParams.get("size");
   const token = req.headers.get("authorization");
 
   const target = new URL(`${getBackendUrl()}/api/v1/stores`);
   if (categoryId) {
     target.searchParams.set("categoryId", categoryId);
+  }
+  if (cursor) {
+    target.searchParams.set("cursor", cursor);
+  }
+  if (size) {
+    target.searchParams.set("size", size);
   }
 
   try {

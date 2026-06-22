@@ -1,10 +1,11 @@
 "use client";
 
 import { useAppRouter } from "@/shared/lib/use-app-router";
-import { useMemo, useState } from "react";
+import { useInfiniteScrollSentinel } from "@/shared/lib/use-infinite-scroll-sentinel";
+import { useCallback, useMemo, useState } from "react";
 import type { FoodCategory } from "@/entities/category";
 import { CartEntryButton } from "@/features/cart";
-import { useCategoryStores } from "@/features/category-stores/hooks/use-category-stores";
+import { useCategoryStoresInfinite } from "@/features/category-stores/hooks/use-category-stores-infinite";
 import { CategoryTabs } from "@/features/category-stores/ui/CategoryTabs";
 import { StoreCard } from "@/features/category-stores/ui/StoreCard";
 import { AlarmButton } from "@/features/notification";
@@ -14,24 +15,58 @@ type CategoryStoresScreenProps = {
   category: FoodCategory;
 };
 
+function StoreListSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="flex animate-pulse gap-3.5 border-b border-line py-4"
+        >
+          <div className="h-[88px] w-[88px] shrink-0 rounded-2xl bg-white" />
+          <div className="flex flex-1 flex-col justify-center gap-2 py-1">
+            <div className="h-4 w-3/5 rounded-sm bg-surface" />
+            <div className="h-3 w-full rounded-sm bg-surface" />
+            <div className="h-3 w-2/5 rounded-sm bg-surface" />
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
   const router = useAppRouter();
-  const { stores, loading, error, reload } = useCategoryStores(category.id);
+  const {
+    storeItems,
+    hasNextPage,
+    loading,
+    isFetchingNextPage,
+    error,
+    reload,
+    loadMore,
+  } = useCategoryStoresInfinite(category.id);
   const [query, setQuery] = useState("");
 
   const trimmedQuery = query.trim().toLowerCase();
-  const filteredStores = useMemo(() => {
-    if (!trimmedQuery) return stores;
-    return stores.filter((store) => {
+  const filteredStoreItems = useMemo(() => {
+    if (!trimmedQuery) return storeItems;
+    return storeItems.filter(({ store }) => {
       const name = store.name.toLowerCase();
       const description = store.description?.toLowerCase() ?? "";
       return name.includes(trimmedQuery) || description.includes(trimmedQuery);
     });
-  }, [stores, trimmedQuery]);
+  }, [storeItems, trimmedQuery]);
+
+  const canLoadMore = hasNextPage && !trimmedQuery;
+  const sentinelRef = useInfiniteScrollSentinel(
+    useCallback(() => loadMore(), [loadMore]),
+    canLoadMore
+  );
 
   return (
-    <div className="flex min-h-full flex-col bg-surface">
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
+    <div className="screen-viewport bg-surface">
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm">
         <div className="flex items-center gap-0.5 px-3 py-3">
           <button
             type="button"
@@ -64,8 +99,8 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
 
         <CategoryTabs activeId={category.id} />
 
-        {!loading && !error && stores.length > 0 && (
-          <div className="border-b border-line/80 bg-white px-4 py-2.5">
+        {!loading && !error && (
+          <div className="border-b border-line/80 px-4 py-2.5">
             <div className="flex items-center gap-2 rounded-xl bg-surface px-3.5 py-2.5">
               <svg
                 width="18"
@@ -114,29 +149,17 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
             </div>
           </div>
         )}
-      </header>
+      </div>
 
-      <div className="flex flex-1 flex-col">
+      <div className="screen-body">
         {loading && (
-          <div className="px-4 py-6">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={index}
-                className="flex animate-pulse gap-3.5 border-b border-line py-4"
-              >
-                <div className="h-[88px] w-[88px] shrink-0 rounded-2xl bg-white" />
-                <div className="flex flex-1 flex-col justify-center gap-2 py-1">
-                  <div className="h-4 w-3/5 rounded-sm bg-surface" />
-                  <div className="h-3 w-full rounded-sm bg-surface" />
-                  <div className="h-3 w-2/5 rounded-sm bg-surface" />
-                </div>
-              </div>
-            ))}
+          <div className="screen-state items-stretch justify-start px-4 py-6 text-left">
+            <StoreListSkeleton />
           </div>
         )}
 
         {!loading && error && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+          <div className="screen-state gap-4">
             <p className="text-[14px] text-red-600">{error}</p>
             <PrimaryButton
               type="button"
@@ -149,14 +172,16 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
           </div>
         )}
 
-        {!loading && !error && stores.length === 0 && (
-          <p className="px-4 py-16 text-center text-[14px] text-muted">
-            이 카테고리에 등록된 매장이 없습니다.
-          </p>
+        {!loading && !error && storeItems.length === 0 && (
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">
+              이 카테고리에 등록된 매장이 없습니다.
+            </p>
+          </div>
         )}
 
-        {!loading && !error && stores.length > 0 && filteredStores.length === 0 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-1.5 px-6 py-16 text-center">
+        {!loading && !error && storeItems.length > 0 && filteredStoreItems.length === 0 && (
+          <div className="screen-state gap-1.5">
             <p className="text-[15px] font-bold text-ink">
               검색 결과가 없어요
             </p>
@@ -166,14 +191,20 @@ export function CategoryStoresScreen({ category }: CategoryStoresScreenProps) {
           </div>
         )}
 
-        {!loading && !error && filteredStores.length > 0 && (
+        {!loading && !error && filteredStoreItems.length > 0 && (
           <ul className="divide-y divide-line/80 bg-white px-3">
-            {filteredStores.map((store) => (
-              <li key={store.id}>
+            {filteredStoreItems.map(({ key, store }) => (
+              <li key={key}>
                 <StoreCard store={store} />
               </li>
             ))}
           </ul>
+        )}
+
+        {!loading && !error && canLoadMore && (
+          <div ref={sentinelRef} className="px-4 py-4" aria-hidden>
+            {isFetchingNextPage && <StoreListSkeleton count={2} />}
+          </div>
         )}
       </div>
     </div>
