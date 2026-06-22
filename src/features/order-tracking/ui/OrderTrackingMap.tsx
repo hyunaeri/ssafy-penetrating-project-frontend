@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { getGoogleMapsMapId, loadGoogleMaps } from "@/features/order-tracking/lib/load-google-maps";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { loadKakaoMaps } from "@/features/order-tracking/lib/load-kakao-maps";
+import { getKakaoMapsSdk } from "@/features/order-tracking/lib/kakao-maps-runtime";
 import {
-  createMapMarkerIcon,
+  createMapMarkerImage,
   drawNeonRoute,
   fetchRoadRoute,
   fitMapToLocations,
   geocodeAddress,
+  toKakaoLatLng,
+  type LatLngLiteral,
 } from "@/features/order-tracking/lib/order-tracking-map-helpers";
 import { OrderTrackingMapLegend } from "@/features/order-tracking/ui/OrderTrackingMapLegend";
 import { OrderTrackingMapPlaceholder } from "@/features/order-tracking/ui/OrderTrackingMapPlaceholder";
+import { OrderTrackingMapRecenterButton } from "@/features/order-tracking/ui/OrderTrackingMapRecenterButton";
 
 type OrderTrackingMapProps = {
   userAddress: string | null;
@@ -22,8 +26,18 @@ export function OrderTrackingMap({
   storeAddress,
 }: OrderTrackingMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<KakaoMap | null>(null);
+  const fitLocationsRef = useRef<LatLngLiteral[]>([]);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleRecenter = useCallback(() => {
+    if (!mapRef.current || fitLocationsRef.current.length === 0) {
+      return;
+    }
+
+    fitMapToLocations(mapRef.current, fitLocationsRef.current);
+  }, []);
 
   const trimmedUserAddress = userAddress?.trim() ?? "";
   const trimmedStoreAddress = storeAddress?.trim() ?? "";
@@ -35,81 +49,70 @@ export function OrderTrackingMap({
     }
 
     let cancelled = false;
-    const markers: google.maps.Marker[] = [];
-    const polylines: google.maps.Polyline[] = [];
+    const markers: KakaoMarker[] = [];
+    const polylines: KakaoPolyline[] = [];
 
     const init = async () => {
       try {
-        await loadGoogleMaps();
+        await loadKakaoMaps();
         if (cancelled || !containerRef.current) {
           return;
         }
 
-        const geocoder = new google.maps.Geocoder();
-        const directionsService = new google.maps.DirectionsService();
-
         const [userLocation, storeLocation] = await Promise.all([
-          geocodeAddress(geocoder, trimmedUserAddress),
-          geocodeAddress(geocoder, trimmedStoreAddress),
+          geocodeAddress(trimmedUserAddress),
+          geocodeAddress(trimmedStoreAddress),
         ]);
 
         if (cancelled || !containerRef.current) {
           return;
         }
 
-        const mapId = getGoogleMapsMapId();
-        const map = new google.maps.Map(containerRef.current, {
-          ...(mapId ? { mapId } : {}),
-          disableDefaultUI: true,
-          gestureHandling: "greedy",
-          clickableIcons: false,
+        const maps = getKakaoMapsSdk();
+        const center = toKakaoLatLng({
+          lat: (userLocation.lat + storeLocation.lat) / 2,
+          lng: (userLocation.lng + storeLocation.lng) / 2,
         });
 
-        fitMapToLocations(map, [userLocation, storeLocation]);
+        const map = new maps.Map(containerRef.current, {
+          center,
+          level: 5,
+          draggable: true,
+          scrollwheel: true,
+        });
 
         markers.push(
-          new google.maps.Marker({
+          new maps.Marker({
             map,
-            position: storeLocation,
+            position: toKakaoLatLng(storeLocation),
             title: "매장",
-            icon: createMapMarkerIcon(google.maps, "store"),
+            image: createMapMarkerImage("store"),
             zIndex: 3,
           }),
-          new google.maps.Marker({
+          new maps.Marker({
             map,
-            position: userLocation,
+            position: toKakaoLatLng(userLocation),
             title: "배달 주소",
-            icon: createMapMarkerIcon(google.maps, "user"),
+            image: createMapMarkerImage("user"),
             zIndex: 4,
           })
         );
 
-        let routePath: google.maps.LatLng[];
+        let routePath: LatLngLiteral[];
         try {
-          routePath = await fetchRoadRoute(
-            directionsService,
-            storeLocation,
-            userLocation
-          );
+          routePath = await fetchRoadRoute(storeLocation, userLocation);
         } catch {
-          routePath = [
-            new google.maps.LatLng(storeLocation.lat, storeLocation.lng),
-            new google.maps.LatLng(userLocation.lat, userLocation.lng),
-          ];
+          routePath = [storeLocation, userLocation];
         }
 
         if (cancelled) {
           return;
         }
 
-        fitMapToLocations(
-          map,
-          routePath.map((point) => ({
-            lat: point.lat(),
-            lng: point.lng(),
-          }))
-        );
-
+        const fitLocations = [...routePath, userLocation, storeLocation];
+        fitLocationsRef.current = fitLocations;
+        mapRef.current = map;
+        fitMapToLocations(map, fitLocations);
         polylines.push(...drawNeonRoute(map, routePath));
         setReady(true);
       } catch (err) {
@@ -125,6 +128,8 @@ export function OrderTrackingMap({
 
     return () => {
       cancelled = true;
+      mapRef.current = null;
+      fitLocationsRef.current = [];
       markers.forEach((marker) => marker.setMap(null));
       polylines.forEach((polyline) => polyline.setMap(null));
     };
@@ -153,7 +158,12 @@ export function OrderTrackingMap({
         }`}
         aria-label="배달 경로 지도"
       />
-      {ready && !error && <OrderTrackingMapLegend />}
+      {ready && !error && (
+        <>
+          <OrderTrackingMapLegend />
+          <OrderTrackingMapRecenterButton onClick={handleRecenter} />
+        </>
+      )}
     </div>
   );
 }

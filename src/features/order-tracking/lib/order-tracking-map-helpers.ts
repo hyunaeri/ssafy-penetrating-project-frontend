@@ -1,123 +1,66 @@
-export type LatLngLiteral = google.maps.LatLngLiteral;
+import { getKakaoMapsSdk } from "@/features/order-tracking/lib/kakao-maps-runtime";
+
+export type LatLngLiteral = {
+  lat: number;
+  lng: number;
+};
 
 const BRAND_COLOR = "#2ac1bc";
 const BRAND_GLOW = "#7efcf6";
 
-export function geocodeAddress(
-  geocoder: google.maps.Geocoder,
-  address: string
-): Promise<LatLngLiteral> {
+export function geocodeAddress(address: string): Promise<LatLngLiteral> {
   return new Promise((resolve, reject) => {
-    geocoder.geocode({ address, region: "KR" }, (results, status) => {
-      if (status === "OK" && results?.[0]) {
-        const location = results[0].geometry.location;
-        resolve({ lat: location.lat(), lng: location.lng() });
+    const maps = getKakaoMapsSdk();
+    const geocoder = new maps.services.Geocoder();
+
+    geocoder.addressSearch(address, (result, status) => {
+      if (status !== maps.services.Status.OK || !result[0]) {
+        reject(new Error("주소를 지도에서 찾지 못했습니다."));
         return;
       }
 
-      reject(new Error("주소를 지도에서 찾지 못했습니다."));
+      resolve({
+        lat: Number(result[0].y),
+        lng: Number(result[0].x),
+      });
     });
   });
 }
 
-export function toLatLng(
-  point: google.maps.LatLng | google.maps.LatLngLiteral
-): google.maps.LatLng {
-  if (point instanceof google.maps.LatLng) {
-    return point;
-  }
-
-  return new google.maps.LatLng(point.lat, point.lng);
-}
-
-function extractDirectionsPath(
-  route: google.maps.DirectionsRoute
-): google.maps.LatLng[] {
-  const path: google.maps.LatLng[] = [];
-
-  for (const leg of route.legs ?? []) {
-    for (const step of leg.steps ?? []) {
-      path.push(...step.path);
-    }
-  }
-
-  return path.length > 0 ? path : route.overview_path;
-}
-
-async function fetchRoadRouteWithRoutesApi(
-  origin: LatLngLiteral,
-  destination: LatLngLiteral
-): Promise<google.maps.LatLng[]> {
-  const { Route } = (await google.maps.importLibrary(
-    "routes"
-  )) as google.maps.RoutesLibrary;
-
-  const { routes } = await Route.computeRoutes({
-    origin,
-    destination,
-    travelMode: google.maps.TravelMode.DRIVING,
-    region: "KR",
-    fields: ["path"],
-    polylineQuality: google.maps.routes.PolylineQuality.HIGH_QUALITY,
-  });
-
-  const path = routes?.[0]?.path;
-  if (!path?.length) {
-    throw new Error("배달 경로를 찾지 못했습니다.");
-  }
-
-  return path.map((point) => toLatLng(point));
-}
-
-function fetchRoadRouteWithDirectionsService(
-  directionsService: google.maps.DirectionsService,
-  origin: LatLngLiteral,
-  destination: LatLngLiteral
-): Promise<google.maps.LatLng[]> {
-  return new Promise((resolve, reject) => {
-    directionsService.route(
-      {
-        origin,
-        destination,
-        travelMode: google.maps.TravelMode.DRIVING,
-        region: "KR",
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK && result?.routes[0]) {
-          resolve(extractDirectionsPath(result.routes[0]));
-          return;
-        }
-
-        reject(
-          new Error(
-            `배달 경로를 찾지 못했습니다. (${status ?? "UNKNOWN_ERROR"})`
-          )
-        );
-      }
-    );
-  });
-}
-
 export async function fetchRoadRoute(
-  directionsService: google.maps.DirectionsService,
   origin: LatLngLiteral,
   destination: LatLngLiteral
-): Promise<google.maps.LatLng[]> {
-  try {
-    return await fetchRoadRouteWithRoutesApi(origin, destination);
-  } catch {
-    return fetchRoadRouteWithDirectionsService(
-      directionsService,
-      origin,
-      destination
-    );
+): Promise<LatLngLiteral[]> {
+  const params = new URLSearchParams({
+    originLat: String(origin.lat),
+    originLng: String(origin.lng),
+    destLat: String(destination.lat),
+    destLng: String(destination.lng),
+  });
+
+  const response = await fetch(`/api/route/directions?${params.toString()}`, {
+    cache: "no-store",
+  });
+
+  const data = (await response.json().catch(() => ({}))) as {
+    path?: LatLngLiteral[];
+    message?: string;
+  };
+
+  if (!response.ok || !data.path?.length) {
+    throw new Error(data.message ?? "배달 경로를 찾지 못했습니다.");
   }
+
+  return data.path;
 }
 
-export function createMapMarkerIcon(
-  maps: typeof google.maps,
-  variant: "user" | "store"
-): google.maps.Icon {
+export function toKakaoLatLng({ lat, lng }: LatLngLiteral): KakaoLatLng {
+  const maps = getKakaoMapsSdk();
+  return new maps.LatLng(lat, lng);
+}
+
+export function createMapMarkerImage(variant: "user" | "store"): KakaoMarkerImage {
+  const maps = getKakaoMapsSdk();
   const fill = variant === "user" ? "#2b2d42" : BRAND_COLOR;
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40" fill="none">
@@ -126,32 +69,37 @@ export function createMapMarkerIcon(
     </svg>
   `.trim();
 
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new maps.Size(32, 40),
-    anchor: new maps.Point(16, 40),
-  };
+  return new maps.MarkerImage(
+    `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    new maps.Size(32, 40),
+    { offset: new maps.Point(16, 40) }
+  );
 }
 
 export function drawNeonRoute(
-  map: google.maps.Map,
-  path: google.maps.LatLng[]
-): google.maps.Polyline[] {
-  const glow = new google.maps.Polyline({
-    path,
+  map: KakaoMap,
+  path: LatLngLiteral[]
+): KakaoPolyline[] {
+  const maps = getKakaoMapsSdk();
+  const kakaoPath = path.map(toKakaoLatLng);
+
+  const glow = new maps.Polyline({
+    path: kakaoPath,
     map,
     strokeColor: BRAND_COLOR,
     strokeOpacity: 0.28,
     strokeWeight: 14,
+    strokeStyle: "solid",
     zIndex: 1,
   });
 
-  const line = new google.maps.Polyline({
-    path,
+  const line = new maps.Polyline({
+    path: kakaoPath,
     map,
     strokeColor: BRAND_GLOW,
     strokeOpacity: 0.95,
     strokeWeight: 5,
+    strokeStyle: "solid",
     zIndex: 2,
   });
 
@@ -159,10 +107,33 @@ export function drawNeonRoute(
 }
 
 export function fitMapToLocations(
-  map: google.maps.Map,
+  map: KakaoMap,
   locations: LatLngLiteral[]
 ): void {
-  const bounds = new google.maps.LatLngBounds();
-  locations.forEach((location) => bounds.extend(location));
-  map.fitBounds(bounds, { top: 88, bottom: 300, left: 36, right: 36 });
+  if (locations.length === 0) {
+    return;
+  }
+
+  let minLat = Number.POSITIVE_INFINITY;
+  let maxLat = Number.NEGATIVE_INFINITY;
+  let minLng = Number.POSITIVE_INFINITY;
+  let maxLng = Number.NEGATIVE_INFINITY;
+
+  locations.forEach(({ lat, lng }) => {
+    minLat = Math.min(minLat, lat);
+    maxLat = Math.max(maxLat, lat);
+    minLng = Math.min(minLng, lng);
+    maxLng = Math.max(maxLng, lng);
+  });
+
+  const latPadding = (maxLat - minLat) * 0.18 || 0.002;
+  const lngPadding = (maxLng - minLng) * 0.18 || 0.002;
+
+  const maps = getKakaoMapsSdk();
+  const bounds = new maps.LatLngBounds(
+    new maps.LatLng(minLat - latPadding, minLng - lngPadding),
+    new maps.LatLng(maxLat + latPadding, maxLng + lngPadding)
+  );
+
+  map.setBounds(bounds);
 }
