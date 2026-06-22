@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { MenuResponse } from "@/entities/store";
 import { MenuAddModal } from "@/features/add-to-cart";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
+import { EMPTY_MENU_IMAGE } from "@/features/owner-shared";
 import { MenuNoticeSection } from "@/features/store-detail/ui/MenuNoticeSection";
 
 type MenuListProps = {
@@ -21,7 +22,7 @@ function MenuItem({
 }) {
   const imageUrl = menu.imageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const showImage = Boolean(imageUrl) && !imageFailed;
+  const src = imageUrl && !imageFailed ? imageUrl : EMPTY_MENU_IMAGE;
   const description = menu.description?.trim();
 
   return (
@@ -32,21 +33,15 @@ function MenuItem({
         className="flex w-full gap-3.5 rounded-none border-b border-line/60 py-4 text-left transition-colors last:border-b-0 hover:bg-brand-soft/40 active:bg-brand-soft/60"
       >
       <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
-        {showImage ? (
-          <Image
-            src={imageUrl!}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="100px"
-            unoptimized
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center text-[28px] font-semibold text-muted/70">
-            {menu.name.charAt(0)}
-          </span>
-        )}
+        <Image
+          src={src}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="100px"
+          unoptimized
+          onError={() => setImageFailed(true)}
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
