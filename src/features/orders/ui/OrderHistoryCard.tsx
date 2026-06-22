@@ -6,6 +6,12 @@ import { useState } from "react";
 import type { OrderResponse } from "@/entities/order";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
 import {
+  getOrderMenuSummary,
+  getOrderTrackingPath,
+  isOrderCompleted,
+  isOrderTrackable,
+} from "@/features/orders/lib/order-status-flow";
+import {
   getOrderStatusBadgeClass,
   getOrderStatusLabel,
 } from "@/features/orders/lib/format-order-status";
@@ -31,15 +37,6 @@ function getStoreName(order: OrderResponse) {
   const name = order.storeName?.trim();
   if (name) return name;
   return `매장 #${order.storeId}`;
-}
-
-function getMenuSummary(order: OrderResponse) {
-  if (order.items.length === 0) return "주문 메뉴 없음";
-  const first = order.items[0]!;
-  const quantityLabel = first.quantity > 1 ? ` ${first.quantity}개` : "";
-  const firstLine = `${first.menuName}${quantityLabel}`;
-  if (order.items.length === 1) return firstLine;
-  return `${firstLine} 외 ${order.items.length - 1}건`;
 }
 
 function formatOrderDate(value: string) {
@@ -81,9 +78,47 @@ function StoreThumbnail({
   );
 }
 
+function PaymentAmount({
+  order,
+  hasDiscount,
+}: {
+  order: OrderResponse;
+  hasDiscount: boolean;
+}) {
+  return (
+    <div className="mt-3 flex items-center justify-between gap-3">
+      <span className="text-[14px] text-muted">결제금액</span>
+      <div className="flex items-center gap-1.5">
+        {hasDiscount && (
+          <span className="text-[13px] text-muted line-through">
+            {formatWon(order.totalPrice + order.deliveryFee)}
+          </span>
+        )}
+        <span className="flex items-center gap-1 text-[17px] font-bold text-accent-purple-text">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="text-brand-dark"
+            aria-hidden
+          >
+            <path d="M12 2 4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6l-8-4Z" />
+          </svg>
+          {formatWon(order.finalPrice)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
   const storeName = getStoreName(order);
+  const menuSummary = getOrderMenuSummary(order);
   const hasDiscount = order.totalPrice > order.finalPrice;
+  const trackable = isOrderTrackable(order.status);
+  const completed = isOrderCompleted(order.status);
+  const trackingPath = getOrderTrackingPath(order.id);
 
   return (
     <article className="overflow-hidden rounded-2xl bg-white shadow-card">
@@ -102,60 +137,52 @@ export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
                 <OrderStatusBadge order={order} />
               </div>
             </div>
-            <Link
-              href={`/stores/${order.storeId}`}
-              className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[12px] font-medium text-muted transition-colors hover:border-brand/30 hover:text-ink"
-            >
-              주문상세
-            </Link>
+            {!trackable && (
+              <Link
+                href={`/stores/${order.storeId}`}
+                className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[12px] font-medium text-muted transition-colors hover:border-brand/30 hover:text-ink"
+              >
+                주문상세
+              </Link>
+            )}
           </div>
         </div>
       </div>
 
       <div className="border-t border-line/70 px-4 py-3">
         <p className="line-clamp-2 text-[14px] leading-relaxed text-ink">
-          {getMenuSummary(order)}
+          {menuSummary}
         </p>
+        <PaymentAmount order={order} hasDiscount={hasDiscount} />
+      </div>
 
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="text-[14px] text-muted">결제금액</span>
-          <div className="flex items-center gap-1.5">
-            {hasDiscount && (
-              <span className="text-[13px] text-muted line-through">
-                {formatWon(order.totalPrice + order.deliveryFee)}
-              </span>
-            )}
-            <span className="flex items-center gap-1 text-[17px] font-bold text-accent-purple-text">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="text-brand-dark"
-                aria-hidden
-              >
-                <path d="M12 2 4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6l-8-4Z" />
-              </svg>
-              {formatWon(order.finalPrice)}
+      {trackable && (
+        <div className="border-t border-line/70 p-3">
+          <Link href={trackingPath} className="delivery-tracking-cta">
+            <span className="relative z-[1] flex items-center gap-2">
+              <span className="delivery-live-dot" aria-hidden />
+              배달 현황
             </span>
-          </div>
+          </Link>
         </div>
-      </div>
+      )}
 
-      <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3">
-        <Link
-          href={`/stores/${order.storeId}`}
-          className="flex h-11 items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface"
-        >
-          같은 메뉴 담기
-        </Link>
-        <Link
-          href={`/stores/${order.storeId}`}
-          className="brand-cta h-11 text-[14px]"
-        >
-          바로 주문
-        </Link>
-      </div>
+      {completed && (
+        <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3">
+          <Link
+            href={`/stores/${order.storeId}`}
+            className="flex h-11 items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface"
+          >
+            같은 메뉴 담기
+          </Link>
+          <Link
+            href={`/stores/${order.storeId}`}
+            className="brand-cta h-11 text-[14px]"
+          >
+            바로 주문
+          </Link>
+        </div>
+      )}
     </article>
   );
 }
