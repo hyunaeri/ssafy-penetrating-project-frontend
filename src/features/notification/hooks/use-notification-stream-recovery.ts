@@ -21,7 +21,7 @@ export function useNotificationStreamRecovery() {
     }
 
     let cancelled = false;
-    let stopTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    let stopTimeoutId: number | undefined;
 
     void getCurrentUser()
       .then(async (user) => {
