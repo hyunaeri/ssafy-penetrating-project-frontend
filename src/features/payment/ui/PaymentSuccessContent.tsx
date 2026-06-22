@@ -7,7 +7,7 @@ import {
   showOrderNotificationAfterPayment,
   startNotificationStream,
 } from "@/features/notification";
-import { OrderTrackingLoadingScreen } from "@/features/order-tracking";
+import { OrderTrackingLoadingScreen } from "@/features/order-tracking/ui/OrderTrackingLoadingScreen";
 import { getOrderTrackingPath } from "@/features/orders/lib/order-status-flow";
 import { confirmPayment } from "@/features/payment/api/confirm-payment";
 import { clearCheckoutOrderType } from "@/features/payment/lib/payment-checkout-session";

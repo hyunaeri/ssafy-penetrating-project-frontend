@@ -29,7 +29,7 @@ function LegendItem({ color, label }: LegendItemProps) {
 export function OrderTrackingMapLegend() {
   return (
     <div
-      className="pointer-events-none absolute left-4 top-[4.5rem] z-20 rounded-2xl bg-white/92 px-3 py-2.5 shadow-soft backdrop-blur-sm"
+      className="pointer-events-none absolute left-4 top-[4.5rem] z-20 rounded-2xl border border-line/90 bg-white px-3 py-2.5 shadow-[0_4px_18px_rgba(43,45,66,0.16)] ring-1 ring-inset ring-white"
       aria-label="지도 마커 안내"
     >
       <ul className="space-y-1.5">

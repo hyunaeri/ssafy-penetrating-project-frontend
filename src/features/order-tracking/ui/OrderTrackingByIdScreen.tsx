@@ -4,10 +4,8 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { startNotificationStream } from "@/features/notification";
 import { useOrderTracking } from "@/features/order-tracking/hooks/use-order-tracking";
-import {
-  OrderTrackingLoadingScreen,
-  OrderTrackingScreen,
-} from "@/features/order-tracking/ui/OrderTrackingScreen";
+import { OrderTrackingLoadingScreen } from "@/features/order-tracking/ui/OrderTrackingLoadingScreen";
+import { OrderTrackingScreen } from "@/features/order-tracking/ui/OrderTrackingScreen";
 import {
   getOrderMenuSummary,
   isOrderTrackable,

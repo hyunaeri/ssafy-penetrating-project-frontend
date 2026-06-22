@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -9,9 +10,19 @@ import { getCurrentUser } from "@/entities/user";
 import { useOrderTracking } from "@/features/order-tracking/hooks/use-order-tracking";
 import { OrderTrackingBottomSheet } from "@/features/order-tracking/ui/OrderTrackingBottomSheet";
 import { OrderTrackingDraggableSheet } from "@/features/order-tracking/ui/OrderTrackingDraggableSheet";
-import { OrderTrackingMap } from "@/features/order-tracking/ui/OrderTrackingMap";
 import { OrderTrackingMapPlaceholder } from "@/features/order-tracking/ui/OrderTrackingMapPlaceholder";
 import { useAppRouter } from "@/shared/lib/use-app-router";
+
+const OrderTrackingMap = dynamic(
+  () =>
+    import("@/features/order-tracking/ui/OrderTrackingMap").then(
+      (module) => module.OrderTrackingMap
+    ),
+  {
+    ssr: false,
+    loading: () => <OrderTrackingMapPlaceholder message={null} />,
+  }
+);
 
 export type OrderTrackingContext = {
   paymentOrderId: number;
@@ -41,6 +52,7 @@ export function OrderTrackingScreen({
     queryKey: ["stores", "detail", storeId],
     queryFn: () => fetchStoreDetail(storeId!),
     enabled: storeId != null,
+    staleTime: 60_000,
   });
   const [address, setAddress] = useState<string | null>(null);
 
@@ -87,7 +99,7 @@ export function OrderTrackingScreen({
       </div>
 
       <motion.div
-        className="absolute inset-x-0 bottom-0 z-30 pointer-events-none"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-30"
         initial={reduceMotion ? false : { y: "100%" }}
         animate={{ y: 0 }}
         transition={
@@ -108,20 +120,6 @@ export function OrderTrackingScreen({
           />
         </OrderTrackingDraggableSheet>
       </motion.div>
-    </div>
-  );
-}
-
-export function OrderTrackingLoadingScreen() {
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-[#dfe6ee]">
-      <OrderTrackingMapPlaceholder message={null} />
-      <div className="absolute inset-x-0 bottom-0 z-30 rounded-t-[1.75rem] bg-white px-5 py-8 shadow-[0_-12px_40px_rgba(43,45,66,0.14)]">
-        <div className="flex justify-center pb-4">
-          <span className="h-1 w-10 rounded-full bg-line" />
-        </div>
-        <p className="text-center text-[14px] text-muted">주문 정보를 불러오는 중입니다</p>
-      </div>
     </div>
   );
 }

@@ -104,7 +104,7 @@ export function OrderTrackingBottomSheet({
 
           {isCanceled ? (
             <>
-              <h2 className="mt-3 text-[26px] font-bold leading-tight text-red-600">
+              <h2 className="mt-3 text-[26px] font-bold leading-tight text-ink">
                 주문이 취소되었어요
               </h2>
               <p className="mt-2 text-[14px] text-muted">
