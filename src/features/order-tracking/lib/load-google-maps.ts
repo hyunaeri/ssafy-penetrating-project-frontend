@@ -30,6 +30,7 @@ export function loadGoogleMaps(): Promise<void> {
   loadPromise = Promise.all([
     importLibrary("maps"),
     importLibrary("geocoding"),
+    importLibrary("routes"),
   ]).then(() => undefined);
 
   return loadPromise;

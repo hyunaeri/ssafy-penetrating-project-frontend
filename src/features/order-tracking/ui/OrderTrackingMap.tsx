@@ -5,7 +5,7 @@ import { getGoogleMapsMapId, loadGoogleMaps } from "@/features/order-tracking/li
 import {
   createMapMarkerIcon,
   drawNeonRoute,
-  fetchDrivingRoute,
+  fetchRoadRoute,
   fitMapToLocations,
   geocodeAddress,
 } from "@/features/order-tracking/lib/order-tracking-map-helpers";
@@ -86,7 +86,7 @@ export function OrderTrackingMap({
 
         let routePath: google.maps.LatLng[];
         try {
-          routePath = await fetchDrivingRoute(
+          routePath = await fetchRoadRoute(
             directionsService,
             storeLocation,
             userLocation
@@ -101,6 +101,14 @@ export function OrderTrackingMap({
         if (cancelled) {
           return;
         }
+
+        fitMapToLocations(
+          map,
+          routePath.map((point) => ({
+            lat: point.lat(),
+            lng: point.lng(),
+          }))
+        );
 
         polylines.push(...drawNeonRoute(map, routePath));
         setReady(true);

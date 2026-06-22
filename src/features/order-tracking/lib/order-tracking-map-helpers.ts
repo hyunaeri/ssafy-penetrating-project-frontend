@@ -20,7 +20,56 @@ export function geocodeAddress(
   });
 }
 
-export function fetchDrivingRoute(
+export function toLatLng(
+  point: google.maps.LatLng | google.maps.LatLngLiteral
+): google.maps.LatLng {
+  if (point instanceof google.maps.LatLng) {
+    return point;
+  }
+
+  return new google.maps.LatLng(point.lat, point.lng);
+}
+
+function extractDirectionsPath(
+  route: google.maps.DirectionsRoute
+): google.maps.LatLng[] {
+  const path: google.maps.LatLng[] = [];
+
+  for (const leg of route.legs ?? []) {
+    for (const step of leg.steps ?? []) {
+      path.push(...step.path);
+    }
+  }
+
+  return path.length > 0 ? path : route.overview_path;
+}
+
+async function fetchRoadRouteWithRoutesApi(
+  origin: LatLngLiteral,
+  destination: LatLngLiteral
+): Promise<google.maps.LatLng[]> {
+  const { Route } = (await google.maps.importLibrary(
+    "routes"
+  )) as google.maps.RoutesLibrary;
+
+  const { routes } = await Route.computeRoutes({
+    origin,
+    destination,
+    travelMode: google.maps.TravelMode.DRIVING,
+    region: "KR",
+    fields: ["path"],
+    polylineQuality: google.maps.routes.PolylineQuality.HIGH_QUALITY,
+  });
+
+  const path = routes?.[0]?.path;
+  if (!path?.length) {
+    throw new Error("배달 경로를 찾지 못했습니다.");
+  }
+
+  return path.map((point) => toLatLng(point));
+}
+
+function fetchRoadRouteWithDirectionsService(
   directionsService: google.maps.DirectionsService,
   origin: LatLngLiteral,
   destination: LatLngLiteral
@@ -31,17 +80,38 @@ export function fetchDrivingRoute(
         origin,
         destination,
         travelMode: google.maps.TravelMode.DRIVING,
+        region: "KR",
       },
       (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result?.routes[0]) {
-          resolve(result.routes[0].overview_path);
+          resolve(extractDirectionsPath(result.routes[0]));
           return;
         }
 
-        reject(new Error("배달 경로를 찾지 못했습니다."));
+        reject(
+          new Error(
+            `배달 경로를 찾지 못했습니다. (${status ?? "UNKNOWN_ERROR"})`
+          )
+        );
       }
     );
   });
+}
+
+export async function fetchRoadRoute(
+  directionsService: google.maps.DirectionsService,
+  origin: LatLngLiteral,
+  destination: LatLngLiteral
+): Promise<google.maps.LatLng[]> {
+  try {
+    return await fetchRoadRouteWithRoutesApi(origin, destination);
+  } catch {
+    return fetchRoadRouteWithDirectionsService(
+      directionsService,
+      origin,
+      destination
+    );
+  }
 }
 
 export function createMapMarkerIcon(
