@@ -64,9 +64,11 @@ export function OwnerOrdersContent({ storeId }: OwnerOrdersContentProps) {
 
       <div className="flex min-h-0 flex-1 flex-col bg-surface">
         {loading && (
-          <p className="px-4 py-16 text-center text-[14px] text-muted">
-            주문 목록을 불러오는 중입니다
-          </p>
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">
+              주문 목록을 불러오는 중입니다
+            </p>
+          </div>
         )}
 
         {!loading && error && (

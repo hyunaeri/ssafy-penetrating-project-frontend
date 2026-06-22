@@ -48,15 +48,15 @@ export function PaymentCheckoutScreen() {
 
   if (loading) {
     return (
-      <p className="px-4 py-16 text-center text-[14px] text-muted">
-        결제 정보를 불러오는 중입니다
-      </p>
+      <div className="screen-state">
+        <p className="text-[14px] text-muted">결제 정보를 불러오는 중입니다</p>
+      </div>
     );
   }
 
   if (error || !cart || !order) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+      <div className="screen-state gap-4">
         <p className="text-[14px] text-red-600">
           {error ?? "결제 정보를 불러오지 못했습니다."}
         </p>
@@ -74,7 +74,7 @@ export function PaymentCheckoutScreen() {
 
   if (!order.meetsMinOrder) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+      <div className="screen-state gap-4">
         <p className="text-[15px] font-semibold text-ink">
           최소주문금액을 충족하지 못했어요
         </p>

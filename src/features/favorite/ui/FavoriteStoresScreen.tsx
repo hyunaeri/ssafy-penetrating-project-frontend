@@ -6,7 +6,6 @@ import { StoreCard } from "@/features/category-stores/ui/StoreCard";
 import { useFavorites } from "@/features/favorite/hooks/use-favorites";
 import { AlarmButton } from "@/features/notification";
 import { BackHeader, PrimaryButton } from "@/shared/ui";
-import { BOTTOM_NAV_HEIGHT_PX } from "@/widgets/bottom-nav";
 
 export function FavoriteStoresScreen() {
   const { stores, loading, error, reload } = useFavorites();
@@ -14,14 +13,7 @@ export function FavoriteStoresScreen() {
   const isEmpty = !loading && !error && stores.length === 0;
 
   return (
-    <div
-      className={`flex flex-col ${isEmpty ? "bg-surface" : "min-h-full bg-surface"}`}
-      style={
-        isEmpty
-          ? { minHeight: `calc(100dvh - ${BOTTOM_NAV_HEIGHT_PX}px)` }
-          : undefined
-      }
-    >
+    <div className="screen-viewport flex flex-col bg-surface">
       <BackHeader
         title="찜"
         trailing={
@@ -39,15 +31,9 @@ export function FavoriteStoresScreen() {
         </p>
       )}
 
-      <div
-        className={
-          isEmpty
-            ? "flex min-h-0 flex-1 flex-col bg-surface"
-            : "flex flex-1 flex-col"
-        }
-      >
+      <div className="screen-body">
         {loading && (
-          <div className="px-4 py-6">
+          <div className="screen-state items-stretch justify-start px-4 py-6 text-left">
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
@@ -65,7 +51,7 @@ export function FavoriteStoresScreen() {
         )}
 
         {!loading && error && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+          <div className="screen-state gap-4">
             <p className="text-[14px] text-red-600">{error}</p>
             <PrimaryButton
               type="button"
@@ -79,7 +65,7 @@ export function FavoriteStoresScreen() {
         )}
 
         {isEmpty && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+          <div className="screen-state gap-4">
             <span className="text-[40px]" aria-hidden>
               ♡
             </span>

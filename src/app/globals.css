@@ -29,8 +29,17 @@
 }
 
 @layer base {
-  html {
-    scrollbar-gutter: stable;
+  html,
+  body,
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none;
   }
 
   html,
@@ -98,6 +107,18 @@
 
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  .screen-viewport {
+    min-height: var(--screen-viewport-height, 100dvh);
+  }
+
+  .screen-body {
+    @apply flex min-h-0 flex-1 flex-col bg-surface;
+  }
+
+  .screen-state {
+    @apply flex min-h-0 flex-1 flex-col items-center justify-center bg-surface px-4 py-16 text-center;
   }
 
   @keyframes delivery-bg-flicker {

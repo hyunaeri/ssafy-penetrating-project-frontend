@@ -11,7 +11,7 @@ export function HomeScreen() {
   const searching = query.trim().length > 0;
 
   return (
-    <div className="flex min-h-full flex-col bg-surface">
+    <div className="screen-viewport flex flex-col bg-surface">
       <HomeHeader query={query} onQueryChange={setQuery} />
 
       <div className="flex flex-1 flex-col gap-3 px-3 pb-8 pt-3">

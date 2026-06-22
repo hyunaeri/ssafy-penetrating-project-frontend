@@ -83,7 +83,7 @@ export function OrderTrackingDraggableSheet({
         <span className="h-1 w-10 rounded-full bg-line" />
       </button>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6">
+      <div className="scrollbar-none min-h-0 flex-1 overflow-y-auto overscroll-contain pb-6">
         {children}
       </div>
     </motion.div>

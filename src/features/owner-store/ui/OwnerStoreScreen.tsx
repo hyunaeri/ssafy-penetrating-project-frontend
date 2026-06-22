@@ -18,11 +18,13 @@ export function OwnerStoreScreen() {
     <OwnerScreenShell>
       <OwnerPageHeader title="매장 관리" />
 
-      <div className="flex flex-1 flex-col gap-3 px-3 pb-8 pt-3">
+      <div className="screen-body gap-3 px-3 pb-8 pt-3">
         {loading && (
-          <p className="px-1 py-16 text-center text-[14px] text-muted">
-            매장 정보를 불러오는 중입니다
-          </p>
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">
+              매장 정보를 불러오는 중입니다
+            </p>
+          </div>
         )}
 
         {!loading && !hasStore && (
