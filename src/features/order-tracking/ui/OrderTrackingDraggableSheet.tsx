@@ -1,83 +1,116 @@
 "use client";
 
 import {
+  animate,
   motion,
   useDragControls,
+  useMotionValue,
   useReducedMotion,
   type PanInfo,
 } from "framer-motion";
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import {
-  ORDER_TRACKING_SHEET_MAX_HEIGHT_RATIO,
+  getOrderTrackingSheetSnapY,
+  resolveNearestOrderTrackingSheetSnap,
+  type OrderTrackingSheetSnap,
   useOrderTrackingSheetOffsets,
 } from "@/features/order-tracking/hooks/use-order-tracking-sheet-drag";
 
-type SheetSnap = "expanded" | "default";
+const SHEET_SPRING = {
+  type: "spring" as const,
+  stiffness: 340,
+  damping: 36,
+  mass: 0.9,
+};
 
 type OrderTrackingDraggableSheetProps = {
   children: ReactNode;
 };
 
-function resolveSnap(
-  currentSnap: SheetSnap,
-  offsetY: number,
-  velocityY: number,
-  defaultY: number
-): SheetSnap {
-  const threshold = defaultY * 0.25;
-
-  if (currentSnap === "expanded") {
-    if (offsetY > threshold || velocityY > 520) {
-      return "default";
-    }
-    return "expanded";
-  }
-
-  if (offsetY < -threshold || velocityY < -520) {
-    return "expanded";
-  }
-  return "default";
+function getHandleAriaLabel(snap: OrderTrackingSheetSnap): string {
+  if (snap === "expanded") return "주문 정보 접기";
+  if (snap === "collapsed") return "주문 정보 펼치기";
+  return "주문 정보 더 펼치기";
 }
 
 export function OrderTrackingDraggableSheet({
   children,
 }: OrderTrackingDraggableSheetProps) {
   const reduceMotion = useReducedMotion();
-  const { expandedY, defaultY } = useOrderTrackingSheetOffsets();
+  const offsets = useOrderTrackingSheetOffsets();
   const dragControls = useDragControls();
-  const [snap, setSnap] = useState<SheetSnap>("default");
+  const y = useMotionValue(offsets.defaultY);
+  const [snap, setSnap] = useState<OrderTrackingSheetSnap>("default");
+  const snapRef = useRef(snap);
+  const didDragRef = useRef(false);
+
+  snapRef.current = snap;
+
+  const snapTo = (nextSnap: OrderTrackingSheetSnap) => {
+    const targetY = getOrderTrackingSheetSnapY(nextSnap, offsets);
+    setSnap(nextSnap);
+
+    if (reduceMotion) {
+      y.set(targetY);
+      return;
+    }
+
+    void animate(y, targetY, SHEET_SPRING);
+  };
+
+  useLayoutEffect(() => {
+    y.set(getOrderTrackingSheetSnapY(snapRef.current, offsets));
+  }, [offsets, y]);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
-    setSnap((current) =>
-      resolveSnap(current, info.offset.y, info.velocity.y, defaultY)
+    didDragRef.current = Math.abs(info.offset.y) > 6;
+    const nextSnap = resolveNearestOrderTrackingSheetSnap(
+      y.get(),
+      info.velocity.y,
+      offsets
     );
+    snapTo(nextSnap);
   };
 
   const toggleSnap = () => {
-    setSnap((current) => (current === "expanded" ? "default" : "expanded"));
+    if (snap === "expanded") {
+      snapTo("default");
+      return;
+    }
+    if (snap === "default") {
+      snapTo("collapsed");
+      return;
+    }
+    snapTo("default");
+  };
+
+  const handleHandleClick = () => {
+    if (didDragRef.current) {
+      didDragRef.current = false;
+      return;
+    }
+    toggleSnap();
   };
 
   return (
     <motion.div
       className="pointer-events-auto flex touch-none flex-col overflow-hidden rounded-t-[1.75rem] bg-white shadow-[0_-12px_40px_rgba(43,45,66,0.14)]"
-      style={{ height: `${ORDER_TRACKING_SHEET_MAX_HEIGHT_RATIO * 100}vh` }}
+      style={{ y, height: offsets.sheetHeightPx }}
       drag="y"
       dragControls={dragControls}
       dragListener={false}
-      dragConstraints={{ top: expandedY, bottom: defaultY }}
-      dragElastic={0.06}
+      dragMomentum={false}
+      dragConstraints={{
+        top: offsets.expandedY,
+        bottom: offsets.collapsedY,
+      }}
+      dragElastic={0.04}
       onDragEnd={handleDragEnd}
-      animate={{ y: snap === "expanded" ? expandedY : defaultY }}
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { type: "spring", stiffness: 340, damping: 36, mass: 0.9 }
-      }
     >
       <button
         type="button"
-        aria-label={snap === "expanded" ? "주문 정보 접기" : "주문 정보 펼치기"}
-        onClick={toggleSnap}
+        aria-label={getHandleAriaLabel(snap)}
+        onClick={handleHandleClick}
         onPointerDown={(event) => dragControls.start(event)}
         className="flex w-full shrink-0 cursor-grab items-center justify-center pb-2 pt-3 active:cursor-grabbing"
       >
