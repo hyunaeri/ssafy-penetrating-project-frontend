@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { memo, useState } from "react";
 import type { MenuResponse } from "@/entities/store";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
-import { EMPTY_PIXEL_IMAGE } from "@/features/owner-shared";
 import { MenuNoticeSection } from "@/features/store-detail/ui/MenuNoticeSection";
 import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
 import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";

@@ -5,7 +5,15 @@ type LazyImageProps = Omit<ImageProps, "loading"> & {
   priority?: boolean;
 };
 
-export function LazyImage({ src, priority = false, unoptimized, style, className, ...props }: LazyImageProps) {
+export function LazyImage({
+  src,
+  alt = "",
+  priority = false,
+  unoptimized,
+  style,
+  className,
+  ...props
+}: LazyImageProps) {
   const resolvedSrc = typeof src === "string" ? src : "";
   const resolvedUnoptimized =
     unoptimized ?? (typeof src === "string" ? shouldUnoptimizeImage(src) : false);
@@ -14,6 +22,7 @@ export function LazyImage({ src, priority = false, unoptimized, style, className
   return (
     <Image
       src={src}
+      alt={alt}
       priority={priority}
       loading={priority ? undefined : "lazy"}
       unoptimized={resolvedUnoptimized}

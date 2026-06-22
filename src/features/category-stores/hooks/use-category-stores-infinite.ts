@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, type InfiniteData } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 import {
   CATEGORY_STORES_PAGE_SIZE,
@@ -24,7 +24,13 @@ export function useCategoryStoresInfinite(
 ) {
   const queryKey = getCategoryStoresInfiniteKey(categoryId, size);
 
-  const query = useInfiniteQuery<StoresCursorResult, Error>({
+  const query = useInfiniteQuery<
+    StoresCursorResult,
+    Error,
+    InfiniteData<StoresCursorResult>,
+    ReturnType<typeof getCategoryStoresInfiniteKey>,
+    number | undefined
+  >({
     queryKey,
     queryFn: ({ pageParam }) =>
       fetchStoresByCategoryCursor(categoryId, {
@@ -51,11 +57,12 @@ export function useCategoryStoresInfinite(
   );
 
   const hasNextPage = query.hasNextPage ?? false;
+  const { fetchNextPage, isFetchingNextPage } = query;
 
   const loadMore = useCallback(() => {
-    if (!hasNextPage || query.isFetchingNextPage) return;
-    void query.fetchNextPage();
-  }, [hasNextPage, query.isFetchingNextPage, query.fetchNextPage]);
+    if (!hasNextPage || isFetchingNextPage) return;
+    void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return {
     storeItems,
