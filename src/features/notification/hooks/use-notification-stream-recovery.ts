@@ -21,6 +21,7 @@ export function useNotificationStreamRecovery() {
     }
 
     let cancelled = false;
+    let stopTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     void getCurrentUser()
       .then(async (user) => {
@@ -32,8 +33,18 @@ export function useNotificationStreamRecovery() {
         if (cancelled) return;
 
         const order = orders.find((item) => item.id === activeOrderId);
-        if (!order || !isActiveOrderStatus(order.status)) {
+        if (!order) {
           stopStream();
+          return;
+        }
+
+        if (!isActiveOrderStatus(order.status)) {
+          // 취소·완료 SSE 토스트를 받을 시간을 잠시 확보한다.
+          stopTimeoutId = window.setTimeout(() => {
+            if (!cancelled) {
+              stopStream();
+            }
+          }, 5_000);
         }
       })
       .catch(() => {
@@ -42,6 +53,9 @@ export function useNotificationStreamRecovery() {
 
     return () => {
       cancelled = true;
+      if (stopTimeoutId != null) {
+        window.clearTimeout(stopTimeoutId);
+      }
     };
   }, [activeOrderId, stopStream]);
 }

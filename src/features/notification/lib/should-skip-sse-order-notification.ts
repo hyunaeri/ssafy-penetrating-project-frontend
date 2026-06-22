@@ -1,4 +1,5 @@
 import type { NotificationResponse } from "@/entities/notification";
+import { inferOrderStatusFromNotification } from "@/features/notification/lib/resolve-order-context-from-notification";
 
 const INITIAL_ORDER_STATUSES = new Set(["PAYMENT_PENDING", "PAID"]);
 
@@ -10,6 +11,13 @@ export function shouldSkipSseOrderNotification(
   notification: NotificationResponse
 ): boolean {
   if (notification.type !== "ORDER_STATUS") return false;
+
+  const resolvedStatus =
+    notification.orderStatus ?? inferOrderStatusFromNotification(notification);
+
+  if (resolvedStatus && !INITIAL_ORDER_STATUSES.has(resolvedStatus)) {
+    return false;
+  }
 
   if (
     notification.orderStatus &&
