@@ -6,7 +6,6 @@ import { AlarmButton } from "@/features/notification";
 import { useOrders } from "@/features/orders/hooks/use-orders";
 import { OrderHistoryCard } from "@/features/orders/ui/OrderHistoryCard";
 import { BackHeader, PrimaryButton } from "@/shared/ui";
-import { BOTTOM_NAV_HEIGHT_PX } from "@/widgets/bottom-nav";
 
 function matchesSearch(
   order: {
@@ -36,77 +35,93 @@ export function OrdersHistoryScreen() {
 
   const showList = !loading && !error && filteredOrders.length > 0;
   const isEmpty = !loading && !error && filteredOrders.length === 0;
+  const showStickyMeta = !loading && !error && orders.length > 0;
 
   return (
-    <div
-      className={`flex flex-col ${isEmpty ? "bg-surface" : "min-h-full bg-surface"}`}
-      style={
-        isEmpty
-          ? { minHeight: `calc(100dvh - ${BOTTOM_NAV_HEIGHT_PX}px)` }
-          : undefined
-      }
-    >
-      <BackHeader
-        title="주문내역"
-        trailing={
-          <>
-            <AlarmButton />
-            <CartEntryButton />
-          </>
-        }
-      />
+    <div className="screen-viewport bg-surface">
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm">
+        <BackHeader
+          sticky={false}
+          title="주문내역"
+          trailing={
+            <>
+              <AlarmButton />
+              <CartEntryButton />
+            </>
+          }
+        />
 
-      <div className="border-b border-line/80 bg-white px-4 py-2.5">
-        <div className="flex items-center gap-2 rounded-xl bg-surface px-3.5 py-2.5">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            className="shrink-0 text-muted"
-            aria-hidden
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="m20 20-3.5-3.5" />
-          </svg>
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="매장명, 메뉴명으로 검색"
-            aria-label="주문 내역 검색"
-            className="min-w-0 flex-1 bg-transparent text-[14px] text-ink placeholder:text-muted/70 focus:outline-none"
-          />
-        </div>
+        {showStickyMeta && (
+          <>
+            <div className="border-b border-line/80 px-4 py-2.5">
+              <div className="flex items-center gap-2 rounded-xl bg-surface px-3.5 py-2.5">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="shrink-0 text-muted"
+                  aria-hidden
+                >
+                  <circle cx="11" cy="11" r="7" />
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+                <input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="매장명, 메뉴명으로 검색"
+                  aria-label="주문 내역 검색"
+                  className="min-w-0 flex-1 bg-transparent text-[14px] text-ink placeholder:text-muted/70 focus:outline-none"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    aria-label="검색어 지우기"
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted/30 text-white transition-colors hover:bg-muted/50"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      aria-hidden
+                    >
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <p className="border-b border-line/80 px-4 py-2.5 text-[13px] text-muted">
+              <span className="font-semibold text-brand-dark">
+                {filteredOrders.length}
+              </span>
+              건
+            </p>
+          </>
+        )}
       </div>
 
-      {showList && (
-        <p className="border-b border-line/80 bg-white px-4 py-2.5 text-[13px] text-muted">
-          <span className="font-semibold text-brand-dark">
-            {filteredOrders.length}
-          </span>
-          건
-        </p>
-      )}
-
-      <div
-        className={
-          isEmpty
-            ? "flex min-h-0 flex-1 flex-col bg-surface"
-            : "flex flex-1 flex-col px-4 py-4"
-        }
-      >
+      <div className="screen-body">
         {loading && (
-          <p className="px-4 py-16 text-center text-[14px] text-muted">
-            주문 내역을 불러오는 중입니다
-          </p>
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">
+              주문 내역을 불러오는 중입니다
+            </p>
+          </div>
         )}
 
         {!loading && error && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
+          <div className="screen-state gap-4">
             <p className="text-[14px] text-red-600">{error}</p>
             <PrimaryButton
               type="button"
@@ -120,7 +135,7 @@ export function OrdersHistoryScreen() {
         )}
 
         {isEmpty && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+          <div className="screen-state gap-3">
             <p className="text-[16px] font-bold text-ink">
               {searchQuery.trim() ? "검색 결과가 없어요" : "주문 내역이 없어요"}
             </p>
@@ -133,7 +148,7 @@ export function OrdersHistoryScreen() {
         )}
 
         {showList && (
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-3 px-4 py-4">
             {filteredOrders.map((order) => (
               <li key={order.id}>
                 <OrderHistoryCard order={order} />

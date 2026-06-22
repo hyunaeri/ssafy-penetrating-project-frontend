@@ -7,17 +7,23 @@ type BackHeaderProps = {
   title: string;
   trailing?: ReactNode;
   showBack?: boolean;
+  sticky?: boolean;
 };
 
 export function BackHeader({
   title,
   trailing,
   showBack = true,
+  sticky = true,
 }: BackHeaderProps) {
   const router = useAppRouter();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-0.5 border-b border-line/80 bg-white/95 px-3 py-3.5 backdrop-blur-sm">
+    <header
+      className={`flex items-center gap-0.5 border-b border-line/80 bg-white/95 px-3 py-3.5 backdrop-blur-sm ${
+        sticky ? "sticky top-0 z-10" : ""
+      }`}
+    >
       {showBack ? (
         <button
           type="button"

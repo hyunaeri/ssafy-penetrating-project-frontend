@@ -3,9 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchMyOrders, type OrderResponse } from "@/entities/order";
 
+import { ORDERS_QUERY_KEY } from "@/features/orders/lib/orders-query-key";
+
 export function useOrders() {
   const query = useQuery<OrderResponse[], Error>({
-    queryKey: ["orders"],
+    queryKey: ORDERS_QUERY_KEY,
     queryFn: fetchMyOrders,
   });
 

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { OrderResponse } from "@/entities/order";
@@ -15,6 +14,8 @@ import {
   getOrderStatusBadgeClass,
   getOrderStatusLabel,
 } from "@/features/orders/lib/format-order-status";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
 
 type OrderHistoryCardProps = {
   order: OrderResponse;
@@ -47,33 +48,23 @@ function formatOrderDate(value: string) {
 }
 
 function StoreThumbnail({
-  name,
   imageUrl,
 }: {
-  name: string;
   imageUrl?: string | null;
 }) {
   const [failed, setFailed] = useState(false);
-  const trimmed = imageUrl?.trim();
-  const showImage = Boolean(trimmed) && !failed;
+  const src = resolveRepresentativeImage(imageUrl, failed);
 
   return (
     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-inset ring-line/80">
-      {showImage ? (
-        <Image
-          src={trimmed!}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="56px"
-          unoptimized
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <span className="flex h-full w-full items-center justify-center text-[18px] font-bold text-brand-dark">
-          {name.charAt(0)}
-        </span>
-      )}
+      <LazyImage
+        src={src}
+        alt=""
+        fill
+        className="object-cover"
+        sizes="56px"
+        onError={() => setFailed(true)}
+      />
     </div>
   );
 }
@@ -123,7 +114,7 @@ export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
   return (
     <article className="overflow-hidden rounded-2xl bg-white shadow-card">
       <div className="flex items-start gap-3 p-4 pb-3">
-        <StoreThumbnail name={storeName} imageUrl={order.storeImageUrl} />
+        <StoreThumbnail imageUrl={order.storeImageUrl} />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
