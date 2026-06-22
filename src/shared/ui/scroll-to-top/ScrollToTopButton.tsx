@@ -3,9 +3,17 @@
 type ScrollToTopButtonProps = {
   visible: boolean;
   onClick: () => void;
+  bottomClassName?: string;
 };
 
-export function ScrollToTopButton({ visible, onClick }: ScrollToTopButtonProps) {
+const DEFAULT_BOTTOM_CLASS =
+  "bottom-[5.25rem] right-[max(1.25rem,calc((100%-430px)/2+1.25rem))]";
+
+export function ScrollToTopButton({
+  visible,
+  onClick,
+  bottomClassName,
+}: ScrollToTopButtonProps) {
   if (!visible) return null;
 
   return (
@@ -13,7 +21,7 @@ export function ScrollToTopButton({ visible, onClick }: ScrollToTopButtonProps) 
       type="button"
       onClick={onClick}
       aria-label="맨 위로"
-      className="fixed bottom-[5.25rem] z-20 flex h-11 w-11 items-center justify-center rounded-full bg-brand text-white shadow-float transition-transform hover:scale-105 active:scale-95 right-[max(1.25rem,calc((100%-430px)/2+1.25rem))]"
+      className={`fixed z-20 flex h-11 w-11 items-center justify-center rounded-full bg-brand text-white shadow-float transition-transform hover:scale-105 active:scale-95 ${bottomClassName ?? DEFAULT_BOTTOM_CLASS}`}
     >
       <span className="flex -translate-y-px flex-col items-center gap-1.5 leading-none">
         <svg

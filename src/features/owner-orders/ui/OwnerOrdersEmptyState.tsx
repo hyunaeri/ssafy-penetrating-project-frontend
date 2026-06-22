@@ -4,7 +4,7 @@ type OwnerOrdersEmptyStateProps = {
 
 export function OwnerOrdersEmptyState({ isSearching }: OwnerOrdersEmptyStateProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+    <div className="screen-state gap-3">
       <span className="text-[40px]" aria-hidden>
         📋
       </span>

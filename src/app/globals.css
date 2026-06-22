@@ -29,8 +29,17 @@
 }
 
 @layer base {
-  html {
-    scrollbar-gutter: stable;
+  html,
+  body,
+  * {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none;
   }
 
   html,
@@ -54,6 +63,24 @@
 
   .brand-cta {
     @apply flex items-center justify-center rounded-button bg-brand text-[15px] font-semibold text-white transition-all hover:bg-brand-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .delivery-tracking-cta {
+    @apply relative flex h-11 w-full items-center justify-center overflow-hidden rounded-xl bg-brand text-[14px] font-bold text-white;
+    animation: delivery-bg-flicker 2.6s ease-in-out infinite;
+  }
+
+  .delivery-tracking-cta::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0 rounded-xl;
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.18);
+    animation: delivery-inner-glow 2.6s ease-in-out infinite;
+  }
+
+  .delivery-live-dot {
+    @apply h-2 w-2 shrink-0 rounded-full bg-white;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.95);
+    animation: delivery-dot-flicker 1.9s ease-in-out infinite;
   }
 }
 
@@ -80,6 +107,74 @@
 
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  .screen-viewport {
+    min-height: var(--screen-viewport-height, 100dvh);
+  }
+
+  .screen-body {
+    @apply flex min-h-0 flex-1 flex-col bg-surface;
+  }
+
+  .screen-state {
+    @apply flex min-h-0 flex-1 flex-col items-center justify-center bg-surface px-4 py-16 text-center;
+  }
+
+  @keyframes delivery-bg-flicker {
+    0%,
+    100% {
+      filter: brightness(1);
+    }
+
+    42% {
+      filter: brightness(1.1);
+    }
+
+    54% {
+      filter: brightness(0.94);
+    }
+
+    68% {
+      filter: brightness(1.06);
+    }
+  }
+
+  @keyframes delivery-inner-glow {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+
+    50% {
+      opacity: 0.75;
+    }
+  }
+
+  @keyframes delivery-dot-flicker {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    48% {
+      opacity: 0.35;
+      transform: scale(0.82);
+    }
+
+    62% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .delivery-tracking-cta,
+    .delivery-tracking-cta::before,
+    .delivery-live-dot {
+      animation: none;
+    }
   }
 }
 

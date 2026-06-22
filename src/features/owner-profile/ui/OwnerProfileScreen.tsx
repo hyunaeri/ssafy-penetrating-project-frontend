@@ -38,21 +38,21 @@ export function OwnerProfileScreen() {
     <OwnerScreenShell>
       <OwnerPageHeader title="내 정보" />
 
-      <div className="flex flex-1 flex-col px-5 py-6">
+      <div className="screen-body px-5 py-6">
         <p className="mb-6 text-[14px] text-muted">
           점주 계정 정보를 확인할 수 있습니다.
         </p>
 
         {isLoggingOut && (
-          <p className="flex flex-1 items-center justify-center text-[14px] text-muted">
-            로그아웃하는 중입니다
-          </p>
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">로그아웃하는 중입니다</p>
+          </div>
         )}
 
         {!isLoggingOut && loading && (
-          <p className="flex flex-1 items-center justify-center text-[14px] text-muted">
-            정보를 불러오는 중입니다
-          </p>
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">정보를 불러오는 중입니다</p>
+          </div>
         )}
 
         {!isLoggingOut && !loading && error && (

@@ -11,7 +11,7 @@ type PlaceholderPageProps = {
 
 export function PlaceholderPage({ title, description }: PlaceholderPageProps) {
   return (
-    <div className="flex min-h-full flex-col bg-surface">
+    <div className="screen-viewport flex flex-col bg-surface">
       <BackHeader
         title={title}
         trailing={

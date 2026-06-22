@@ -17,23 +17,111 @@ const NOTIFICATION_TYPES: NotificationType[] = [
   "SYSTEM",
 ];
 
-function isNotificationLike(value: unknown): value is NotificationResponse {
-  if (typeof value !== "object" || value === null) return false;
-  const item = value as Partial<NotificationResponse>;
-  return (
-    typeof item.id === "number" &&
-    typeof item.title === "string" &&
-    typeof item.message === "string" &&
-    typeof item.isRead === "boolean" &&
-    typeof item.createdAt === "string" &&
-    typeof item.type === "string" &&
-    NOTIFICATION_TYPES.includes(item.type as NotificationType)
+const ORDER_STATUSES = new Set([
+  "PAYMENT_PENDING",
+  "PAID",
+  "ACCEPTED",
+  "COOKING",
+  "DELIVERING",
+  "COMPLETED",
+  "CANCELED",
+]);
+
+function readString(
+  record: Record<string, unknown>,
+  keys: string[]
+): string | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+  return null;
+}
+
+function readBoolean(
+  record: Record<string, unknown>,
+  keys: string[]
+): boolean | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "boolean") {
+      return value;
+    }
+  }
+  return null;
+}
+
+function readNumber(
+  record: Record<string, unknown>,
+  keys: string[]
+): number | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function parseNotificationType(value: unknown): NotificationType | null {
+  if (typeof value !== "string") return null;
+  return NOTIFICATION_TYPES.includes(value as NotificationType)
+    ? (value as NotificationType)
+    : null;
+}
+
+function parseOrderStatus(value: unknown) {
+  if (typeof value !== "string") return null;
+  return ORDER_STATUSES.has(value) ? value : null;
+}
+
+/** 백엔드/SSE JSON을 프론트 `NotificationResponse`로 정규화한다. */
+export function normalizeNotification(data: unknown): NotificationResponse | null {
+  if (typeof data !== "object" || data === null) return null;
+  const record = data as Record<string, unknown>;
+
+  const id = readNumber(record, ["id"]);
+  const type = parseNotificationType(record.type);
+  const title = readString(record, ["title"]);
+  const message = readString(record, ["message"]);
+  const isRead = readBoolean(record, ["isRead", "is_read"]);
+  const createdAt = readString(record, ["createdAt", "created_at"]);
+  const orderId = readNumber(record, ["orderId", "order_id"]);
+  const orderStatus = parseOrderStatus(
+    record.orderStatus ?? record.order_status
   );
+
+  if (
+    id == null ||
+    !type ||
+    !title ||
+    !message ||
+    isRead == null ||
+    !createdAt
+  ) {
+    return null;
+  }
+
+  return {
+    id,
+    type,
+    title,
+    message,
+    isRead,
+    createdAt,
+    orderId,
+    orderStatus: orderStatus as NotificationResponse["orderStatus"],
+  };
 }
 
 function parseNotificationsResponse(data: unknown): NotificationResponse[] {
   if (Array.isArray(data)) {
-    return data.filter(isNotificationLike);
+    return data
+      .map(normalizeNotification)
+      .filter((item): item is NotificationResponse => item != null);
   }
 
   if (typeof data === "object" && data !== null) {
@@ -41,7 +129,9 @@ function parseNotificationsResponse(data: unknown): NotificationResponse[] {
     for (const key of ["content", "items", "data", "notifications"]) {
       const nested = record[key];
       if (Array.isArray(nested)) {
-        return nested.filter(isNotificationLike);
+        return nested
+          .map(normalizeNotification)
+          .filter((item): item is NotificationResponse => item != null);
       }
     }
   }
@@ -176,8 +266,9 @@ export function subscribeNotifications(options: SubscribeOptions): () => void {
 
       try {
         const parsed: unknown = JSON.parse(msg.data);
-        if (isNotificationLike(parsed)) {
-          options.onNotification(parsed);
+        const notification = normalizeNotification(parsed);
+        if (notification) {
+          options.onNotification(notification);
         }
       } catch {
         /* SSE 데이터 파싱 실패 시 무시 */

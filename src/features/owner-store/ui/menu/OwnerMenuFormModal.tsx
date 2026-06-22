@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { OwnerMenuPayload } from "@/entities/owner-menu";
@@ -11,9 +10,10 @@ import {
   type OwnerMenuFormValues,
 } from "@/features/owner-store/model/owner-menu-form";
 import { OwnerMenuFormFields } from "@/features/owner-store/ui/menu/OwnerMenuFormFields";
-import { EMPTY_MENU_IMAGE } from "@/features/owner-shared";
 import { useBodyScrollLock } from "@/shared/lib/use-body-scroll-lock";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
 import { PrimaryButton } from "@/shared/ui";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
 
 type OwnerMenuFormModalProps = {
   open: boolean;
@@ -85,7 +85,7 @@ export function OwnerMenuFormModal({
         : "변경사항 저장";
 
   const previewSrc =
-    previewUrl ?? menu?.imageUrl?.trim() ?? EMPTY_MENU_IMAGE;
+    previewUrl ?? resolveRepresentativeImage(menu?.imageUrl);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -125,13 +125,12 @@ export function OwnerMenuFormModal({
             {mode === "edit" && menu && (
               <div className="mb-4 flex items-center gap-3 rounded-xl bg-surface px-3 py-3">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl ring-1 ring-inset ring-line/80">
-                  <Image
+                  <LazyImage
                     src={previewSrc}
                     alt=""
                     fill
                     className="object-cover"
                     sizes="64px"
-                    unoptimized
                   />
                 </div>
                 <p className="min-w-0 text-[13px] leading-relaxed text-muted">

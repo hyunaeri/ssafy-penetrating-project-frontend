@@ -16,7 +16,7 @@ export function OwnerPageHeader({ title, trailing }: OwnerPageHeaderProps) {
       trailing={
         <>
           {trailing}
-          <AlarmButton />
+          <AlarmButton href="/owner/notifications" />
         </>
       }
     />

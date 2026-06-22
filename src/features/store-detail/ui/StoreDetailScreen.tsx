@@ -44,12 +44,19 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
   const { summary, visible: showCartBar } = useStoreCartSummary(storeId);
 
   if (loading) {
-    return <StoreDetailSkeleton />;
+    return (
+      <div className="screen-viewport flex flex-col bg-surface">
+        <div className="screen-body">
+          <StoreDetailSkeleton />
+        </div>
+      </div>
+    );
   }
 
   if (error || !store) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 bg-white px-4 py-16 text-center">
+      <div className="screen-viewport flex flex-col bg-surface">
+        <div className="screen-state gap-4">
         <p className="text-[14px] text-red-600">
           {error ?? "매장 정보를 불러오지 못했습니다."}
         </p>
@@ -61,6 +68,7 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
         >
           다시 시도
         </PrimaryButton>
+        </div>
       </div>
     );
   }

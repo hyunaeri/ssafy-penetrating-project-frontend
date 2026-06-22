@@ -1,7 +1,7 @@
 "use client";
 
 import { findFoodCategoryById } from "@/entities/category";
-import { useCategoryStores } from "@/features/category-stores/hooks/use-category-stores";
+import { useCategoryStoresPreview } from "@/features/category-stores/hooks/use-category-stores-infinite";
 import { StoreCard } from "@/features/category-stores/ui/StoreCard";
 
 /** 홈 하단 추천 매장 섹션. 기본 카테고리(프랜차이즈)의 매장을 보여준다. */
@@ -9,9 +9,12 @@ const RECOMMENDED_CATEGORY_ID = 1;
 const MAX_ITEMS = 6;
 
 export function RecommendedStores() {
-  const { stores, loading, error } = useCategoryStores(RECOMMENDED_CATEGORY_ID);
+  const { stores, loading, error } = useCategoryStoresPreview(
+    RECOMMENDED_CATEGORY_ID,
+    MAX_ITEMS
+  );
   const category = findFoodCategoryById(RECOMMENDED_CATEGORY_ID);
-  const items = stores.slice(0, MAX_ITEMS);
+  const items = stores;
 
   if (error) return null;
 

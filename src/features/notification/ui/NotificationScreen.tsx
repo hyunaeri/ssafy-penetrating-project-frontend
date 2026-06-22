@@ -24,7 +24,7 @@ export function NotificationScreen() {
   const list = tab === "unread" ? unread : read;
 
   return (
-    <div className="flex min-h-full flex-col bg-surface">
+    <div className="screen-viewport flex flex-col bg-surface">
       <BackHeader
         title="알림"
         trailing={
@@ -54,15 +54,15 @@ export function NotificationScreen() {
         />
       </div>
 
-      <div className="flex flex-1 flex-col">
+      <div className="screen-body">
         {loading && (
-          <p className="px-4 py-16 text-center text-[14px] text-muted">
-            알림을 불러오는 중입니다
-          </p>
+          <div className="screen-state">
+            <p className="text-[14px] text-muted">알림을 불러오는 중입니다</p>
+          </div>
         )}
 
         {!loading && error && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-16 text-center">
+          <div className="screen-state gap-3">
             <p className="text-[14px] text-red-600">{error}</p>
             <button
               type="button"
@@ -75,7 +75,7 @@ export function NotificationScreen() {
         )}
 
         {!loading && !error && list.length === 0 && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-20 text-center">
+          <div className="screen-state gap-2">
             <p className="text-[15px] font-bold text-ink">
               {tab === "unread"
                 ? "읽지 않은 알림이 없어요"

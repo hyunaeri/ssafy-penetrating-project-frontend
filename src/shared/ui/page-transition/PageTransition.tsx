@@ -61,11 +61,11 @@ export function PageTransition({ children }: PageTransitionProps) {
         : 0;
 
   return (
-    <div className="page-transition-root relative min-h-full overflow-x-hidden">
+    <div className="page-transition-root relative flex min-h-0 flex-1 flex-col">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
-          className="min-h-full bg-surface"
+          className="screen-viewport flex flex-col overflow-x-clip bg-surface"
           initial={skipSlide ? { opacity: 0 } : { opacity: 0, x: enterX }}
           animate={{ opacity: 1, x: 0 }}
           exit={skipSlide ? { opacity: 0 } : { opacity: 0, x: exitX }}

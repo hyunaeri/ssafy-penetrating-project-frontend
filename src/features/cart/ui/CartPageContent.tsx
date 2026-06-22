@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useAppRouter } from "@/shared/lib/use-app-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -19,7 +18,9 @@ import {
 } from "@/features/cart/ui/CartOrderTypeToggle";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
 import { saveCheckoutOrderType } from "@/features/payment";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
 import { PrimaryButton } from "@/shared/ui";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
 
 function CartLineItem({
   line,
@@ -30,7 +31,7 @@ function CartLineItem({
 }) {
   const imageUrl = line.menuImageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const showImage = Boolean(imageUrl) && !imageFailed;
+  const src = resolveRepresentativeImage(imageUrl, imageFailed);
   const quantity = controller.getQuantity(line.id, line.quantity);
   const lineTotal = line.unitPrice * quantity;
   const minusDisabled = quantity <= 1;
@@ -38,21 +39,14 @@ function CartLineItem({
   return (
     <li className="flex gap-3.5 border-b border-line/60 py-4 last:border-b-0">
       <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
-        {showImage ? (
-          <Image
-            src={imageUrl!}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="72px"
-            unoptimized
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center text-[22px] font-semibold text-brand-dark/50">
-            {line.menuName.charAt(0)}
-          </span>
-        )}
+        <LazyImage
+          src={src}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="72px"
+          onError={() => setImageFailed(true)}
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
@@ -157,26 +151,19 @@ function CartStoreHeader({ cart }: { cart: CartResponse }) {
   const storeName = cart.storeName?.trim() ?? "매장";
   const imageUrl = cart.storeImageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const showImage = Boolean(imageUrl) && !imageFailed;
+  const src = resolveRepresentativeImage(imageUrl, imageFailed);
 
   const content = (
     <div className="flex items-center gap-2.5 px-4 py-3.5">
       <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-brand-soft ring-1 ring-inset ring-brand/10">
-        {showImage ? (
-          <Image
-            src={imageUrl!}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="36px"
-            unoptimized
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center text-[14px] font-bold text-brand-dark">
-            {storeName.charAt(0)}
-          </span>
-        )}
+        <LazyImage
+          src={src}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="36px"
+          onError={() => setImageFailed(true)}
+        />
       </div>
 
       <div className="min-w-0 flex-1">
@@ -229,7 +216,7 @@ function CartStoreHeader({ cart }: { cart: CartResponse }) {
 
 function CartSkeleton() {
   return (
-    <div className="flex flex-1 flex-col bg-surface px-4 py-6">
+    <div className="screen-body px-4 py-6">
       <div className="animate-pulse">
         <div className="mx-3 mt-3 overflow-hidden soft-card">
           <div className="mb-6 flex gap-2.5 border-b border-line/60 px-4 py-3.5">
@@ -258,7 +245,7 @@ function EmptyState({ icon, title, description, action }: {
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+    <div className="screen-state gap-4">
       <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-[28px]">
         {icon}
       </span>

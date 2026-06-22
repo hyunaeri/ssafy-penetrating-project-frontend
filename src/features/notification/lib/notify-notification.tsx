@@ -12,6 +12,7 @@ type NotificationToastPayload = Pick<
 > & {
   id?: number;
   orderId?: number | null;
+  orderStatus?: NotificationResponse["orderStatus"];
 };
 
 const shownToastKeys = new Set<string>();
@@ -20,11 +21,18 @@ const NOTIFICATION_TOAST_CLASS =
   "flex w-full items-start gap-3 rounded-2xl border border-line bg-white px-4 py-3.5 shadow-[0_10px_34px_rgba(43,45,66,0.18)] ring-1 ring-black/5";
 
 function getToastKey(notification: NotificationToastPayload): string {
-  if (notification.orderId != null) {
-    return `order:${notification.orderId}`;
+  if (
+    notification.type === "ORDER_STATUS" &&
+    notification.orderId != null &&
+    notification.orderStatus
+  ) {
+    return `order:${notification.orderId}:${notification.orderStatus}`;
   }
   if (notification.id != null) {
     return `id:${notification.id}`;
+  }
+  if (notification.orderId != null) {
+    return `order:${notification.orderId}:${notification.title}:${notification.message}`;
   }
   return `msg:${notification.type}:${notification.title}:${notification.message}`;
 }
