@@ -41,18 +41,41 @@ export function StoreInfoSection({
         </p>
       )}
 
-      <div className="mt-2 flex items-center justify-between gap-2">
+      <div className="mt-2">
         <button
           type="button"
+          aria-expanded={infoOpen}
+          aria-controls="store-info-panel"
           onClick={() => setInfoOpen((prev) => !prev)}
-          className="text-[13px] font-medium text-muted underline-offset-2 hover:underline"
+          className="flex w-full items-center justify-between gap-2 rounded-lg py-1 text-left text-[13px] font-medium text-muted transition-colors hover:text-ink"
         >
-          가게정보·원산지 {infoOpen ? "∧" : ">"}
+          <span>가게정보·원산지</span>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className={`shrink-0 transition-transform duration-200 ${
+              infoOpen ? "rotate-180" : "-rotate-90"
+            }`}
+            aria-hidden
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
       </div>
 
       {infoOpen && (trimmedAddress || trimmedDescription) && (
-        <div className="mt-3 rounded-2xl bg-surface px-3.5 py-3 text-[13px] leading-relaxed text-ink">
+        <div
+          id="store-info-panel"
+          className="mt-3 rounded-2xl bg-surface px-3.5 py-3 text-[13px] leading-relaxed text-ink"
+        >
           {trimmedAddress && (
             <p>
               <span className="font-semibold text-muted">주소</span>
