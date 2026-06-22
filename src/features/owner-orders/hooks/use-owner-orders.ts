@@ -3,15 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { OrderResponse, OrderStatus } from "@/entities/order";
 import { fetchStoreOrders, updateOrderStatus } from "@/entities/owner-order";
+import { OWNER_ORDERS_QUERY_KEY } from "@/features/owner-orders/lib/owner-orders-query-key";
 
 export function useOwnerOrders(storeId: number | null) {
   const queryClient = useQueryClient();
 
   const query = useQuery<OrderResponse[], Error>({
-    queryKey: ["owner-orders", storeId],
+    queryKey: [...OWNER_ORDERS_QUERY_KEY, storeId],
     queryFn: () => fetchStoreOrders(storeId!),
     enabled: storeId != null,
-    refetchInterval: 30_000,
   });
 
   const statusMutation = useMutation({
@@ -23,7 +23,9 @@ export function useOwnerOrders(storeId: number | null) {
       status: OrderStatus;
     }) => updateOrderStatus(orderId, status),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["owner-orders", storeId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...OWNER_ORDERS_QUERY_KEY, storeId],
+      });
     },
   });
 

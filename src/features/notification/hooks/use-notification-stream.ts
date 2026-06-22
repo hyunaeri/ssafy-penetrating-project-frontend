@@ -54,6 +54,7 @@ export function useNotificationStream() {
         if (notification.type === "ORDER_STATUS") {
           patchOrderStatusFromNotification(queryClient, notification, {
             fallbackOrderId: activeOrderId,
+            invalidateOwnerOrders: isOwner,
           });
         }
 

@@ -5,10 +5,12 @@ import {
   inferOrderStatusFromNotification,
   resolveOrderIdFromNotification,
 } from "@/features/notification/lib/resolve-order-context-from-notification";
+import { OWNER_ORDERS_QUERY_KEY } from "@/features/owner-orders/lib/owner-orders-query-key";
 import { ORDERS_QUERY_KEY } from "@/features/orders/lib/orders-query-key";
 
 type PatchOrderStatusOptions = {
   fallbackOrderId?: number | null;
+  invalidateOwnerOrders?: boolean;
 };
 
 function patchOrderStatus(
@@ -25,6 +27,10 @@ export function patchOrderStatusFromNotification(
   options?: PatchOrderStatusOptions
 ) {
   if (notification.type !== "ORDER_STATUS") return;
+
+  if (options?.invalidateOwnerOrders) {
+    void queryClient.invalidateQueries({ queryKey: OWNER_ORDERS_QUERY_KEY });
+  }
 
   const orderId = resolveOrderIdFromNotification(
     notification,
