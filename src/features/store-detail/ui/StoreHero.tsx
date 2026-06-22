@@ -1,11 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useAppRouter } from "@/shared/lib/use-app-router";
 import { useState, type ReactNode } from "react";
 import { useCartBadge } from "@/features/cart/hooks/use-cart-badge";
 import { CartBadgeDot } from "@/features/cart/ui/CartBadgeDot";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
+import { useAppRouter } from "@/shared/lib/use-app-router";
 
 type StoreHeroProps = {
   name: string;
@@ -36,26 +37,20 @@ function HeroIconButton({
 export function StoreHero({ name, imageUrl }: StoreHeroProps) {
   const router = useAppRouter();
   const { itemCount, hasItems } = useCartBadge();
-  const trimmedUrl = imageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const showImage = Boolean(trimmedUrl) && !imageFailed;
+  const src = resolveRepresentativeImage(imageUrl, imageFailed);
 
   return (
     <div className="relative h-[220px] w-full shrink-0 bg-ink">
-      {showImage ? (
-        <Image
-          src={trimmedUrl!}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="430px"
-          priority
-          unoptimized
-          onError={() => setImageFailed(true)}
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#3d3d3d] via-ink to-[#1a1a1a]" />
-      )}
+      <LazyImage
+        src={src}
+        alt=""
+        fill
+        className="object-cover"
+        sizes="430px"
+        priority
+        onError={() => setImageFailed(true)}
+      />
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/50" />
 
@@ -108,20 +103,15 @@ export function StoreHero({ name, imageUrl }: StoreHeroProps) {
       </div>
 
       <div className="absolute bottom-3 left-4 z-10 flex items-end gap-2">
-        <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-white text-[15px] font-bold text-ink shadow-md ring-2 ring-white/90">
-          {showImage ? (
-            <Image
-              src={trimmedUrl!}
-              alt=""
-              width={44}
-              height={44}
-              className="h-full w-full object-cover"
-              unoptimized
-              onError={() => setImageFailed(true)}
-            />
-          ) : (
-            name.charAt(0)
-          )}
+        <div className="relative h-11 w-11 overflow-hidden rounded-xl bg-white shadow-md ring-2 ring-white/90">
+          <LazyImage
+            src={src}
+            alt={name}
+            fill
+            className="object-cover"
+            sizes="44px"
+            onError={() => setImageFailed(true)}
+          />
         </div>
       </div>
     </div>

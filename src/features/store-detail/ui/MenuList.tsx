@@ -1,19 +1,25 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import dynamic from "next/dynamic";
+import { memo, useState } from "react";
 import type { MenuResponse } from "@/entities/store";
-import { MenuAddModal } from "@/features/add-to-cart";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
-import { EMPTY_MENU_IMAGE } from "@/features/owner-shared";
+import { EMPTY_PIXEL_IMAGE } from "@/features/owner-shared";
 import { MenuNoticeSection } from "@/features/store-detail/ui/MenuNoticeSection";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
+
+const MenuAddModal = dynamic(
+  () => import("@/features/add-to-cart").then((module) => module.MenuAddModal),
+  { ssr: false }
+);
 
 type MenuListProps = {
   menus: MenuResponse[];
   minOrderPrice: number;
 };
 
-function MenuItem({
+const MenuItem = memo(function MenuItem({
   menu,
   onSelect,
 }: {
@@ -22,7 +28,7 @@ function MenuItem({
 }) {
   const imageUrl = menu.imageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const src = imageUrl && !imageFailed ? imageUrl : EMPTY_MENU_IMAGE;
+  const src = resolveRepresentativeImage(imageUrl, imageFailed);
   const description = menu.description?.trim();
 
   return (
@@ -32,31 +38,32 @@ function MenuItem({
         onClick={() => onSelect(menu)}
         className="flex w-full gap-3.5 rounded-none border-b border-line/60 py-4 text-left transition-colors last:border-b-0 hover:bg-brand-soft/40 active:bg-brand-soft/60"
       >
-      <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
-        <Image
-          src={src}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="100px"
-          unoptimized
-          onError={() => setImageFailed(true)}
-        />
-      </div>
+        <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
+          <LazyImage
+            src={src}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100px"
+            onError={() => setImageFailed(true)}
+          />
+        </div>
 
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
-        <h3 className="text-[16px] font-bold leading-snug text-ink">{menu.name}</h3>
-        {description && (
-          <p className="line-clamp-2 text-[13px] leading-snug text-muted">
-            {description}
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+          <h3 className="text-[16px] font-bold leading-snug text-ink">{menu.name}</h3>
+          {description && (
+            <p className="line-clamp-2 text-[13px] leading-snug text-muted">
+              {description}
+            </p>
+          )}
+          <p className="mt-1 text-[15px] font-bold text-brand-dark">
+            {formatWon(menu.price)}
           </p>
-        )}
-        <p className="mt-1 text-[15px] font-bold text-brand-dark">{formatWon(menu.price)}</p>
-      </div>
+        </div>
       </button>
     </li>
   );
-}
+});
 
 export function MenuList({ menus, minOrderPrice }: MenuListProps) {
   const [selectedMenu, setSelectedMenu] = useState<MenuResponse | null>(null);

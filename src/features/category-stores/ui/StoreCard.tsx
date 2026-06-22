@@ -1,14 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { memo, useState, type ReactNode } from "react";
 import type { StoreResponse } from "@/entities/store";
 import {
   formatDeliveryTime,
   formatReviewCount,
   formatWon,
 } from "@/features/category-stores/lib/format-store-display";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
 
 type StoreCardProps = {
   store: StoreResponse;
@@ -44,11 +45,10 @@ function MetaItem({
   );
 }
 
-export function StoreCard({ store }: StoreCardProps) {
+export const StoreCard = memo(function StoreCard({ store }: StoreCardProps) {
   const imageUrl = store.imageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-
-  const showImage = Boolean(imageUrl) && !imageFailed;
+  const src = resolveRepresentativeImage(imageUrl, imageFailed);
   const deliveryTime = formatDeliveryTime(
     store.deliveryTime,
     store.deliveryTimeMinutes
@@ -62,21 +62,14 @@ export function StoreCard({ store }: StoreCardProps) {
       className="mx-3 my-2 flex w-[calc(100%-1.5rem)] gap-3.5 rounded-card bg-white p-3 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(42,193,188,0.12)] active:scale-[0.99]"
     >
       <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
-        {showImage ? (
-          <Image
-            src={imageUrl!}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="88px"
-            unoptimized
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-surface to-line/60 text-[22px] font-semibold tracking-tight text-muted">
-            {store.name.charAt(0)}
-          </span>
-        )}
+        <LazyImage
+          src={src}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="88px"
+          onError={() => setImageFailed(true)}
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
@@ -162,4 +155,4 @@ export function StoreCard({ store }: StoreCardProps) {
       </div>
     </Link>
   );
-}
+});

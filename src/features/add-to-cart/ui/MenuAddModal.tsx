@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { MenuResponse } from "@/entities/store";
@@ -8,8 +7,9 @@ import { CartStoreConflictModal } from "@/features/add-to-cart/ui/CartStoreConfl
 import { useAddToCart } from "@/features/add-to-cart/hooks/use-add-to-cart";
 import { notifyCartUpdated } from "@/features/cart/lib/cart-events";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
-import { EMPTY_MENU_IMAGE } from "@/features/owner-shared";
+import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
 import { useBodyScrollLock } from "@/shared/lib/use-body-scroll-lock";
+import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
 import { notifyError, notifySuccess, toastMessages } from "@/shared/ui";
 
 const MIN_QUANTITY = 1;
@@ -89,7 +89,7 @@ export function MenuAddModal({ menu, minOrderPrice, onClose }: MenuAddModalProps
   if (!mounted) return null;
 
   const imageUrl = menu.imageUrl?.trim();
-  const src = imageUrl && !imageFailed ? imageUrl : EMPTY_MENU_IMAGE;
+  const src = resolveRepresentativeImage(imageUrl, imageFailed);
   const description = menu.description?.trim();
   const lineTotal = menu.price * quantity;
 
@@ -132,14 +132,13 @@ export function MenuAddModal({ menu, minOrderPrice, onClose }: MenuAddModalProps
     <>
       <div className="fixed inset-y-0 left-0 right-0 z-[200] mx-auto flex w-full max-w-mobile flex-col bg-white">
         <div className="relative h-[240px] w-full shrink-0 bg-surface">
-          <Image
+          <LazyImage
             src={src}
             alt=""
             fill
             className="object-cover"
             sizes="430px"
             priority
-            unoptimized
             onError={() => setImageFailed(true)}
           />
 
