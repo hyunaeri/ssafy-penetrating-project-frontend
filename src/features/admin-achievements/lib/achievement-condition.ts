@@ -38,7 +38,7 @@ export function buildConditionValue(
       }
       return JSON.stringify({ tagCodes });
     }
-    case "ORDER_TIME": {
+    case "ORDER_TIME_RANGE": {
       const value = condition as OrderTimeCondition;
       if (!value.startTime || !value.endTime) {
         throw new Error("시작·종료 시각을 입력해 주세요.");
@@ -56,7 +56,7 @@ export function buildConditionValue(
       }
       return JSON.stringify({ tagCode: value.tagCode, count: value.count });
     }
-    case "CUMULATIVE_AMOUNT_BY_TAG": {
+    case "CUMULATIVE_TAG_AMOUNT": {
       const value = condition as CumulativeAmountCondition;
       if (!value.tagCode) throw new Error("태그를 선택해 주세요.");
       if (!Number.isInteger(value.amount) || value.amount < 1) {
@@ -75,11 +75,11 @@ export function defaultConditionForType(
   switch (conditionType) {
     case "SINGLE_ORDER_TAGS":
       return { tagCodes: ["BURGER", "CHICKEN_BURGER", "HOTDOG"] };
-    case "ORDER_TIME":
+    case "ORDER_TIME_RANGE":
       return { startTime: "22:00", endTime: "05:00" };
     case "CONSECUTIVE_TAG":
       return { tagCode: "BLACK_BEAN_NOODLE", count: 3 };
-    case "CUMULATIVE_AMOUNT_BY_TAG":
+    case "CUMULATIVE_TAG_AMOUNT":
       return { tagCode: "PASTA", amount: 500000 };
   }
 }

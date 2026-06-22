@@ -19,9 +19,9 @@ import { PrimaryButton, notifyError } from "@/shared/ui";
 const GRADES: AchievementGrade[] = ["NORMAL", "RARE", "UNIQUE", "LEGENDARY"];
 const CONDITION_TYPES: AchievementConditionType[] = [
   "SINGLE_ORDER_TAGS",
-  "ORDER_TIME",
+  "ORDER_TIME_RANGE",
   "CONSECUTIVE_TAG",
-  "CUMULATIVE_AMOUNT_BY_TAG",
+  "CUMULATIVE_TAG_AMOUNT",
 ];
 
 type AchievementFormState = {

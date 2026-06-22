@@ -4,7 +4,7 @@ export type AchievementConditionType =
   | "SINGLE_ORDER_TAGS"
   | "ORDER_TIME_RANGE"
   | "CONSECUTIVE_TAG"
-  | "CUMULATIVE_AMOUNT_BY_TAG";
+  | "CUMULATIVE_TAG_AMOUNT";
 
 export type AchievementPayload = {
   name: string;

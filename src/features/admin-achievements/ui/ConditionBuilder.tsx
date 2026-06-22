@@ -83,7 +83,7 @@ export function ConditionBuilder({
     );
   }
 
-  if (conditionType === "ORDER_TIME") {
+  if (conditionType === "ORDER_TIME_RANGE") {
     const condition = value as { startTime: string; endTime: string };
     return (
       <div className="grid gap-3 rounded-lg border border-line bg-surface p-4 sm:grid-cols-2">
