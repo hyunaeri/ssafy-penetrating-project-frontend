@@ -2,7 +2,7 @@ export type AchievementGrade = "NORMAL" | "RARE" | "UNIQUE" | "LEGENDARY";
 
 export type AchievementConditionType =
   | "SINGLE_ORDER_TAGS"
-  | "ORDER_TIME"
+  | "ORDER_TIME_RANGE"
   | "CONSECUTIVE_TAG"
   | "CUMULATIVE_AMOUNT_BY_TAG";
 
