@@ -35,14 +35,16 @@ export function NotificationContent({
     <>
       <NotificationTypeIcon type={type} size={isToast ? "sm" : "md"} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-start justify-between gap-2">
           <p
-            className={`min-w-0 leading-snug ${
-              isToast ? "text-[13px]" : "text-[14px]"
+            className={`min-w-0 flex-1 leading-snug ${
+              isToast ? "truncate text-[13px]" : "text-[14px]"
             } ${
-              muted
-                ? "font-normal text-muted"
-                : "font-medium text-ink/90"
+              body
+                ? "font-bold text-ink"
+                : muted
+                  ? "font-normal text-muted"
+                  : "font-medium text-ink/90"
             }`}
           >
             {headline}
@@ -60,23 +62,23 @@ export function NotificationContent({
           )}
         </div>
 
+        {body && (
+          <p
+            className={`mt-1 leading-relaxed text-ink/85 ${
+              isToast ? "line-clamp-2 text-[12px]" : "line-clamp-2 text-[13px]"
+            } ${muted ? "text-muted/80" : ""}`}
+          >
+            {body}
+          </p>
+        )}
+
         {storeName && (
           <p
-            className={`mt-1 text-muted/75 ${
+            className={`${body ? "mt-1.5" : "mt-1"} text-muted/75 ${
               isToast ? "text-[11px]" : "text-[12px]"
             }`}
           >
             {storeName}
-          </p>
-        )}
-
-        {body && (
-          <p
-            className={`mt-1 leading-relaxed text-muted/80 ${
-              isToast ? "line-clamp-2 text-[12px]" : "line-clamp-2 text-[13px]"
-            }`}
-          >
-            {body}
           </p>
         )}
       </div>

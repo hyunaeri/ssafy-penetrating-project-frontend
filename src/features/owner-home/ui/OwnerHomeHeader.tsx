@@ -23,7 +23,7 @@ export function OwnerHomeHeader({ query, onQueryChange }: OwnerHomeHeaderProps) 
         </div>
 
         <div className="flex shrink-0 items-center gap-0.5 text-white [&_.header-icon-trigger]:text-white [&_.header-icon-trigger:hover]:bg-white/15 [&_.header-icon-trigger:active]:bg-white/20">
-          <AlarmButton />
+          <AlarmButton href="/owner/notifications" />
         </div>
       </div>
 

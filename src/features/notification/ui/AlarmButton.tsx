@@ -4,7 +4,11 @@ import { useAppRouter } from "@/shared/lib/use-app-router";
 import { HeaderIconButton } from "@/shared/ui/header-icon-link";
 import { useNotifications } from "@/features/notification/hooks/use-notifications";
 
-export function AlarmButton() {
+type AlarmButtonProps = {
+  href?: string;
+};
+
+export function AlarmButton({ href = "/notifications" }: AlarmButtonProps) {
   const router = useAppRouter();
   const { unreadCount } = useNotifications();
 
@@ -13,7 +17,7 @@ export function AlarmButton() {
 
   return (
     <div className="relative shrink-0">
-      <HeaderIconButton label={label} onClick={() => router.push("/notifications")}>
+      <HeaderIconButton label={label} onClick={() => router.push(href)}>
         <svg
           width="24"
           height="24"

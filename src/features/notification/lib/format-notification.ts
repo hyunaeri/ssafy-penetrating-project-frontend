@@ -26,11 +26,19 @@ export function parseNotificationContent(message: string): ParsedNotificationCon
   return { storeName, body };
 }
 
+/**
+ * 백엔드 `OrderNotificationEventListener`가 message 끝에 붙이는 상태 문구.
+ * title에 이미 동일·유사 문구가 있으므로 메뉴명 추출 시 제거한다.
+ */
 const ORDER_STATUS_SUFFIX_PATTERNS = [
   /결제가\s*완료되어\s*가게\s*접수\s*대기\s*중입니다\.?$/,
   /주문이\s*가게\s*접수\s*대기\s*중입니다\.?$/,
   /가게\s*접수\s*대기\s*중입니다\.?$/,
+  /새\s*주문이\s*접수\s*대기\s*중입니다\.?$/,
   /접수\s*대기\s*중입니다\.?$/,
+  /새\s*주문이\s*들어왔습니다\.?$/,
+  /주문이\s*승인되었습니다\.?$/,
+  /배달이\s*시작되었습니다\.?$/,
   /조리\s*중입니다\.?$/,
   /배달\s*중입니다\.?$/,
   /배달이\s*완료되었습니다\.?$/,
@@ -56,12 +64,25 @@ function normalizeStatusPhrase(title: string): string {
   return /[.。]$/.test(trimmed) ? trimmed : `${trimmed}.`;
 }
 
-function buildOrderHeadline(menuSummary: string | null, title: string): string {
-  const status = normalizeStatusPhrase(title);
-  if (menuSummary) {
-    return `${menuSummary} ${status}`;
+/** "새 주문이 새 주문이"처럼 반복된 문구를 한 번만 남긴다. */
+function dedupeRepeatedPhrase(text: string, phrase: string): string {
+  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const flexible = escaped.replace(/\s+/g, "\\s*");
+  const regex = new RegExp(`(?:${flexible}\\s*){2,}`, "g");
+  return text.replace(regex, `${phrase} `).replace(/\s+/g, " ").trim();
+}
+
+/** 백엔드 title 필드를 상태 메시지로 정규화한다. */
+function resolveOrderStatusMessage(title: string): string {
+  let message = title.trim();
+  message = dedupeRepeatedPhrase(message, "새 주문이");
+  message = normalizeStatusPhrase(message);
+
+  if (message === "새 주문이.") {
+    return "새 주문이 들어왔습니다.";
   }
-  return status;
+
+  return message;
 }
 
 function simplifyBody(title: string, body: string): string | null {
@@ -82,9 +103,20 @@ export function resolveNotificationDisplay(
   const storeName = storeNameFromApi?.trim() || parsed.storeName;
 
   if (type === "ORDER_STATUS") {
+    // 백엔드: title = 상태 문구, message = `[매장명] 메뉴요약 + (중복)상태문구`
     const menuSummary = parsed.body ? extractMenuSummary(parsed.body) : null;
+    const statusMessage = resolveOrderStatusMessage(title);
+
+    if (menuSummary) {
+      return {
+        headline: menuSummary,
+        storeName,
+        body: statusMessage || null,
+      };
+    }
+
     return {
-      headline: buildOrderHeadline(menuSummary, title),
+      headline: statusMessage || title,
       storeName,
       body: null,
     };

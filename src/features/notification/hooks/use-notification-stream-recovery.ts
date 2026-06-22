@@ -3,25 +3,34 @@
 import { useEffect } from "react";
 import { fetchMyOrders } from "@/entities/order";
 import { getAccessToken } from "@/entities/session";
+import { getCurrentUser, isOwnerRole } from "@/entities/user";
 import { isActiveOrderStatus } from "@/features/notification/lib/is-active-order-status";
 import { useNotificationStreamStore } from "@/features/notification/store/notification-stream-store";
 
 /**
- * 새로고침 등으로 SSE 상태가 sessionStorage에 남아 있을 때,
- * 해당 주문이 아직 진행 중인지 확인하고 완료·취소됐으면 구독을 정리한다.
+ * 고객 주문 추적용 SSE 상태 복구.
+ * 사장 계정은 진행 중인 단일 주문 추적을 하지 않으므로 스킵한다.
  */
 export function useNotificationStreamRecovery() {
   const activeOrderId = useNotificationStreamStore((state) => state.activeOrderId);
   const stopStream = useNotificationStreamStore((state) => state.stopStream);
 
   useEffect(() => {
-    if (activeOrderId == null || !getAccessToken()) return;
+    if (activeOrderId == null || !getAccessToken()) {
+      return;
+    }
 
     let cancelled = false;
 
-    void fetchMyOrders()
-      .then((orders) => {
+    void getCurrentUser()
+      .then(async (user) => {
+        if (cancelled || isOwnerRole(user.role)) {
+          return;
+        }
+
+        const orders = await fetchMyOrders();
         if (cancelled) return;
+
         const order = orders.find((item) => item.id === activeOrderId);
         if (!order || !isActiveOrderStatus(order.status)) {
           stopStream();

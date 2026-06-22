@@ -18,6 +18,7 @@ export function useNotifications(enabled: boolean = true) {
     queryKey: NOTIFICATIONS_QUERY_KEY,
     queryFn: fetchNotifications,
     enabled: enabled && Boolean(getAccessToken()),
+    refetchOnMount: "always",
   });
 
   const notifications = useMemo(() => query.data ?? [], [query.data]);
