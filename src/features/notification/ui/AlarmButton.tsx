@@ -2,7 +2,7 @@
 
 import { useAppRouter } from "@/shared/lib/use-app-router";
 import { HeaderIconButton } from "@/shared/ui/header-icon-link";
-import { useNotifications } from "@/features/notification/hooks/use-notifications";
+import { useUnreadNotificationCount } from "@/features/notification/hooks/use-unread-notification-count";
 
 type AlarmButtonProps = {
   href?: string;
@@ -10,7 +10,7 @@ type AlarmButtonProps = {
 
 export function AlarmButton({ href = "/notifications" }: AlarmButtonProps) {
   const router = useAppRouter();
-  const { unreadCount } = useNotifications();
+  const { unreadCount } = useUnreadNotificationCount();
 
   const label =
     unreadCount > 0 ? `알림, 읽지 않은 ${unreadCount}건` : "알림";
