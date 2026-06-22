@@ -8,11 +8,11 @@ import {
 } from "framer-motion";
 import { useState, type ReactNode } from "react";
 import {
-  ORDER_TRACKING_SHEET_HEIGHT_RATIO,
-  useOrderTrackingSheetMaxDrag,
+  ORDER_TRACKING_SHEET_MAX_HEIGHT_RATIO,
+  useOrderTrackingSheetOffsets,
 } from "@/features/order-tracking/hooks/use-order-tracking-sheet-drag";
 
-type SheetSnap = "expanded" | "collapsed";
+type SheetSnap = "expanded" | "default";
 
 type OrderTrackingDraggableSheetProps = {
   children: ReactNode;
@@ -22,51 +22,52 @@ function resolveSnap(
   currentSnap: SheetSnap,
   offsetY: number,
   velocityY: number,
-  maxDragY: number
+  defaultY: number
 ): SheetSnap {
-  const collapseThreshold = maxDragY * 0.35;
-  const expandThreshold = maxDragY * 0.25;
+  const threshold = defaultY * 0.25;
 
   if (currentSnap === "expanded") {
-    if (offsetY > collapseThreshold || velocityY > 520) {
-      return "collapsed";
+    if (offsetY > threshold || velocityY > 520) {
+      return "default";
     }
     return "expanded";
   }
 
-  if (offsetY < -expandThreshold || velocityY < -520) {
+  if (offsetY < -threshold || velocityY < -520) {
     return "expanded";
   }
-  return "collapsed";
+  return "default";
 }
 
 export function OrderTrackingDraggableSheet({
   children,
 }: OrderTrackingDraggableSheetProps) {
   const reduceMotion = useReducedMotion();
-  const maxDragY = useOrderTrackingSheetMaxDrag();
+  const { expandedY, defaultY } = useOrderTrackingSheetOffsets();
   const dragControls = useDragControls();
-  const [snap, setSnap] = useState<SheetSnap>("expanded");
+  const [snap, setSnap] = useState<SheetSnap>("default");
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
-    setSnap((current) => resolveSnap(current, info.offset.y, info.velocity.y, maxDragY));
+    setSnap((current) =>
+      resolveSnap(current, info.offset.y, info.velocity.y, defaultY)
+    );
   };
 
   const toggleSnap = () => {
-    setSnap((current) => (current === "expanded" ? "collapsed" : "expanded"));
+    setSnap((current) => (current === "expanded" ? "default" : "expanded"));
   };
 
   return (
     <motion.div
       className="pointer-events-auto flex touch-none flex-col overflow-hidden rounded-t-[1.75rem] bg-white shadow-[0_-12px_40px_rgba(43,45,66,0.14)]"
-      style={{ height: `${ORDER_TRACKING_SHEET_HEIGHT_RATIO * 100}vh` }}
+      style={{ height: `${ORDER_TRACKING_SHEET_MAX_HEIGHT_RATIO * 100}vh` }}
       drag="y"
       dragControls={dragControls}
       dragListener={false}
-      dragConstraints={{ top: 0, bottom: maxDragY }}
+      dragConstraints={{ top: expandedY, bottom: defaultY }}
       dragElastic={0.06}
       onDragEnd={handleDragEnd}
-      animate={{ y: snap === "expanded" ? 0 : maxDragY }}
+      animate={{ y: snap === "expanded" ? expandedY : defaultY }}
       transition={
         reduceMotion
           ? { duration: 0 }

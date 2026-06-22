@@ -2,16 +2,35 @@
 
 import { useEffect, useState } from "react";
 
-export const ORDER_TRACKING_SHEET_HEIGHT_RATIO = 0.5;
-export const ORDER_TRACKING_SHEET_PEEK_PX = 132;
+/** 시트 최대 높이 — 뷰포트의 95%까지 덮는다. */
+export const ORDER_TRACKING_SHEET_MAX_HEIGHT_RATIO = 0.95;
 
-export function useOrderTrackingSheetMaxDrag(): number {
-  const [maxDragY, setMaxDragY] = useState(400);
+/** 기본으로 보여 줄 시트 노출 높이 */
+export const ORDER_TRACKING_SHEET_DEFAULT_VISIBLE_RATIO = 0.6;
+
+type OrderTrackingSheetOffsets = {
+  expandedY: number;
+  defaultY: number;
+};
+
+export function useOrderTrackingSheetOffsets(): OrderTrackingSheetOffsets {
+  const [offsets, setOffsets] = useState<OrderTrackingSheetOffsets>({
+    expandedY: 0,
+    defaultY: 280,
+  });
 
   useEffect(() => {
     const update = () => {
-      const sheetHeight = window.innerHeight * ORDER_TRACKING_SHEET_HEIGHT_RATIO;
-      setMaxDragY(Math.max(sheetHeight - ORDER_TRACKING_SHEET_PEEK_PX, 160));
+      const viewportHeight = window.innerHeight;
+      const sheetHeight =
+        viewportHeight * ORDER_TRACKING_SHEET_MAX_HEIGHT_RATIO;
+      const defaultVisible =
+        viewportHeight * ORDER_TRACKING_SHEET_DEFAULT_VISIBLE_RATIO;
+
+      setOffsets({
+        expandedY: 0,
+        defaultY: Math.max(sheetHeight - defaultVisible, 0),
+      });
     };
 
     update();
@@ -19,5 +38,5 @@ export function useOrderTrackingSheetMaxDrag(): number {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  return maxDragY;
+  return offsets;
 }
