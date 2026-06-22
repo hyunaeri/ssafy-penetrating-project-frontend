@@ -18,6 +18,7 @@ import {
   type CartOrderType,
 } from "@/features/cart/ui/CartOrderTypeToggle";
 import { formatWon } from "@/features/category-stores/lib/format-store-display";
+import { EMPTY_MENU_IMAGE } from "@/features/owner-shared";
 import { saveCheckoutOrderType } from "@/features/payment";
 import { PrimaryButton } from "@/shared/ui";
 
@@ -30,7 +31,7 @@ function CartLineItem({
 }) {
   const imageUrl = line.menuImageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
-  const showImage = Boolean(imageUrl) && !imageFailed;
+  const src = imageUrl && !imageFailed ? imageUrl : EMPTY_MENU_IMAGE;
   const quantity = controller.getQuantity(line.id, line.quantity);
   const lineTotal = line.unitPrice * quantity;
   const minusDisabled = quantity <= 1;
@@ -38,21 +39,15 @@ function CartLineItem({
   return (
     <li className="flex gap-3.5 border-b border-line/60 py-4 last:border-b-0">
       <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl bg-brand-soft ring-1 ring-inset ring-brand/10">
-        {showImage ? (
-          <Image
-            src={imageUrl!}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="72px"
-            unoptimized
-            onError={() => setImageFailed(true)}
-          />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center text-[22px] font-semibold text-brand-dark/50">
-            {line.menuName.charAt(0)}
-          </span>
-        )}
+        <Image
+          src={src}
+          alt=""
+          fill
+          className="object-cover"
+          sizes="72px"
+          unoptimized
+          onError={() => setImageFailed(true)}
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
