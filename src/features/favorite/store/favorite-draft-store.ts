@@ -37,8 +37,6 @@ export const useFavoriteDraftStore = create<FavoriteDraftStore>((set) => ({
     set((state) => {
       const nextDirty = { ...state.dirtyIds };
       delete nextDirty[storeId];
-      const nextDrafts = { ...state.drafts };
-      delete nextDrafts[storeId];
-      return { drafts: nextDrafts, dirtyIds: nextDirty };
+      return { dirtyIds: nextDirty };
     }),
 }));

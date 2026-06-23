@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { addFavoriteStore, removeFavoriteStore } from "@/entities/favorite";
+import type { StoreDetailResponse, StoreResponse } from "@/entities/store";
 import { getAccessToken } from "@/entities/session";
 import { notifyError } from "@/shared/ui";
 import {
@@ -13,6 +14,41 @@ import {
 import { useFavoriteDraftStore } from "@/features/favorite/store/favorite-draft-store";
 
 const DEFAULT_DEBOUNCE_MS = 600;
+
+function applyFavoriteToCache(
+  queryClient: QueryClient,
+  storeId: number,
+  favorited: boolean
+) {
+  queryClient.setQueryData<StoreResponse[]>(FAVORITES_QUERY_KEY, (old) => {
+    const list = old ?? [];
+
+    if (!favorited) {
+      return list.filter((store) => store.id !== storeId);
+    }
+
+    if (list.some((store) => store.id === storeId)) {
+      return list;
+    }
+
+    const detail = queryClient.getQueryData<StoreDetailResponse>([
+      "storeDetail",
+      storeId,
+    ]);
+    if (!detail) return list;
+
+    return [
+      ...list,
+      {
+        id: detail.id,
+        name: detail.name,
+        imageUrl: detail.imageUrl,
+        categoryId: detail.categoryId,
+        minimumOrderPrice: detail.minOrderPrice,
+      },
+    ];
+  });
+}
 
 export function useFavoriteToggle(storeId: number) {
   const queryClient = useQueryClient();
@@ -34,7 +70,8 @@ export function useFavoriteToggle(storeId: number) {
       }
       return removeFavoriteStore(storeId);
     },
-    onSuccess: async () => {
+    onSuccess: async (_data, favorited) => {
+      applyFavoriteToCache(queryClient, storeId, favorited);
       markClean(storeId);
       await queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEY });
     },
@@ -95,6 +132,15 @@ export function useFavoriteToggle(storeId: number) {
   }, [getFavorited, scheduleCommit, setDraft, storeId]);
 
   useEffect(() => {
+    const draft = drafts[storeId];
+    if (typeof draft !== "boolean") return;
+    if (dirtyIds[storeId]) return;
+    if (draft === serverFavorited) {
+      clearDraft(storeId);
+    }
+  }, [clearDraft, dirtyIds, drafts, serverFavorited, storeId]);
+
+  useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       const state = useFavoriteDraftStore.getState();
@@ -110,6 +156,7 @@ export function useFavoriteToggle(storeId: number) {
           } else {
             await removeFavoriteStore(storeId);
           }
+          applyFavoriteToCache(queryClient, storeId, favorited);
           markClean(storeId);
           await queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEY });
         } catch {
