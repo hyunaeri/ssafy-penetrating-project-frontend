@@ -180,7 +180,7 @@
 
 /* Sonner: 모바일 셸(430px) 상단 중앙 */
 [data-sonner-toaster].app-toaster {
-  --app-toaster-width: min(calc(100vw - 4rem), 360px);
+  --app-toaster-width: min(calc(100vw - 3rem), 392px);
 
   position: fixed !important;
   top: 1rem !important;
@@ -198,22 +198,45 @@
   margin-left: auto;
   margin-right: auto;
   font-family: inherit;
+  align-items: center !important;
+}
+
+[data-sonner-toaster].app-toaster [data-icon] {
+  display: flex !important;
+  align-items: center !important;
+  align-self: center !important;
+}
+
+[data-sonner-toaster].app-toaster [data-content] {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
 }
 
 [data-sonner-toaster].app-toaster [data-title] {
   font-family: inherit !important;
-  font-size: 14.5px !important;
-  font-weight: 700 !important;
-  line-height: 1.4 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.45 !important;
   letter-spacing: normal !important;
+  color: #2b2d42 !important;
 }
 
 [data-sonner-toaster].app-toaster [data-description] {
   font-family: inherit !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 400 !important;
-  line-height: 1.5 !important;
+  line-height: 1.55 !important;
   letter-spacing: normal !important;
+  color: #8b95a1 !important;
+}
+
+[data-sonner-toaster].app-toaster [data-sonner-toast][data-type="error"] {
+  animation-duration: 0.32s;
+}
+
+[data-sonner-toaster].app-toaster [data-sonner-toast][data-type="success"] {
+  animation-duration: 0.28s;
 }
 
 /* 페이지 전환 컨테이너 */
