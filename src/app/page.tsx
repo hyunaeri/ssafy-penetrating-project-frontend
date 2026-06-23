@@ -1,27 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import { getAccessToken } from "@/entities/session";
-import { getCurrentUser, getHomePathByRole } from "@/entities/user";
+import { ensureSession, getHomePathByRole } from "@/entities/user";
 import { useAppRouter } from "@/shared/lib/use-app-router";
 
 export default function HomePage() {
   const router = useAppRouter();
 
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
-      router.replace("/login");
-      return;
-    }
-
-    void getCurrentUser()
-      .then((user) => {
-        router.replace(getHomePathByRole(user.role));
-      })
-      .catch(() => {
+    void ensureSession().then((session) => {
+      if (!session) {
         router.replace("/login");
-      });
+        return;
+      }
+
+      router.replace(getHomePathByRole(session.user.role));
+    });
   }, [router]);
 
   return (

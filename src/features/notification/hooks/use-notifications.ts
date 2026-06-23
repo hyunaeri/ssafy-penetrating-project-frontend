@@ -8,16 +8,17 @@ import {
   markNotificationAsRead,
   type NotificationResponse,
 } from "@/entities/notification";
-import { getAccessToken } from "@/entities/session";
+import { useAccessToken } from "@/entities/session";
 import { NOTIFICATIONS_QUERY_KEY } from "@/features/notification/lib/query-keys";
 
 export function useNotifications(enabled: boolean = true) {
   const queryClient = useQueryClient();
+  const accessToken = useAccessToken();
 
   const query = useQuery<NotificationResponse[], Error>({
     queryKey: NOTIFICATIONS_QUERY_KEY,
     queryFn: fetchNotifications,
-    enabled: enabled && Boolean(getAccessToken()),
+    enabled: enabled && Boolean(accessToken),
     refetchOnMount: false,
   });
 

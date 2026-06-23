@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { completeSignup, getHomePathByRole, getSignupSuccessToast, isAdminRole, type SignupRole } from "@/entities/user";
-import { clearAccessToken, setAccessToken } from "@/entities/session";
+import { clearSession } from "@/entities/session";
 import {
   notifyError,
   notifySuccess,
@@ -42,13 +42,12 @@ export function useSignupSubmit({ signupToken, role }: UseSignupSubmitParams) {
         role,
       });
 
-      setAccessToken(response.accessToken);
-
+      // completeSignup 내부에서 setSession 처리
       const intent = getOAuthIntent();
       clearOAuthIntent();
 
       if (intent === "admin" && !isAdminRole(response.user.role)) {
-        clearAccessToken();
+        clearSession();
         notifyError(toastMessages.admin.notRegistered);
         router.replace("/admin/login");
         return;

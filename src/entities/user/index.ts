@@ -16,7 +16,10 @@ export {
 } from "./lib/get-auth-toast-message";
 export {
   completeSignup,
+  ensureSession,
   fetchCurrentUser,
   getCurrentUser,
   logout,
+  reissueTokens,
+  tryRestoreSession,
 } from "./api/auth-api";

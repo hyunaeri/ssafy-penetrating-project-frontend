@@ -39,6 +39,6 @@ export async function loginAdmin(
 }
 
 export async function logoutAdmin(): Promise<void> {
-  const { clearAccessToken } = await import("@/entities/session");
-  clearAccessToken();
+  const { clearSession } = await import("@/entities/session");
+  clearSession();
 }

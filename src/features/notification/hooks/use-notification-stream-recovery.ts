@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { fetchMyOrders } from "@/entities/order";
-import { getAccessToken } from "@/entities/session";
+import { useAccessToken } from "@/entities/session";
 import { getCurrentUser, isOwnerRole } from "@/entities/user";
 import { isActiveOrderStatus } from "@/features/notification/lib/is-active-order-status";
 import { useNotificationStreamStore } from "@/features/notification/store/notification-stream-store";
@@ -12,11 +12,12 @@ import { useNotificationStreamStore } from "@/features/notification/store/notifi
  * 사장 계정은 진행 중인 단일 주문 추적을 하지 않으므로 스킵한다.
  */
 export function useNotificationStreamRecovery() {
+  const accessToken = useAccessToken();
   const activeOrderId = useNotificationStreamStore((state) => state.activeOrderId);
   const stopStream = useNotificationStreamStore((state) => state.stopStream);
 
   useEffect(() => {
-    if (activeOrderId == null || !getAccessToken()) {
+    if (activeOrderId == null || !accessToken) {
       return;
     }
 
@@ -57,5 +58,5 @@ export function useNotificationStreamRecovery() {
         window.clearTimeout(stopTimeoutId);
       }
     };
-  }, [activeOrderId, stopStream]);
+  }, [accessToken, activeOrderId, stopStream]);
 }

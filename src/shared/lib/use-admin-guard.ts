@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAccessToken } from "@/entities/session";
 import {
-  getCurrentUser,
+  ensureSession,
   getHomePathByRole,
   isAdminRole,
 } from "@/entities/user";
@@ -22,26 +21,21 @@ export function useAdminGuard(): boolean {
     let cancelled = false;
 
     const run = async () => {
-      if (!getAccessToken()) {
+      const session = await ensureSession();
+      if (!session) {
         router.replace(ADMIN_LOGIN_PATH);
         return;
       }
 
-      try {
-        const user = await getCurrentUser();
-        if (cancelled) return;
+      const user = session.user;
+      if (cancelled) return;
 
-        if (!isAdminRole(user.role)) {
-          router.replace(getHomePathByRole(user.role));
-          return;
-        }
-
-        setReady(true);
-      } catch {
-        if (!cancelled) {
-          router.replace(ADMIN_LOGIN_PATH);
-        }
+      if (!isAdminRole(user.role)) {
+        router.replace(getHomePathByRole(user.role));
+        return;
       }
+
+      setReady(true);
     };
 
     void run();

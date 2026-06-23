@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   MobileShell,
   notifyError,
@@ -10,12 +10,12 @@ import {
   toastMessages,
 } from "@/shared/ui";
 import {
-  fetchCurrentUser,
+  ensureSession,
   getHomePathByRole,
   getLoginSuccessToast,
   isAdminRole,
 } from "@/entities/user";
-import { clearAccessToken, setAccessToken } from "@/entities/session";
+import { clearSession } from "@/entities/session";
 import {
   clearOAuthIntent,
   getOAuthIntent,
@@ -24,26 +24,28 @@ import {
 function OAuthCallbackContent() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
   const [message, setMessage] = useState("로그인 처리 중입니다");
 
   const loginMutation = useMutation({
-    mutationFn: async (accessToken: string) => {
-      setAccessToken(accessToken);
-      return fetchCurrentUser(accessToken);
+    mutationFn: async () => {
+      const session = await ensureSession();
+      if (!session) {
+        throw new Error("토큰 재발급에 실패했습니다.");
+      }
+      return session.user;
     },
     onSuccess: async (user) => {
       const intent = getOAuthIntent();
       clearOAuthIntent();
 
       if (intent === "admin" && !isAdminRole(user.role)) {
-        clearAccessToken();
+        clearSession();
         notifyError(toastMessages.admin.notRegistered);
         router.replace("/admin/login");
         return;
       }
 
-      await queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.setQueryData(["currentUser"], user);
       await queryClient.invalidateQueries({ queryKey: ["favorites"] });
       notifySuccess(getLoginSuccessToast(user.role));
       router.replace(getHomePathByRole(user.role));
@@ -61,21 +63,8 @@ function OAuthCallbackContent() {
   const completeLogin = loginMutation.mutate;
 
   useEffect(() => {
-    const accessToken = searchParams?.get("accessToken");
-
-    if (!accessToken) {
-      setMessage("인증 정보를 찾을 수 없어요. 다시 시도해 주세요.");
-      notifyError(toastMessages.login.failNoToken);
-
-      const intent = getOAuthIntent();
-      clearOAuthIntent();
-      const fallback = intent === "admin" ? "/admin/login" : "/login";
-      const timer = setTimeout(() => router.replace(fallback), 2000);
-      return () => clearTimeout(timer);
-    }
-
-    completeLogin(accessToken);
-  }, [completeLogin, router, searchParams]);
+    completeLogin();
+  }, [completeLogin]);
 
   return (
     <MobileShell title="연동 중">

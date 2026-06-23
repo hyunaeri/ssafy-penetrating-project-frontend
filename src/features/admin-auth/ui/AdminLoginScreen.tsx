@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GoogleLoginButton } from "@/features/auth/google-login";
 import { LoginMobileShell } from "@/features/auth/login/ui/LoginMobileShell";
-import { getAccessToken } from "@/entities/session";
 import {
-  getCurrentUser,
+  ensureSession,
   getHomePathByRole,
   isAdminRole,
 } from "@/entities/user";
@@ -20,24 +19,21 @@ export function AdminLoginScreen() {
     let cancelled = false;
 
     const run = async () => {
-      if (!getAccessToken()) {
+      const session = await ensureSession();
+      if (!session) {
         if (!cancelled) setCheckingSession(false);
         return;
       }
 
-      try {
-        const user = await getCurrentUser();
-        if (cancelled) return;
+      const user = session.user;
+      if (cancelled) return;
 
-        if (isAdminRole(user.role)) {
-          router.replace("/admin");
-          return;
-        }
-
-        router.replace(getHomePathByRole(user.role));
-      } catch {
-        if (!cancelled) setCheckingSession(false);
+      if (isAdminRole(user.role)) {
+        router.replace("/admin");
+        return;
       }
+
+      router.replace(getHomePathByRole(user.role));
     };
 
     void run();

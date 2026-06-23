@@ -3,8 +3,66 @@ import type {
   SignupRequest,
   UserResponse,
 } from "@/entities/user/model/types";
-import { clearAccessToken, getAccessToken } from "@/entities/session";
+import {
+  clearSession,
+  getAccessToken,
+  getSessionUser,
+  setSession,
+  setSessionUser,
+} from "@/entities/session";
 import { getApiBaseUrl } from "@/shared/api";
+
+let sessionRestorePromise: Promise<AuthTokenResponse | null> | null = null;
+
+export async function reissueTokens(): Promise<AuthTokenResponse> {
+  const res = await fetch(`${getApiBaseUrl()}/api/auth/reissue`, {
+    method: "POST",
+    credentials: "include",
+    headers: { Accept: "application/json" },
+  });
+
+  if (!res.ok) {
+    let message = "토큰 재발급에 실패했습니다.";
+    try {
+      const body = (await res.json()) as { message?: string };
+      if (body.message) message = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+
+  return res.json();
+}
+
+export async function ensureSession(): Promise<AuthTokenResponse | null> {
+  const accessToken = getAccessToken();
+  const user = getSessionUser();
+  if (accessToken && user) {
+    return { accessToken, user };
+  }
+
+  if (!sessionRestorePromise) {
+    sessionRestorePromise = (async () => {
+      try {
+        const response = await reissueTokens();
+        setSession(response.accessToken, response.user);
+        return response;
+      } catch {
+        return null;
+      } finally {
+        sessionRestorePromise = null;
+      }
+    })();
+  }
+
+  return sessionRestorePromise;
+}
+
+export async function tryRestoreSession(): Promise<string | null> {
+  const session = await ensureSession();
+  return session?.accessToken ?? null;
+}
 
 export async function fetchCurrentUser(
   accessToken: string
@@ -21,11 +79,24 @@ export async function fetchCurrentUser(
 }
 
 export async function getCurrentUser(): Promise<UserResponse> {
+  const cachedUser = getSessionUser();
   const token = getAccessToken();
+
+  if (token && cachedUser) {
+    return cachedUser;
+  }
+
   if (!token) {
+    const session = await ensureSession();
+    if (session?.user) {
+      return session.user;
+    }
     throw new Error("로그인이 필요합니다.");
   }
-  return fetchCurrentUser(token);
+
+  const user = await fetchCurrentUser(token);
+  setSessionUser(user);
+  return user;
 }
 
 export async function completeSignup(
@@ -49,19 +120,17 @@ export async function completeSignup(
     throw new Error(message);
   }
 
-  return res.json();
+  const response = (await res.json()) as AuthTokenResponse;
+  setSession(response.accessToken, response.user);
+  return response;
 }
 
 export async function logout(): Promise<void> {
-  const token = getAccessToken();
-  clearAccessToken();
-
-  if (!token) return;
+  clearSession();
 
   try {
     await fetch(`${getApiBaseUrl()}/api/main/logout`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
       credentials: "include",
     });
   } catch {
