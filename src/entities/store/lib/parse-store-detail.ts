@@ -1,4 +1,5 @@
 import type { MenuResponse, StoreDetailResponse } from "@/entities/store/model/types";
+import type { ReviewResponse } from "@/entities/review/model/types";
 
 function isMenuLike(value: unknown): value is MenuResponse {
   return (
@@ -23,6 +24,18 @@ function readNumber(record: Record<string, unknown>, keys: string[]): number | n
 function readString(record: Record<string, unknown>, key: string): string | null {
   const value = record[key];
   return typeof value === "string" ? value : null;
+}
+
+function isReviewLike(value: unknown): value is ReviewResponse {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as ReviewResponse).id === "number" &&
+    typeof (value as ReviewResponse).orderId === "number" &&
+    typeof (value as ReviewResponse).nickname === "string" &&
+    typeof (value as ReviewResponse).content === "string" &&
+    typeof (value as ReviewResponse).rating === "number"
+  );
 }
 
 /** 백엔드 `StoreDetailResponse` JSON을 프론트 타입으로 정규화 */
@@ -53,6 +66,11 @@ export function parseStoreDetailResponse(data: unknown): StoreDetailResponse | n
     ? rawMenus.filter(isMenuLike).filter((menu) => menu.active !== false)
     : [];
 
+  const rawReviews = record.reviews;
+  const reviews = Array.isArray(rawReviews)
+    ? rawReviews.filter(isReviewLike)
+    : [];
+
   return {
     id,
     categoryId,
@@ -62,6 +80,9 @@ export function parseStoreDetailResponse(data: unknown): StoreDetailResponse | n
     address: readString(record, "address"),
     minOrderPrice,
     deliveryFee,
+    averageRating: readNumber(record, ["averageRating", "rating"]),
+    reviewCount: readNumber(record, ["reviewCount"]),
     menus,
+    reviews,
   };
 }

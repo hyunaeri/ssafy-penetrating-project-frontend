@@ -1,3 +1,5 @@
+import type { ReviewResponse } from "@/entities/review/model/types";
+
 export type StoreResponse = {
   id: number;
   name: string;
@@ -35,5 +37,8 @@ export type StoreDetailResponse = {
   address?: string | null;
   minOrderPrice: number;
   deliveryFee: number;
+  averageRating?: number | null;
+  reviewCount?: number | null;
   menus: MenuResponse[];
+  reviews: ReviewResponse[];
 };

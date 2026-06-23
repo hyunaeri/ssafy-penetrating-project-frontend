@@ -50,5 +50,6 @@ export function parseOwnerMyStoreResponse(
     minOrderPrice,
     deliveryFee,
     menus: [],
+    reviews: [],
   };
 }
