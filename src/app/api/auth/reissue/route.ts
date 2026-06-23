@@ -5,18 +5,15 @@ import {
 } from "@/shared/api/proxy-auth-cookies";
 import { getBackendUrl } from "@/shared/api";
 
-/** `POST /api/signup` — 회원가입 페이지용 (백엔드 `/api/v1/auth/signup` 프록시). */
+/** `POST /api/auth/reissue` — Refresh Token 쿠키로 Access Token 재발급. */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const response = await fetch(`${getBackendUrl()}/api/v1/auth/signup`, {
+    const response = await fetch(`${getBackendUrl()}/api/v1/auth/reissue`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Accept: "application/json",
         ...getRequestCookieHeader(req),
       },
-      body: JSON.stringify(body),
     });
 
     const data = (await response.json().catch(() => ({}))) as {
@@ -25,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { message: data.message ?? "회원가입에 실패했습니다." },
+        { message: data.message ?? "토큰 재발급에 실패했습니다." },
         { status: response.status }
       );
     }
@@ -34,7 +31,7 @@ export async function POST(req: NextRequest) {
     forwardSetCookieHeaders(response, nextResponse);
     return nextResponse;
   } catch (error) {
-    console.error("Failed to complete signup:", error);
+    console.error("Failed to reissue tokens:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

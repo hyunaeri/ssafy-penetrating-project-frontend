@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  forwardSetCookieHeaders,
+  getRequestCookieHeader,
+} from "@/shared/api/proxy-auth-cookies";
 import { getBackendUrl } from "@/shared/api";
 
 /** `POST /api/main/logout` — 메인 페이지용 로그아웃 (백엔드 `/api/v1/auth/logout` 프록시). */
 export async function POST(req: NextRequest) {
   const token = req.headers.get("authorization");
-  const cookie = req.headers.get("cookie");
 
   try {
     const headers: Record<string, string> = {
       Accept: "application/json",
+      ...getRequestCookieHeader(req),
     };
     if (token) headers.Authorization = token;
-    if (cookie) headers.Cookie = cookie;
 
     const response = await fetch(`${getBackendUrl()}/api/v1/auth/logout`, {
       method: "POST",
@@ -25,7 +28,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return new NextResponse(null, { status: response.status });
+    const nextResponse = new NextResponse(null, { status: response.status });
+    forwardSetCookieHeaders(response, nextResponse);
+    return nextResponse;
   } catch (error) {
     console.error("Failed to logout:", error);
     return NextResponse.json(
