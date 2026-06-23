@@ -32,9 +32,8 @@ export async function POST(req: NextRequest) {
     return nextResponse;
   } catch (error) {
     console.error("Failed to reissue tokens:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ message }, { status: 500 });
   }
 }
