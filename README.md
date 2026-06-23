@@ -1,18 +1,78 @@
-# YumYumCoach Frontend
+# Whik, 휙 (게이미피케이션을 접목한 배달 플랫폼)
 
-배달 코칭 서비스 **YumYumCoach**의 프론트엔드입니다.  
-모바일 우선 UI로, 로그인부터 메뉴 담기·장바구니까지 이어지는 흐름을 제공합니다.
+주문·배달 경험에 **업적·쿠폰·도감** 같은 게이미피케이션 요소를 더한 배달 서비스 **Whik(휙)** 의 프론트엔드입니다.  
+모바일 우선 UI로 고객 주문, 사장님 매장 운영, 관리자 보상 설계까지 한 앱에서 이어집니다.
+
+| 환경 | 주소 |
+|------|------|
+| **프론트 (배포)** | [https://www.whik.store](https://www.whik.store) |
+| **백엔드 API** | `https://api.whik.store` |
+| **로컬 개발** | [http://localhost:3000](http://localhost:3000) |
+
+---
+
+## 주요 기능
+
+### 고객
+
+| 기능 | 설명 |
+|------|------|
+| **Google 로그인 · 회원가입** | OAuth2 로그인 후 역할(고객/사장) 선택 및 추가 정보 입력 |
+| **매장 탐색** | 카테고리별 매장 목록, 평점·배달시간·최소주문금액 확인 |
+| **매장 상세 · 메뉴** | 메뉴 이미지·옵션 확인 후 장바구니 담기 (타 매장 담기 시 안내) |
+| **찜** | 관심 매장 저장 및 목록에서 빠르게 재방문 |
+| **장바구니** | 배달/픽업 선택, 수량 조절, 결제 예정 금액 확인 |
+| **토스페이먼츠 결제** | 결제 준비 → 결제창 → 성공/실패 처리 |
+| **주문 추적** | Kakao Maps 기반 실시간 배달 경로·단계별 상태(접수·조리·배달 등) |
+| **주문 내역** | 과거 주문 조회 |
+| **실시간 알림 (SSE)** | 주문 상태, 업적 달성, 쿠폰 발급 등 푸시형 토스트 |
+| **내 정보** | 프로필 확인 · 로그아웃 |
+| **도감** | 먹어본 메뉴 수집 UI (준비 중) |
+
+### 사장님
+
+| 기능 | 설명 |
+|------|------|
+| **매장 등록 · 수정** | 매장명, 주소, 소개, 대표 이미지 관리 |
+| **메뉴 CRUD** | 메뉴 등록·수정·삭제, 이미지·가격·품절 처리 |
+| **주문 관리** | 들어온 주문 확인 및 상태 변경 |
+| **실시간 알림** | 신규 주문·상태 변경 SSE 수신 |
+
+### 관리자 (게이미피케이션 운영)
+
+| 기능 | 설명 |
+|------|------|
+| **업적 관리** | 업적 생성·수정·삭제, 등급(NORMAL~LEGENDARY), 달성 조건 설정 |
+| **달성 조건 유형** | 단일 주문 태그, 주문 시간대, 연속 태그 주문, 태그별 누적 금액 등 |
+| **보상 연동** | 업적 달성 시 지급할 쿠폰 연결 |
+| **쿠폰 관리** | 할인 쿠폰 생성·수정·삭제, 할인율·유효기간·이미지 설정 |
+
+### 인증 · 세션
+
+- **Refresh Token**: HttpOnly 쿠키로 관리, Access Token은 메모리(Zustand)에만 보관
+- **세션 복구**: 새로고침 시 `api.whik.store/api/v1/auth/reissue`로 토큰 재발급 (CORS + 쿠키)
+- **역할 가드**: 고객 / 사장 / 관리자 Shell 분리
+
+---
 
 ## 기술 스택
 
-- Next.js 15 (App Router) · React 19 · TypeScript · Tailwind CSS · pnpm
+- **Framework**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **State**: Zustand, TanStack Query
+- **결제**: Toss Payments SDK
+- **지도**: Kakao Maps SDK · 모빌리티 길찾기 API
+- **실시간**: Server-Sent Events (`@microsoft/fetch-event-source`)
+- **패키지 매니저**: pnpm 10.12.1
+
+---
 
 ## 시작하기
 
 ### 사전 요구 사항
 
-- Node.js 18 이상 권장
-- [pnpm](https://pnpm.io/) 10.12.1 (`package.json`의 `packageManager` 기준)
+- Node.js 18 이상
+- [pnpm](https://pnpm.io/) 10.12.1
 
 ```bash
 npm install -g pnpm@10.12.1
@@ -26,7 +86,8 @@ pnpm install
 pnpm dev
 ```
 
-[http://localhost:3000](http://localhost:3000) 에서 확인합니다.
+로컬: [http://localhost:3000](http://localhost:3000)  
+배포: [https://www.whik.store](https://www.whik.store)
 
 | 명령어 | 설명 |
 |--------|------|
@@ -35,78 +96,60 @@ pnpm dev
 | `pnpm start` | 빌드 결과 실행 |
 | `pnpm lint` | ESLint |
 
+로컬에서는 **백엔드(Spring, `:8080`)와 프론트를 함께** 실행한 뒤 이용합니다.
+
 ### 환경 변수
 
-`.env.example`을 복사해 `.env.local`을 만듭니다.
+프로젝트 루트에 `.env.local`을 생성합니다.
 
-```bash
-cp .env.example .env.local
-```
+**로컬**
 
 ```env
 BACKEND_URL=http://localhost:8080
 NEXT_PUBLIC_API_URL=http://localhost:8080
+
+NEXT_PUBLIC_TOSS_SDK_URL=https://js.tosspayments.com/v2/standard
+NEXT_PUBLIC_TOSS_CLIENT_KEY=your_toss_client_key
+
+NEXT_PUBLIC_KAKAO_MAP_APP_KEY=your_kakao_map_app_key
+KAKAO_REST_API_KEY=your_kakao_rest_api_key
 ```
 
-로컬에서는 **백엔드(Spring)와 프론트(Next)를 함께** 띄운 뒤 이용하는 것을 권장합니다.
+**배포 (Vercel 등)**
+
+```env
+BACKEND_URL=https://api.whik.store
+NEXT_PUBLIC_API_URL=https://api.whik.store
+# + Toss, Kakao 키 동일하게 설정
+```
+
+프론트 API는 `/api/*` Next.js Route Handler가 `BACKEND_URL`로 프록시합니다.  
+**reissue · signup · logout** 은 refreshToken 쿠키가 `api` 도메인에 저장되므로 브라우저가 `NEXT_PUBLIC_API_URL`로 직접 호출합니다.  
+OAuth 시작만 `/api/login/oauth/google` 프록시를 통해 백엔드로 리다이렉트합니다.
 
 ---
 
-## 사용자 흐름
+## 화면 구성
 
-### 1. 처음 들어왔을 때
+### 고객 (`/main` 하단 탭)
 
-1. 앱에 접속하면 로그인 여부를 확인합니다.
-2. 로그인되어 있지 않으면 **Google 로그인** 화면으로 이동합니다.
-3. 처음 가입하는 계정이면 **추가 정보 입력(회원가입)** 후 메인으로 들어갑니다.
-4. 이미 가입된 계정이면 바로 **메인(홈)** 으로 들어갑니다.
+| 탭 | 경로 | 설명 |
+|----|------|------|
+| 홈 | `/main` | 카테고리 · 매장 탐색 |
+| 찜 | `/favorite` | 찜한 매장 |
+| 도감 | `/catalog` | 음식 도감 (준비 중) |
+| 주문내역 | `/orders` | 주문 이력 |
+| 내 정보 | `/profile` | 프로필 |
 
-### 2. 메뉴 고르고 담기
+기타: `/categories/[id]` · `/stores/[id]` · `/cart` · `/payment/*` · `/orders/[id]/tracking`
 
-1. **메인**에서 배달 카테고리(치킨, 피자 등)를 고릅니다.
-2. **카테고리별 매장 목록**에서 매장을 고릅니다.
-3. **매장 상세**에서 메뉴를 보고 장바구니에 담습니다.
-4. 다른 매장 메뉴를 담으려 하면, 기존 장바구니를 비우고 담을지 안내합니다.
-5. 매장 상세 하단에 **장바구니 바**가 보이면, 그대로 장바구니로 갈 수 있습니다.
+### 사장님 (`/owner`)
 
-### 3. 장바구니 · 주문 준비
+`/owner` · `/owner/store` · `/owner/orders` · `/owner/notifications` · `/owner/profile`
 
-1. 상단 **장바구니 아이콘** 또는 매장 상세 **장바구니 보기**로 장바구니 페이지에 들어갑니다.
-2. 담은 매장 이름을 누르면 해당 **매장 상세**로 다시 갈 수 있습니다.
-3. **배달 / 픽업** 중 수령 방법을 고릅니다.
-4. 메뉴 금액·배달팁·결제 예정 금액을 확인합니다.
-5. 하단 **결제하기**로 주문을 이어갑니다. (결제·주문 완료 플로우는 추후 연동 예정)
+### 관리자 (`/admin`)
 
-### 4. 하단 탭으로 이동
-
-로그인 후 대부분의 화면에서 하단 탭을 사용합니다.
-
-| 탭 | 설명 |
-|----|------|
-| **홈** | 카테고리·매장 탐색 |
-| **찜** | 찜한 매장 모아보기 (준비 중) |
-| **도감** | 먹어본 음식 도감 (준비 중) |
-| **주문 이력** | 지난 주문 내역 (준비 중) |
-| **내 정보** | 프로필 확인·로그아웃 |
-
-**매장 상세**(`/stores/...`)에서는 하단 탭이 숨겨지고, 뒤로가기·장바구니만 보입니다.
-
----
-
-## 화면 경로 (참고)
-
-| 경로 | 용도 |
-|------|------|
-| `/login` | 로그인 |
-| `/signup` | 회원가입 (OAuth 이후) |
-| `/main` | 홈 · 카테고리 |
-| `/categories/[id]` | 카테고리별 매장 |
-| `/stores/[id]` | 매장 상세 · 메뉴 |
-| `/cart` | 장바구니 |
-| `/favorite`, `/catalog`, `/orders` | 준비 중 |
-| `/profile` | 내 정보 |
-
-`(app)` 하위 페이지는 로그인이 필요합니다. 토큰이 없으면 로그인 화면으로 이동합니다.
+`/admin/login` · `/admin/achievements` · `/admin/coupons`
 
 ---
 
@@ -114,9 +157,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 
 - 모바일 폭(`max-w-mobile`) 중심 레이아웃
 - 로그인·회원가입: 단일 컬럼 셸
-- 로그인 후: 하단 탭 + 콘텐츠 영역
-
-프로젝트 구조(FSD)는 [`src/README.md`](./src/README.md)를 참고하세요.
+- 로그인 후: 역할별 Shell + 하단 탭(고객) / 전용 네비(사장·관리자)
 
 ---
 
@@ -126,10 +167,12 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 
 전역 설치 후 터미널·IDE를 재시작하세요.
 
-### `pnpm install` 시 Corepack / 서명 오류
+### 로그인 후 `reissue` 500 (배포)
 
-Node·Corepack을 최신으로 맞추거나, `npm install -g pnpm` 으로 설치합니다.
+- Vercel `NEXT_PUBLIC_API_URL=https://api.whik.store` 설정 확인
+- Network 탭에서 `reissue` 요청이 **`api.whik.store`** 로 가는지 확인 (www 프록시가 아님)
+- 백엔드 CORS에 `https://www.whik.store` 포함 여부 확인
 
-### Next.js 워크스페이스 경고
+### `pnpm install` 시 Corepack 오류
 
-`frontend` 폴더에서만 작업하거나, 상위 `package-lock.json` 정리를 검토합니다.
+`npm install -g pnpm`으로 설치하거나 Node·Corepack을 최신으로 맞춥니다.

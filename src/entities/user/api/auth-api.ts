@@ -10,12 +10,12 @@ import {
   setSession,
   setSessionUser,
 } from "@/entities/session";
-import { getApiBaseUrl } from "@/shared/api";
+import { getApiBaseUrl, getCookieAuthBaseUrl } from "@/shared/api";
 
 let sessionRestorePromise: Promise<AuthTokenResponse | null> | null = null;
 
 export async function reissueTokens(): Promise<AuthTokenResponse> {
-  const res = await fetch(`${getApiBaseUrl()}/api/auth/reissue`, {
+  const res = await fetch(`${getCookieAuthBaseUrl()}/api/v1/auth/reissue`, {
     method: "POST",
     credentials: "include",
     headers: { Accept: "application/json" },
@@ -102,7 +102,7 @@ export async function getCurrentUser(): Promise<UserResponse> {
 export async function completeSignup(
   request: SignupRequest
 ): Promise<AuthTokenResponse> {
-  const res = await fetch(`${getApiBaseUrl()}/api/signup`, {
+  const res = await fetch(`${getCookieAuthBaseUrl()}/api/v1/auth/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -129,7 +129,7 @@ export async function logout(): Promise<void> {
   clearSession();
 
   try {
-    await fetch(`${getApiBaseUrl()}/api/main/logout`, {
+    await fetch(`${getCookieAuthBaseUrl()}/api/v1/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

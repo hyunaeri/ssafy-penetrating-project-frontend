@@ -8,6 +8,21 @@ export function getApiBaseUrl(): string {
   return getBackendUrl();
 }
 
+/**
+ * HttpOnly refreshToken 쿠키가 저장되는 백엔드 origin.
+ * OAuth 리다이렉트는 api 도메인에서 쿠키를 심으므로, reissue·signup·logout은 브라우저가 백엔드로 직접 호출한다.
+ */
+export function getCookieAuthBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const url = process.env.NEXT_PUBLIC_API_URL?.trim();
+    if (!url) {
+      throw new Error("NEXT_PUBLIC_API_URL이 설정되지 않았습니다.");
+    }
+    return url.replace(/\/$/, "");
+  }
+  return getBackendUrl();
+}
+
 export function getOAuthLoginUrl(): string {
   return `${getApiBaseUrl()}/api/login/oauth/google`;
 }

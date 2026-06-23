@@ -1,2 +1,6 @@
 export { getBackendUrl } from "./backend";
-export { getApiBaseUrl, getOAuthLoginUrl } from "./base-url";
+export {
+  getApiBaseUrl,
+  getCookieAuthBaseUrl,
+  getOAuthLoginUrl,
+} from "./base-url";
