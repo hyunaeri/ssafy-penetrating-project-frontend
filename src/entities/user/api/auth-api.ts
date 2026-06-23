@@ -14,6 +14,10 @@ import { getApiBaseUrl, getCookieAuthBaseUrl } from "@/shared/api";
 
 let sessionRestorePromise: Promise<AuthTokenResponse | null> | null = null;
 
+export function resetSessionRestore(): void {
+  sessionRestorePromise = null;
+}
+
 export async function reissueTokens(): Promise<AuthTokenResponse> {
   const res = await fetch(`${getCookieAuthBaseUrl()}/api/v1/auth/reissue`, {
     method: "POST",
@@ -126,14 +130,15 @@ export async function completeSignup(
 }
 
 export async function logout(): Promise<void> {
-  clearSession();
-
   try {
     await fetch(`${getCookieAuthBaseUrl()}/api/v1/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
   } catch {
-    // 로컬 세션은 이미 제거됨
+    /* 서버 로그아웃 실패 시에도 로컬 세션은 정리 */
+  } finally {
+    resetSessionRestore();
+    clearSession();
   }
 }

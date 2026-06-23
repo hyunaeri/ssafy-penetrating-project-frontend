@@ -24,5 +24,9 @@ export function getCookieAuthBaseUrl(): string {
 }
 
 export function getOAuthLoginUrl(): string {
+  if (typeof window !== "undefined") {
+    // OAuth state·세션은 api 도메인에서 처리해야 로그아웃 후 재로그인이 안정적이다.
+    return `${getCookieAuthBaseUrl()}/oauth2/authorization/google`;
+  }
   return `${getApiBaseUrl()}/api/login/oauth/google`;
 }

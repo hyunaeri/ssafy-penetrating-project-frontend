@@ -21,5 +21,6 @@ export {
   getCurrentUser,
   logout,
   reissueTokens,
+  resetSessionRestore,
   tryRestoreSession,
 } from "./api/auth-api";

@@ -16,6 +16,15 @@ function SessionBootstrap() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    const path = window.location.pathname;
+    const skipRestore =
+      path === "/login" ||
+      path.startsWith("/oauth") ||
+      path.startsWith("/signup") ||
+      path.startsWith("/admin/login");
+
+    if (skipRestore) return;
+
     void ensureSession().then((session) => {
       if (session) {
         queryClient.setQueryData(["currentUser"], session.user);

@@ -10,12 +10,15 @@ import {
   toastMessages,
 } from "@/shared/ui";
 import {
-  ensureSession,
+  clearSession,
+  setSession,
+} from "@/entities/session";
+import {
   getHomePathByRole,
   getLoginSuccessToast,
   isAdminRole,
+  reissueTokens,
 } from "@/entities/user";
-import { clearSession } from "@/entities/session";
 import {
   clearOAuthIntent,
   getOAuthIntent,
@@ -28,11 +31,10 @@ function OAuthCallbackContent() {
 
   const loginMutation = useMutation({
     mutationFn: async () => {
-      const session = await ensureSession();
-      if (!session) {
-        throw new Error("토큰 재발급에 실패했습니다.");
-      }
-      return session.user;
+      clearSession();
+      const response = await reissueTokens();
+      setSession(response.accessToken, response.user);
+      return response.user;
     },
     onSuccess: async (user) => {
       const intent = getOAuthIntent();
