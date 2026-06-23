@@ -180,7 +180,7 @@ export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
               {hasReviewed ? "리뷰 작성 완료" : "리뷰 쓰기"}
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3 pt-0">
+          <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3">
             <Link
               href={`/stores/${order.storeId}`}
               className="flex h-11 items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface"
