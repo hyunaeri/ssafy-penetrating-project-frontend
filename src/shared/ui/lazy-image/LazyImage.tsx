@@ -9,6 +9,7 @@ export function LazyImage({
   src,
   alt = "",
   priority = false,
+  quality = 100,
   unoptimized,
   style,
   className,
@@ -24,6 +25,7 @@ export function LazyImage({
       src={src}
       alt={alt}
       priority={priority}
+      quality={quality}
       loading={priority ? undefined : "lazy"}
       unoptimized={resolvedUnoptimized}
       className={className}

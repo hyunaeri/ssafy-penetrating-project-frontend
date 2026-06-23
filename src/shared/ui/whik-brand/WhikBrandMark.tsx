@@ -48,6 +48,7 @@ export function WhikBrandMark({
             alt="Whik 로고"
             width={logoSize}
             height={logoSize}
+            quality={100}
             className="h-full w-full object-contain p-1"
             style={{ imageRendering: "pixelated" }}
             priority

@@ -40,6 +40,7 @@ export function HomeCategoryGrid({ query }: HomeCategoryGridProps) {
                     alt=""
                     fill
                     sizes="72px"
+                    quality={100}
                     className="object-cover transition-transform duration-200 ease-out group-hover:scale-110"
                   />
                 </span>
