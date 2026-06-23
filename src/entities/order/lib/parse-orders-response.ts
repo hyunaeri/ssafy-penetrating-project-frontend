@@ -37,6 +37,14 @@ function readString(
   return null;
 }
 
+function readBoolean(record: Record<string, unknown>, keys: string[]): boolean | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "boolean") return value;
+  }
+  return null;
+}
+
 function parseOrderStatus(value: unknown): OrderStatus | null {
   if (typeof value !== "string") return null;
   return ORDER_STATUSES.includes(value as OrderStatus)
@@ -135,6 +143,7 @@ export function parseOrderResponse(data: unknown): OrderResponse | null {
   const completedAt = readString(record, ["completedAt", "completed_at"]);
   const riderId = readNumber(record, ["riderId", "rider_id"]);
   const couponId = readNumber(record, ["couponId", "coupon_id"]);
+  const reviewed = readBoolean(record, ["reviewed", "hasReview", "has_review"]);
 
   return {
     id,
@@ -150,6 +159,7 @@ export function parseOrderResponse(data: unknown): OrderResponse | null {
     status,
     orderedAt,
     completedAt,
+    reviewed: reviewed ?? undefined,
     items,
   };
 }

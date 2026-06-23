@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import type { OrderResponse } from "@/entities/order";
@@ -14,6 +15,8 @@ import {
   getOrderStatusBadgeClass,
   getOrderStatusLabel,
 } from "@/features/orders/lib/format-order-status";
+import { ORDERS_QUERY_KEY } from "@/features/orders/lib/orders-query-key";
+import { ReviewWriteModal } from "@/features/review";
 import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
 import { resolveRepresentativeImage } from "@/shared/lib/resolve-representative-image";
 
@@ -104,12 +107,19 @@ function PaymentAmount({
 }
 
 export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
+  const queryClient = useQueryClient();
   const storeName = getStoreName(order);
   const menuSummary = getOrderMenuSummary(order);
   const hasDiscount = order.totalPrice > order.finalPrice;
   const trackable = isOrderTrackable(order.status);
   const completed = isOrderCompleted(order.status);
   const trackingPath = getOrderTrackingPath(order.id);
+  const hasReviewed = order.reviewed === true;
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  const handleReviewSubmitted = () => {
+    void queryClient.invalidateQueries({ queryKey: ORDERS_QUERY_KEY });
+  };
 
   return (
     <article className="overflow-hidden rounded-2xl bg-white shadow-card">
@@ -159,20 +169,42 @@ export function OrderHistoryCard({ order }: OrderHistoryCardProps) {
       )}
 
       {completed && (
-        <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3">
-          <Link
-            href={`/stores/${order.storeId}`}
-            className="flex h-11 items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface"
-          >
-            같은 메뉴 담기
-          </Link>
-          <Link
-            href={`/stores/${order.storeId}`}
-            className="brand-cta h-11 text-[14px]"
-          >
-            바로 주문
-          </Link>
-        </div>
+        <>
+          <div className="border-t border-line/70 p-3">
+            <button
+              type="button"
+              disabled={hasReviewed}
+              onClick={() => setReviewOpen(true)}
+              className="flex h-11 w-full items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted"
+            >
+              {hasReviewed ? "리뷰 작성 완료" : "리뷰 쓰기"}
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 border-t border-line/70 p-3 pt-0">
+            <Link
+              href={`/stores/${order.storeId}`}
+              className="flex h-11 items-center justify-center rounded-xl border border-line bg-white text-[14px] font-semibold text-ink transition-colors hover:bg-surface active:bg-surface"
+            >
+              같은 메뉴 담기
+            </Link>
+            <Link
+              href={`/stores/${order.storeId}`}
+              className="brand-cta h-11 text-[14px]"
+            >
+              바로 주문
+            </Link>
+          </div>
+        </>
+      )}
+
+      {reviewOpen && (
+        <ReviewWriteModal
+          orderId={order.id}
+          storeName={storeName}
+          menuName={menuSummary}
+          onClose={() => setReviewOpen(false)}
+          onSubmitted={handleReviewSubmitted}
+        />
       )}
     </article>
   );

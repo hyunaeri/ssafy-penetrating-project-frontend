@@ -31,5 +31,6 @@ export type OrderResponse = {
   status: OrderStatus;
   orderedAt: string;
   completedAt?: string | null;
+  reviewed?: boolean;
   items: OrderItemResponse[];
 };
