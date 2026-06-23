@@ -54,21 +54,14 @@ export function ToastBellIcon({ className = "" }: IconProps) {
 export function ToastErrorIcon({ className = "" }: IconProps) {
   return (
     <span
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-500 ${className}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-[1.5px] border-rose-200 bg-white text-rose-500 ${className}`}
       aria-hidden
     >
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <circle
-          cx="10"
-          cy="10"
-          r="7.25"
-          stroke="currentColor"
-          strokeWidth="1.5"
-        />
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
         <path
           d="M7.4 7.4 12.6 12.6M12.6 7.4 7.4 12.6"
           stroke="currentColor"
-          strokeWidth="1.85"
+          strokeWidth="1.7"
           strokeLinecap="round"
         />
       </svg>
