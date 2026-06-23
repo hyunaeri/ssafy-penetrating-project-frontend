@@ -83,6 +83,8 @@ export function StoreDetailScreen({ storeId }: StoreDetailScreenProps) {
         name={store.name}
         description={store.description}
         address={store.address}
+        averageRating={store.averageRating}
+        reviewCount={store.reviewCount}
       />
       <DeliverySection
         minOrderPrice={store.minOrderPrice}
