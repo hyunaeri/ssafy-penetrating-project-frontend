@@ -122,3 +122,27 @@ export async function updateCartItemQuantity(
 
   return data;
 }
+
+/** `DELETE /api/cart/items/:id` — 장바구니 메뉴 삭제 */
+export async function removeCartItem(cartItemId: number): Promise<void> {
+  const token = getAccessToken();
+
+  const res = await fetch(`${getApiBaseUrl()}/api/cart/items/${cartItemId}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!res.ok) {
+    let message = "메뉴를 삭제하지 못했습니다.";
+    try {
+      const body = (await res.json()) as { message?: string };
+      if (body.message) message = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+}

@@ -1,4 +1,4 @@
-export { addCartItem, fetchCart, updateCartItemQuantity } from "./api/cart-api";
+export { addCartItem, fetchCart, removeCartItem, updateCartItemQuantity } from "./api/cart-api";
 export {
   getCartLineTotal,
   getCartOrderSummary,
