@@ -33,6 +33,7 @@ function displayValue(value?: string | null) {
   return trimmed ? trimmed : "등록된 정보가 없습니다";
 }
 
+/** 사장 등 상세 프로필 정보 표시용 */
 export function ProfileContent({ user }: ProfileContentProps) {
   return (
     <div className="flex flex-1 flex-col">
