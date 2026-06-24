@@ -173,6 +173,22 @@
       collection-border-spin 2.2s linear infinite,
       collection-aura-pulse-legendary 2.8s ease-in-out infinite;
   }
+
+  .achievement-rate-aura.collection-card-aura--legendary {
+    background: conic-gradient(
+      from var(--collection-border-angle),
+      #eaf2c8 0%,
+      #c2d42a 14%,
+      #a3b926 30%,
+      #d0d85a 46%,
+      #90a818 62%,
+      #b3c932 78%,
+      #eaf2c8 100%
+    );
+    animation:
+      collection-border-spin 2.2s linear infinite,
+      achievement-rate-aura-pulse-legendary 2.8s ease-in-out infinite;
+  }
 }
 
 @layer utilities {
@@ -323,6 +339,23 @@
     }
   }
 
+  @keyframes achievement-rate-aura-pulse-legendary {
+    0%,
+    100% {
+      filter: brightness(1.03) saturate(1.12);
+      box-shadow:
+        0 0 16px rgba(168, 201, 41, 0.34),
+        0 0 28px rgba(122, 149, 0, 0.18);
+    }
+
+    50% {
+      filter: brightness(1.1) saturate(1.22);
+      box-shadow:
+        0 0 22px rgba(187, 210, 45, 0.45),
+        0 0 38px rgba(140, 168, 0, 0.24);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .delivery-tracking-cta,
     .delivery-tracking-cta::before,
@@ -339,7 +372,8 @@
     .collection-card-aura--normal,
     .collection-card-aura--epic,
     .collection-card-aura--unique,
-    .collection-card-aura--legendary {
+    .collection-card-aura--legendary,
+    .achievement-rate-aura.collection-card-aura--legendary {
       animation: none !important;
       filter: none !important;
     }

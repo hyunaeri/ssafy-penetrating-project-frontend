@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import type { CollectionDetail, CollectionItem } from "@/entities/catalog";
-import { fetchCatalogItemDetail, getGradeStyle } from "@/entities/catalog";
+import type { CollectionItem } from "@/entities/catalog";
+import { getGradeStyle } from "@/entities/catalog";
 import { useBodyScrollLock } from "@/shared/lib/use-body-scroll-lock";
+import { useCatalogItemDetail } from "../hooks/use-catalog-item-detail";
 import { CollectionCardVisual } from "./CollectionCardVisual";
+import { AchievementRateSection } from "./AchievementRateSection";
+import { HiddenAchievementBee } from "./HiddenAchievementBee";
+
 type CollectionDetailModalProps = {
   item: CollectionItem;
   onClose: () => void;
@@ -29,43 +33,10 @@ export function CollectionDetailModal({
   onClose,
 }: CollectionDetailModalProps) {
   const [mounted, setMounted] = useState(false);
-  const [detail, setDetail] = useState<CollectionDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { detail, loading } = useCatalogItemDetail(item.id);
 
   useEffect(() => setMounted(true), []);
   useBodyScrollLock(true);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const load = async () => {
-      setLoading(true);
-      try {
-        const next = await fetchCatalogItemDetail(item.id);
-        if (!cancelled) {
-          setDetail(next);
-        }
-      } catch {
-        if (!cancelled) {
-          setDetail({
-            ...item,
-            achievementRate: null,
-            rewardCouponName: null,
-          });
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [item]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -130,9 +101,10 @@ export function CollectionDetailModal({
             />
           </div>
 
-          <h3 className="mt-5 text-center text-[20px] font-bold text-ink">
-            {current.name}
-          </h3>
+          <div className="mt-5 flex items-center justify-center gap-1.5">
+            <h3 className="text-[20px] font-bold text-ink">{current.name}</h3>
+            {current.hidden && <HiddenAchievementBee />}
+          </div>
 
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             <span
@@ -156,9 +128,9 @@ export function CollectionDetailModal({
             )}
           </div>
 
-          {!loading && current.collected && (
-            <p className="mt-3 text-center text-[12px] text-muted">
-              카드를 움직이면 등급별 홀로그램 효과를 확인할 수 있어요.
+          {!loading && current.collected && achievedLabel && (
+            <p className="mt-3 text-center text-[13px] text-muted">
+              {achievedLabel}에 달성했어요
             </p>
           )}
 
@@ -175,16 +147,11 @@ export function CollectionDetailModal({
             )}
           </section>
 
-          {!loading && current.collected && achievedLabel && (
-            <p className="mt-4 text-center text-[13px] text-muted">
-              {achievedLabel}에 달성했어요
-            </p>
-          )}
-
           {!loading && detail?.achievementRate != null && (
-            <p className="mt-2 text-center text-[12px] text-muted">
-              전체 사용자의 {detail.achievementRate}%가 달성했어요
-            </p>
+            <AchievementRateSection
+              grade={current.grade}
+              rate={detail.achievementRate}
+            />
           )}
 
           {!loading && detail?.rewardCouponName && (
