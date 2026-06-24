@@ -35,18 +35,19 @@ export function CatalogScreen() {
   const isEmpty = !loading && !error && filteredItems.length === 0;
 
   return (
-    <div className="screen-viewport flex flex-col bg-surface">
-      <BackHeader
-        title="도감"
-        trailing={
-          <>
-            <AlarmButton />
-            <CartEntryButton />
-          </>
-        }
-      />
+    <div className="screen-viewport bg-surface">
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm">
+        <BackHeader
+          sticky={false}
+          title="도감"
+          trailing={
+            <>
+              <AlarmButton />
+              <CartEntryButton />
+            </>
+          }
+        />
 
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
         <p className="border-b border-line/80 px-4 py-2.5 text-[13px] text-muted">
           <span className="font-semibold text-brand-dark">{collectedCount}</span>
           <span className="text-muted"> / {items.length}</span>
