@@ -39,6 +39,20 @@ function readId(raw: CollectionItemResponse): number | null {
   return null;
 }
 
+function normalizeMultilineText(value: string): string {
+  return value
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .replace(/\\n/g, "\n")
+    .replace(/\u2028/g, "\n")
+    .replace(/\u2029/g, "\n\n");
+}
+
+function normalizeDescription(value: unknown): string {
+  if (typeof value !== "string") return "";
+  return normalizeMultilineText(value).trim();
+}
+
 function normalizeItem(raw: CollectionItemResponse): CollectionItem | null {
   const id = readId(raw);
   if (id === null || !raw.name?.trim()) {
@@ -55,7 +69,7 @@ function normalizeItem(raw: CollectionItemResponse): CollectionItem | null {
   return {
     id,
     name: raw.name.trim(),
-    description: raw.description?.trim() ?? "",
+    description: normalizeDescription(raw.description),
     grade,
     imageUrl,
     ratingPoint:

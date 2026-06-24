@@ -141,7 +141,7 @@ export function CollectionDetailModal({
                 불러오는 중...
               </p>
             ) : (
-              <p className="mt-2 text-[14px] leading-relaxed text-muted">
+              <p className="mt-2 whitespace-pre-wrap break-words text-[14px] leading-relaxed text-muted">
                 {current.description || "해금 조건 정보가 없습니다."}
               </p>
             )}
