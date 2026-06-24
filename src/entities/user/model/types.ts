@@ -11,6 +11,7 @@ export type UserResponse = {
   role: UserRole;
   phoneNumber?: string | null;
   address?: string | null;
+  rating: number;
 };
 
 export type SignupTokenPreview = {

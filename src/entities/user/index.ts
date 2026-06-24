@@ -4,6 +4,7 @@ export { parseSignupToken } from "./lib/parse-signup-token";
 export { formatProviderLabel } from "./lib/format-provider-label";
 export { formatUserRole } from "./lib/format-user-role";
 export { formatShortAddress } from "./lib/format-short-address";
+export { parseUserResponse } from "./lib/parse-user-response";
 export {
   getHomePathByRole,
   isAdminRole,

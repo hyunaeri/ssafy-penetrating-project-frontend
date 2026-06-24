@@ -3,6 +3,7 @@ import type {
   SignupRequest,
   UserResponse,
 } from "@/entities/user/model/types";
+import { parseUserResponse } from "@/entities/user/lib/parse-user-response";
 import {
   clearSession,
   getAccessToken,
@@ -36,7 +37,11 @@ export async function reissueTokens(): Promise<AuthTokenResponse> {
     throw new Error(message);
   }
 
-  return res.json();
+  const data = (await res.json()) as AuthTokenResponse;
+  return {
+    accessToken: data.accessToken,
+    user: parseUserResponse(data.user),
+  };
 }
 
 export async function ensureSession(): Promise<AuthTokenResponse | null> {
@@ -79,7 +84,7 @@ export async function fetchCurrentUser(
     throw new Error("사용자 정보를 불러오지 못했습니다.");
   }
 
-  return res.json();
+  return parseUserResponse(await res.json());
 }
 
 export async function getCurrentUser(): Promise<UserResponse> {
@@ -125,8 +130,12 @@ export async function completeSignup(
   }
 
   const response = (await res.json()) as AuthTokenResponse;
-  setSession(response.accessToken, response.user);
-  return response;
+  const session = {
+    accessToken: response.accessToken,
+    user: parseUserResponse(response.user),
+  };
+  setSession(session.accessToken, session.user);
+  return session;
 }
 
 export async function logout(): Promise<void> {
