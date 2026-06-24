@@ -119,9 +119,11 @@ export function CatalogScreen() {
                 ? "미수집 도감 항목이 없어요"
                 : collectionFilter === "UNCOLLECTED"
                   ? "해당 조건의 미수집 항목이 없어요"
-                  : gradeFilter === "ALL"
-                    ? "표시할 도감 항목이 없어요"
-                    : "해당 등급의 도감 항목이 없어요"}
+                  : gradeFilter === "HIDDEN"
+                    ? "히든 업적이 없어요"
+                    : gradeFilter === "ALL"
+                      ? "표시할 도감 항목이 없어요"
+                      : "해당 등급의 도감 항목이 없어요"}
             </p>
             <p className="text-[13px] text-muted">
               {collectionFilter === "UNCOLLECTED"

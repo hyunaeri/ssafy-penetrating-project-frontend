@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateCartItemQuantity, type CartResponse } from "@/entities/cart";
+import { updateCartItemQuantity, removeCartItem, type CartResponse } from "@/entities/cart";
+import { notifyCartUpdated } from "@/features/cart/lib/cart-events";
 import { notifyError } from "@/shared/ui";
 import { useCartQuantityDraftStore } from "@/features/cart/store/cart-quantity-draft-store";
 
@@ -29,11 +30,27 @@ export function useCartQuantityController(cart: CartResponse | null) {
     onSuccess: async (_data, vars) => {
       markClean(vars.cartItemId);
       await queryClient.invalidateQueries({ queryKey: ["cart"] });
+      notifyCartUpdated();
     },
     onError: (err, vars) => {
       clearDraft(vars.cartItemId);
       markClean(vars.cartItemId);
       notifyError(err instanceof Error ? err.message : "수량 변경에 실패했어요.");
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async (cartItemId: number) => {
+      return removeCartItem(cartItemId);
+    },
+    onSuccess: async (_data, cartItemId) => {
+      clearDraft(cartItemId);
+      markClean(cartItemId);
+      await queryClient.invalidateQueries({ queryKey: ["cart"] });
+      notifyCartUpdated();
+    },
+    onError: (err) => {
+      notifyError(err instanceof Error ? err.message : "메뉴 삭제에 실패했어요.");
     },
   });
 
@@ -87,7 +104,27 @@ export function useCartQuantityController(cart: CartResponse | null) {
   };
 
   const decrement = (cartItemId: number, serverQuantity: number) => {
-    setQuantity(cartItemId, getQuantity(cartItemId, serverQuantity) - 1);
+    const next = getQuantity(cartItemId, serverQuantity) - 1;
+    if (next < 1) {
+      void remove(cartItemId);
+      return;
+    }
+    setQuantity(cartItemId, next);
+  };
+
+  const cancelPendingCommit = (cartItemId: number) => {
+    const timer = timersRef.current.get(cartItemId);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(cartItemId);
+    }
+  };
+
+  const remove = async (cartItemId: number) => {
+    cancelPendingCommit(cartItemId);
+    clearDraft(cartItemId);
+    markClean(cartItemId);
+    await removeMutation.mutateAsync(cartItemId);
   };
 
   const flushAll = async () => {
@@ -108,9 +145,11 @@ export function useCartQuantityController(cart: CartResponse | null) {
     setQuantity,
     increment,
     decrement,
+    remove,
     flushAll,
     isDirty,
-    isSaving: mutation.isPending,
+    isSaving: mutation.isPending || removeMutation.isPending,
+    isRemoving: removeMutation.isPending,
   };
 }
 

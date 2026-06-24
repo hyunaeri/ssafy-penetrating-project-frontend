@@ -25,16 +25,18 @@ import { LazyImage } from "@/shared/ui/lazy-image/LazyImage";
 function CartLineItem({
   line,
   controller,
+  removing,
 }: {
   line: CartLineResponse;
   controller: ReturnType<typeof useCartQuantityController>;
+  removing: boolean;
 }) {
   const imageUrl = line.menuImageUrl?.trim();
   const [imageFailed, setImageFailed] = useState(false);
   const src = resolveRepresentativeImage(imageUrl, imageFailed);
   const quantity = controller.getQuantity(line.id, line.quantity);
   const lineTotal = line.unitPrice * quantity;
-  const minusDisabled = quantity <= 1;
+  const controlsDisabled = removing || controller.isSaving;
 
   return (
     <li className="flex gap-3.5 border-b border-line/60 py-4 last:border-b-0">
@@ -50,9 +52,20 @@ function CartLineItem({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
-        <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-ink">
-          {line.menuName}
-        </h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="line-clamp-2 min-w-0 flex-1 text-[15px] font-bold leading-snug text-ink">
+            {line.menuName}
+          </h3>
+          <button
+            type="button"
+            aria-label={`${line.menuName} 삭제`}
+            disabled={controlsDisabled}
+            onClick={() => void controller.remove(line.id)}
+            className="shrink-0 rounded-lg px-2 py-1 text-[12px] font-semibold text-muted transition-colors hover:bg-surface hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            삭제
+          </button>
+        </div>
         <p className="text-[13px] text-muted">
           {formatWon(line.unitPrice)} · {quantity}개
         </p>
@@ -65,7 +78,7 @@ function CartLineItem({
           <div className="flex items-center gap-2 rounded-full bg-surface px-2 py-1.5 ring-1 ring-inset ring-line/70">
             <button
               type="button"
-              disabled={minusDisabled}
+              disabled={controlsDisabled}
               aria-label="수량 감소"
               onClick={() => controller.decrement(line.id, line.quantity)}
               className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[16px] font-bold text-ink shadow-soft transition-all active:scale-[0.96] disabled:cursor-not-allowed disabled:bg-line disabled:text-muted disabled:shadow-none"
@@ -80,9 +93,10 @@ function CartLineItem({
             </span>
             <button
               type="button"
+              disabled={controlsDisabled}
               aria-label="수량 증가"
               onClick={() => controller.increment(line.id, line.quantity)}
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[16px] font-bold text-ink shadow-soft transition-all active:scale-[0.96]"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[16px] font-bold text-ink shadow-soft transition-all active:scale-[0.96] disabled:cursor-not-allowed disabled:bg-line disabled:text-muted disabled:shadow-none"
             >
               +
             </button>
@@ -342,6 +356,7 @@ export function CartPageContent() {
                 key={line.id}
                 line={line}
                 controller={controller}
+                removing={controller.isRemoving}
               />
             ))}
           </ul>

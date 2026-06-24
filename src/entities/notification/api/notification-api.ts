@@ -53,6 +53,26 @@ function readBoolean(
   return null;
 }
 
+function readCreatedAt(record: Record<string, unknown>): string | null {
+  const direct = readString(record, ["createdAt", "created_at"]);
+  if (direct) return direct;
+
+  const value = record.createdAt ?? record.created_at;
+  if (Array.isArray(value) && value.length >= 3) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = value;
+    if (
+      typeof year === "number" &&
+      typeof month === "number" &&
+      typeof day === "number"
+    ) {
+      const pad = (n: number) => String(n).padStart(2, "0");
+      return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:${pad(second)}`;
+    }
+  }
+
+  return null;
+}
+
 function readNumber(
   record: Record<string, unknown>,
   keys: string[]
@@ -87,8 +107,8 @@ export function normalizeNotification(data: unknown): NotificationResponse | nul
   const type = parseNotificationType(record.type);
   const title = readString(record, ["title"]);
   const message = readString(record, ["message"]);
-  const isRead = readBoolean(record, ["isRead", "is_read"]);
-  const createdAt = readString(record, ["createdAt", "created_at"]);
+  const isRead = readBoolean(record, ["isRead", "is_read", "read"]);
+  const createdAt = readCreatedAt(record);
   const orderId = readNumber(record, ["orderId", "order_id"]);
   const orderStatus = parseOrderStatus(
     record.orderStatus ?? record.order_status
@@ -223,17 +243,26 @@ class FatalSseError extends Error {}
  * 반환된 함수를 호출하면 연결을 종료한다.
  */
 export function subscribeNotifications(options: SubscribeOptions): () => void {
-  const token = getAccessToken();
-  if (!token) {
-    return () => {};
-  }
-
   const controller = new AbortController();
 
   void fetchEventSource(`${getApiBaseUrl()}/api/notifications/subscribe`, {
     headers: {
       Accept: "text/event-stream",
-      Authorization: `Bearer ${token}`,
+    },
+    fetch: (input, init) => {
+      const token = getAccessToken();
+      if (!token) {
+        throw new FatalSseError("로그인이 필요합니다.");
+      }
+
+      const headers = new Headers(init?.headers);
+      headers.set("Accept", "text/event-stream");
+      headers.set("Authorization", `Bearer ${token}`);
+
+      return fetch(input, {
+        ...init,
+        headers,
+      });
     },
     signal: controller.signal,
     // 백그라운드 탭에서도 연결을 유지한다.

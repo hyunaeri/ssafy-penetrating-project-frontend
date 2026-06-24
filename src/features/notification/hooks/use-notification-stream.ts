@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { subscribeNotifications } from "@/entities/notification";
-import { getCurrentUser, isOwnerRole } from "@/entities/user";
+import { useAccessToken, useSessionUser } from "@/entities/session";
+import { isOwnerRole } from "@/entities/user";
+import { NOTIFICATIONS_QUERY_KEY } from "@/features/notification/lib/query-keys";
 import { notifyNotificationOnce } from "@/features/notification/lib/notify-notification";
 import { shouldSkipSseOrderNotification } from "@/features/notification/lib/should-skip-sse-order-notification";
 import { shouldStopNotificationStream } from "@/features/notification/lib/should-stop-notification-stream";
 import { upsertNotificationInCache } from "@/features/notification/lib/upsert-notification-in-cache";
 import { patchOrderStatusFromNotification } from "@/features/notification/lib/patch-order-status-from-notification";
 import { useNotificationStreamStore } from "@/features/notification/store/notification-stream-store";
+import { OWNER_ORDERS_QUERY_KEY } from "@/features/owner-orders/lib/owner-orders-query-key";
 
 /**
  * - 사장: 로그인 중 항상 SSE 구독 (신규 주문·상태 알림)
@@ -17,39 +20,29 @@ import { useNotificationStreamStore } from "@/features/notification/store/notifi
  */
 export function useNotificationStream() {
   const queryClient = useQueryClient();
+  const accessToken = useAccessToken();
+  const user = useSessionUser();
   const activeOrderId = useNotificationStreamStore((state) => state.activeOrderId);
   const stopStream = useNotificationStreamStore((state) => state.stopStream);
-  const [isOwner, setIsOwner] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void getCurrentUser()
-      .then((user) => {
-        if (!cancelled) {
-          setIsOwner(isOwnerRole(user.role));
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setIsOwner(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  const isOwner = user != null && isOwnerRole(user.role);
   const shouldSubscribe =
-    isOwner === true || (isOwner === false && activeOrderId != null);
+    Boolean(accessToken) &&
+    user != null &&
+    (isOwner || activeOrderId != null);
 
   useEffect(() => {
-    if (!shouldSubscribe || isOwner == null) {
+    if (!shouldSubscribe) {
       return;
     }
 
     const unsubscribe = subscribeNotifications({
+      onConnect: () => {
+        void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
+        if (isOwner) {
+          void queryClient.invalidateQueries({ queryKey: OWNER_ORDERS_QUERY_KEY });
+        }
+      },
       onNotification: (notification) => {
         if (notification.type === "ORDER_STATUS") {
           patchOrderStatusFromNotification(queryClient, notification, {
@@ -74,5 +67,13 @@ export function useNotificationStream() {
     return () => {
       unsubscribe();
     };
-  }, [activeOrderId, isOwner, queryClient, shouldSubscribe, stopStream]);
+  }, [
+    accessToken,
+    activeOrderId,
+    isOwner,
+    queryClient,
+    shouldSubscribe,
+    stopStream,
+    user,
+  ]);
 }

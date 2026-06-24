@@ -1,6 +1,6 @@
 import type { CollectionGrade, CollectionItem } from "@/entities/catalog";
 
-export type CatalogGradeFilter = "ALL" | CollectionGrade;
+export type CatalogGradeFilter = "ALL" | CollectionGrade | "HIDDEN";
 
 export type CatalogSortKey = "RECENT" | "GRADE";
 
@@ -28,6 +28,7 @@ export const CATALOG_GRADE_FILTERS: {
   { key: "EPIC", label: "에픽" },
   { key: "UNIQUE", label: "유니크" },
   { key: "LEGENDARY", label: "레전드리" },
+  { key: "HIDDEN", label: "히든" },
 ];
 
 const GRADE_ORDER: CollectionGrade[] = [
@@ -64,7 +65,14 @@ export function filterCatalogItems(
     if (collectionFilter === "UNCOLLECTED" && item.collected) {
       return false;
     }
-    if (gradeFilter !== "ALL" && item.grade !== gradeFilter) {
+    if (gradeFilter === "HIDDEN" && !item.hidden) {
+      return false;
+    }
+    if (
+      gradeFilter !== "ALL" &&
+      gradeFilter !== "HIDDEN" &&
+      item.grade !== gradeFilter
+    ) {
       return false;
     }
     return true;
