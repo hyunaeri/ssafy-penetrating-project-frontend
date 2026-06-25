@@ -40,7 +40,10 @@ export function useNotificationStream() {
       onConnect: () => {
         void queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
         if (isOwner) {
-          void queryClient.invalidateQueries({ queryKey: OWNER_ORDERS_QUERY_KEY });
+          void queryClient.refetchQueries({
+            queryKey: OWNER_ORDERS_QUERY_KEY,
+            type: "active",
+          });
         }
       },
       onNotification: (notification) => {

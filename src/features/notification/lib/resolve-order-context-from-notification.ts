@@ -3,6 +3,15 @@ import type { OrderStatus } from "@/entities/order";
 
 const STATUS_KEYWORDS: { status: OrderStatus; patterns: string[] }[] = [
   {
+    status: "PAID",
+    patterns: [
+      "새 주문이",
+      "접수 대기",
+      "결제가 완료",
+      "결제 완료",
+    ],
+  },
+  {
     status: "COMPLETED",
     patterns: ["배달 완료", "배달이 완료", "주문이 완료"],
   },

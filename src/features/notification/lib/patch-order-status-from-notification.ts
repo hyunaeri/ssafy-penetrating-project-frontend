@@ -20,6 +20,48 @@ function patchOrderStatus(
   return { ...order, status };
 }
 
+function patchOwnerOrdersCache(
+  queryClient: QueryClient,
+  orderId: number,
+  orderStatus: OrderResponse["status"]
+): void {
+  queryClient.setQueriesData<OrderResponse[]>(
+    { queryKey: OWNER_ORDERS_QUERY_KEY },
+    (current) => {
+      if (!current) return current;
+
+      const index = current.findIndex((order) => order.id === orderId);
+      if (index < 0) return current;
+
+      const next = [...current];
+      next[index] = patchOrderStatus(next[index]!, orderStatus);
+      return next;
+    }
+  );
+}
+
+/** SSE ORDER_STATUS 수신 시 사장 주문 목록을 즉시 동기화한다. */
+export function refreshOwnerOrdersFromNotification(
+  queryClient: QueryClient,
+  notification: NotificationResponse,
+  options?: { fallbackOrderId?: number | null }
+): void {
+  const orderId = resolveOrderIdFromNotification(
+    notification,
+    options?.fallbackOrderId
+  );
+  const orderStatus = inferOrderStatusFromNotification(notification);
+
+  if (orderId != null && orderStatus != null) {
+    patchOwnerOrdersCache(queryClient, orderId, orderStatus);
+  }
+
+  void queryClient.refetchQueries({
+    queryKey: OWNER_ORDERS_QUERY_KEY,
+    type: "active",
+  });
+}
+
 /** SSE ORDER_STATUS 알림으로 주문·추적 캐시를 즉시 반영한다. */
 export function patchOrderStatusFromNotification(
   queryClient: QueryClient,
@@ -29,7 +71,9 @@ export function patchOrderStatusFromNotification(
   if (notification.type !== "ORDER_STATUS") return;
 
   if (options?.invalidateOwnerOrders) {
-    void queryClient.invalidateQueries({ queryKey: OWNER_ORDERS_QUERY_KEY });
+    refreshOwnerOrdersFromNotification(queryClient, notification, {
+      fallbackOrderId: options.fallbackOrderId,
+    });
   }
 
   const orderId = resolveOrderIdFromNotification(
@@ -63,5 +107,6 @@ export function patchOrderStatusFromNotification(
 
   void queryClient.refetchQueries({
     queryKey: [...ORDERS_QUERY_KEY, "tracking", orderId],
+    type: "active",
   });
 }
