@@ -242,7 +242,7 @@ export function ProfileScreen() {
   };
 
   return (
-    <div className="screen-viewport bg-surface">
+    <div className="screen-viewport flex flex-col bg-surface">
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm">
         <BackHeader
           sticky={false}
@@ -286,7 +286,7 @@ export function ProfileScreen() {
         )}
 
         {showProfile && (
-          <>
+          <div className="flex min-h-0 flex-1 flex-col">
             <section className="flex flex-col items-center px-2 pb-6 pt-4">
               <ProfileAvatar user={user} />
               <h2 className="mt-4 text-[20px] font-bold text-ink">
@@ -308,7 +308,7 @@ export function ProfileScreen() {
               ))}
             </section>
 
-            <div className="mt-6">
+            <div className="mt-auto pt-8">
               <PrimaryButton
                 type="button"
                 variant="outline"
@@ -318,7 +318,7 @@ export function ProfileScreen() {
                 로그아웃
               </PrimaryButton>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
